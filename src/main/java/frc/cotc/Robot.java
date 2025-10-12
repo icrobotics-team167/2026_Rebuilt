@@ -7,15 +7,12 @@
 
 package frc.cotc;
 
-import static edu.wpi.first.wpilibj2.command.Commands.*;
-
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import java.io.FileNotFoundException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -88,7 +85,16 @@ public class Robot extends LoggedRobot {
 
     Logger.start();
 
-  public Robot() {}
+    CommandScheduler.getInstance().onCommandInitialize(CommandsLogging::commandStarted);
+    CommandScheduler.getInstance().onCommandFinish(CommandsLogging::commandEnded);
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            (interrupted, interrupting) -> {
+              interrupting.ifPresent(
+                  interrupter -> CommandsLogging.runningInterrupters.put(interrupter, interrupted));
+              CommandsLogging.commandEnded(interrupted);
+            });
+  }
 
   @Override
   public void robotPeriodic() {
@@ -100,6 +106,8 @@ public class Robot extends LoggedRobot {
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
     // for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    CommandsLogging.logRunningCommands();
+    CommandsLogging.logRequiredSubsystems();
     Logger.recordOutput(
         "LoggedRobot/MemoryUsageMb",
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6);
