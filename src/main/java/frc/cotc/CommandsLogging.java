@@ -14,8 +14,8 @@ import org.littletonrobotics.junction.Logger;
 
 /**
  * A utility that heavily abuses the {@link edu.wpi.first.wpilibj.Alert}s system to allow for
- * visualization of what {@link Command}s are running at a time, and what {@link Subsystem}s
- * those commands require.
+ * visualization of what {@link Command}s are running at a time, and what {@link Subsystem}s those
+ * commands require.
  *
  * <p>Originally by Harry from 1683. Heavily modified to support things like distinguishing between
  * default/non-default commands and recursively logging subcommands.
