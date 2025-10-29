@@ -13,6 +13,10 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.cotc.swerve.Swerve;
+import frc.cotc.swerve.SwerveIO;
 import java.io.FileNotFoundException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -94,11 +98,20 @@ public class Robot extends LoggedRobot {
                   interrupter -> CommandsLogging.runningInterrupters.put(interrupter, interrupted));
               CommandsLogging.commandEnded(interrupted);
             });
+
+    var swerve = new Swerve(new SwerveIO() {});
+    var controller = new CommandXboxController(0);
+    RobotModeTriggers.teleop()
+        .whileTrue(
+            swerve.drive(
+                () -> -controller.getLeftY() * swerve.maxLinearSpeedMetersPerSec,
+                () -> -controller.getLeftX() * swerve.maxLinearSpeedMetersPerSec,
+                () -> -controller.getRightX() * swerve.maxAngularSpeedRadPerSec));
   }
 
   @Override
   public void robotPeriodic() {
-    Threads.setCurrentThreadPriority(true, 99);
+    Threads.setCurrentThreadPriority(true, 39);
 
     //    PhoenixBatchRefresher.refresh();
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
@@ -109,7 +122,7 @@ public class Robot extends LoggedRobot {
     CommandsLogging.logRunningCommands();
     CommandsLogging.logRequiredSubsystems();
     Logger.recordOutput(
-        "LoggedRobot/MemoryUsageMb",
+        "LoggedRobot/MemoryUsageMB",
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6);
     Logger.recordOutput("IsOnRed", isOnRed());
     SmartDashboard.putData(CommandScheduler.getInstance());
