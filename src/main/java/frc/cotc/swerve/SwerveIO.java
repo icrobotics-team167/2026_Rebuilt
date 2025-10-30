@@ -7,8 +7,12 @@
 
 package frc.cotc.swerve;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import frc.cotc.utilities.MotorStats;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveIO {
@@ -31,11 +35,20 @@ public interface SwerveIO {
   @AutoLog
   class SwerveIOInputs {
     // TODO: Fill
+    SwerveModuleState[] currentStates;
+    Rotation2d gyroYaw;
+
+    OdometryFrame[] odometryFrames;
   }
+
+  record OdometryFrame(
+      SwerveModulePosition[] positions, Rotation2d gyroYaw, double timestampSeconds) {}
 
   default SwerveIOConstantsAutoLogged getConstants() {
     return new SwerveIOConstantsAutoLogged();
   }
 
   default void updateInputs(SwerveIOInputs inputs) {}
+
+  default void drive(CornySetpointGenerator.Setpoint setpoint) {}
 }
