@@ -396,16 +396,32 @@ public class CornySetpointGenerator {
 
     var finalModuleForces = getModuleForces(lastChassisSpeeds, desiredStates);
     var finalModuleForceVisualizations = new SwerveModuleState[4];
+    var driveFeedforwardAmps = new double[4];
     for (int i = 0; i < 4; i++) {
       finalModuleForceVisualizations[i] =
           new SwerveModuleState(finalModuleForces.get(i, 0), lastStates[i].angle);
+      driveFeedforwardAmps[i] =
+          driveMotor.getCurrent(finalModuleForces.get(i, 0) * wheelRadiusMeters);
     }
     Logger.recordOutput(
         "Swerve/Drive Calculations/Final Module Forces", finalModuleForceVisualizations);
 
+    var steerFeedforwardsRadPerSec = new double[4];
+    for (int i = 0; i < 4; i++) {
+      steerFeedforwardsRadPerSec[i] =
+          desiredStates[i].angle.minus(lastStates[i].angle).getRadians() / Robot.defaultPeriodSecs;
+    }
+
     lastStates = desiredStates;
 
-    return new Setpoint(desiredStates, new double[4], new double[4]);
+    Logger.recordOutput("Swerve/Drive Calculations/Output/Module States", desiredStates);
+    Logger.recordOutput(
+        "Swerve/Drive Calculations/Output/Drive Feedforwards Amps", driveFeedforwardAmps);
+    Logger.recordOutput(
+        "Swerve/Drive Calculations/Output/Steer Feedforwards Rad Per Sec",
+        steerFeedforwardsRadPerSec);
+
+    return new Setpoint(desiredStates, driveFeedforwardAmps, steerFeedforwardsRadPerSec);
   }
 
   public record Setpoint(
@@ -464,6 +480,9 @@ public class CornySetpointGenerator {
                                 * driveMotor.stallCurrentAmps
                                 * supplyCurrentLimitAmps))
                 / 2),
-        driveMotor.getCurrent(velRadPerSec, RobotController.getBatteryVoltage()));
+        Math.max(
+            driveMotor.stallCurrentAmps * (RobotController.getBatteryVoltage() / 12)
+                - driveMotor.stallCurrentAmps * (velRadPerSec / driveMotor.freeSpeedRadPerSec),
+            0));
   }
 }
