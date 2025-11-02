@@ -35,6 +35,9 @@ public class CornySetpointGenerator {
   private final double maxDeltaThetaRad;
   private final double maxDeltaVelMps;
 
+  // Only enable internal state logging in sim/replay to free up CPU/RAM/disk on the RIO
+  private final boolean enableLogging = Robot.isSimulation();
+
   CornySetpointGenerator(
       Translation2d[] moduleLocations,
       double wheelRadiusMeters,
@@ -64,7 +67,7 @@ public class CornySetpointGenerator {
             / robotMassKg
             * Robot.defaultPeriodSecs;
     Logger.recordOutput(
-        "Swerve/Drive Calculations/Traction/Max acceleration",
+        "Swerve/Drive Calculations/Traction/Max acceleration mpss",
         maxDeltaVelMps / Robot.defaultPeriodSecs);
     lastStates = initialStates;
   }
@@ -158,14 +161,17 @@ public class CornySetpointGenerator {
                           j / 10.0));
         }
 
-        Logger.recordOutput(
-            "Swerve/Drive Calculations/Optimizations/" + i + "/Delta Vels To Stop", deltaVelToStop);
-        Logger.recordOutput(
-            "Swerve/Drive Calculations/Optimizations/" + i + "/Delta Vels To Smooth",
-            deltaVelToSmooth);
-        Logger.recordOutput(
-            "Swerve/Drive Calculations/Optimizations/" + i + "/Delta Vels To Smooth Flipped",
-            deltaVelToSmoothFlipped);
+        if (enableLogging) {
+          Logger.recordOutput(
+              "Swerve/Drive Calculations/Optimizations/" + i + "/Delta Vels To Stop",
+              deltaVelToStop);
+          Logger.recordOutput(
+              "Swerve/Drive Calculations/Optimizations/" + i + "/Delta Vels To Smooth",
+              deltaVelToSmooth);
+          Logger.recordOutput(
+              "Swerve/Drive Calculations/Optimizations/" + i + "/Delta Vels To Smooth Flipped",
+              deltaVelToSmoothFlipped);
+        }
 
         // If it's faster to move smoothly, we shouldn't stop first
         if (deltaVelToSmooth < deltaVelToStop + .01
@@ -175,25 +181,32 @@ public class CornySetpointGenerator {
           if (deltaVelToSmoothFlipped < deltaVelToSmooth) {
             desiredStates[i].speedMetersPerSecond *= -1;
             desiredStates[i].angle = desiredStates[i].angle.plus(Rotation2d.kPi);
-            Logger.recordOutput(
-                "Swerve/Drive Calculations/Optimizations/" + i + "/Faster To:", "Smooth Flipped");
-          } else {
+            if (enableLogging) {
+              Logger.recordOutput(
+                  "Swerve/Drive Calculations/Optimizations/" + i + "/Faster To:", "Smooth Flipped");
+            }
+          } else if (enableLogging) {
             Logger.recordOutput(
                 "Swerve/Drive Calculations/Optimizations/" + i + "/Faster To:", "Smooth");
           }
-        } else {
+        } else if (enableLogging) {
           Logger.recordOutput(
               "Swerve/Drive Calculations/Optimizations/" + i + "/Faster To:", "Stop");
         }
       }
       // If it's faster to stop for all modules, then do so
+      // Only stopping when it's faster for all modules avoids scenarios where one module is
+      // moving to stop but others aren't, which is slower/kinematically infeasible
       if (allModulesShouldStop) {
         for (int i = 0; i < 4; i++) {
           desiredStates[i].speedMetersPerSecond = 0;
         }
       }
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Optimizations/All Modules Should Stop", allModulesShouldStop);
+      if (enableLogging) {
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Optimizations/All Modules Should Stop",
+            allModulesShouldStop);
+      }
     }
 
     // Limit max steer speed
@@ -211,9 +224,12 @@ public class CornySetpointGenerator {
           t = Math.min(t, maxDeltaThetaRad / Math.abs(desiredDeltaThetasRad[i]));
         }
       }
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Steer Speed/Desired Delta Thetas Rad", desiredDeltaThetasRad);
-      Logger.recordOutput("Swerve/Drive Calculations/Steer Speed/t", t);
+      if (enableLogging) {
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Steer Speed/Desired Delta Thetas Rad",
+            desiredDeltaThetasRad);
+        Logger.recordOutput("Swerve/Drive Calculations/Steer Speed/t", t);
+      }
 
       updateDesiredStates(desiredStates, t);
     }
@@ -223,6 +239,9 @@ public class CornySetpointGenerator {
     {
       double t = 1;
       double[] desiredDeltaVels = new double[4];
+      // Loop over all the modules and see if they violate the max acceleration constraint
+      // Technically this math isn't fully accurate but it does get closer to the true value as
+      // ∆t -> 0, and with a ∆t = 0.02 seconds, it's certified Good Enough™️
       for (int i = 0; i < 4; i++) {
         desiredDeltaVels[i] =
             Math.hypot(
@@ -234,28 +253,29 @@ public class CornySetpointGenerator {
         }
       }
 
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Traction/Desired Delta Vels mps", desiredDeltaVels);
-      Logger.recordOutput("Swerve/Drive Calculations/Traction/t", t);
-
       updateDesiredStates(desiredStates, t);
 
-      double[] finalDeltaVels = new double[4];
-      for (int i = 0; i < 4; i++) {
-        finalDeltaVels[i] =
-            Math.hypot(
-                desiredStates[i].speedMetersPerSecond - lastStates[i].speedMetersPerSecond,
-                desiredStates[i].angle.minus(lastStates[i].angle).getRadians()
-                    * lastStates[i].speedMetersPerSecond);
+      if (enableLogging) {
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Traction/Desired Delta Vels mps", desiredDeltaVels);
+        Logger.recordOutput("Swerve/Drive Calculations/Traction/t", t);
+        double[] finalDeltaVels = new double[4];
+        for (int i = 0; i < 4; i++) {
+          finalDeltaVels[i] =
+              Math.hypot(
+                  desiredStates[i].speedMetersPerSecond - lastStates[i].speedMetersPerSecond,
+                  desiredStates[i].angle.minus(lastStates[i].angle).getRadians()
+                      * lastStates[i].speedMetersPerSecond);
+        }
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Traction/Final Delta Vels mps", finalDeltaVels);
       }
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Traction/Final Delta Vels mps", finalDeltaVels);
     }
 
     // Limit drive motor dynamics
     // This prevents infeasible velocities/accelerations being commanded
     {
-      // Calculate IK and FK for the module forces
+      // Create the inverse kinematics matrix for the module forces
       for (int i = 0; i < 4; i++) {
         moduleForceIK.setRow(
             i,
@@ -265,72 +285,92 @@ public class CornySetpointGenerator {
             (-modPosReciprocals[i].getY() * lastStates[i].angle.getCos()
                 + modPosReciprocals[i].getX() * lastStates[i].angle.getSin()));
       }
-      var moduleForceFK = moduleForceIK.pseudoInverse();
 
-      var desiredModuleForces = getModuleForces(lastChassisSpeeds, desiredStates);
-      var desiredModuleForceVisualizations = new SwerveModuleState[4];
-      for (int i = 0; i < 4; i++) {
-        desiredModuleForceVisualizations[i] =
-            new SwerveModuleState(desiredModuleForces.get(i, 0), lastStates[i].angle);
+      // Calculate desired module forces
+      var desiredModuleForces =
+          getModuleForces(lastChassisSpeeds, kinematics.toChassisSpeeds(desiredStates));
+      if (enableLogging) {
+        var desiredModuleForceVisualizations = new SwerveModuleState[4];
+        for (int i = 0; i < 4; i++) {
+          desiredModuleForceVisualizations[i] =
+              new SwerveModuleState(desiredModuleForces.get(i, 0), lastStates[i].angle);
+        }
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Motor Dynamics/Desired Module Forces",
+            desiredModuleForceVisualizations);
       }
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Motor Dynamics/Desired Module Forces",
-          desiredModuleForceVisualizations);
 
       // Calculate max module forces
       var lastWheelVelsRadPerSec = new double[4];
-      var maxStatorCurrents = new double[4];
-      var maxModuleForceMagnitudes = new double[4];
-      var maxModuleForceVisualizations = new SwerveModuleState[4];
+      var maxStatorCurrentsAmps = new double[4];
+      var maxModuleForceMagnitudesNewtons = new double[4];
       for (int i = 0; i < 4; i++) {
         // Convert m/s to rad/s
         double lastWheelVelRadPerSec = lastStates[i].speedMetersPerSecond / wheelRadiusMeters;
         lastWheelVelsRadPerSec[i] = lastWheelVelRadPerSec;
 
         // Calculate max stator current given the current velocity and battery voltage
-        var maxStatorCurrent =
+        var maxStatorCurrentAmps =
             desiredModuleForces.get(i, 0) >= 0
-                ? getMaxStatorCurrent(lastWheelVelRadPerSec)
-                : -getMaxStatorCurrent(-lastWheelVelRadPerSec);
-        maxStatorCurrents[i] = maxStatorCurrent;
+                ? getMaxTorqueCurrent(lastWheelVelRadPerSec)
+                : -getMaxTorqueCurrent(-lastWheelVelRadPerSec);
+        maxStatorCurrentsAmps[i] = maxStatorCurrentAmps;
         // Calculate max module force given the max stator current
-        maxModuleForceMagnitudes[i] = maxStatorCurrent * driveMotor.KtNMPerAmp / wheelRadiusMeters;
-        maxModuleForceVisualizations[i] =
-            new SwerveModuleState(maxModuleForceMagnitudes[i], lastStates[i].angle);
+        maxModuleForceMagnitudesNewtons[i] =
+            maxStatorCurrentAmps * driveMotor.KtNMPerAmp / wheelRadiusMeters;
       }
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Motor Dynamics/Last Wheel Vel Rad Per Sec",
-          lastWheelVelsRadPerSec);
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Motor Dynamics/Max Stator Current", maxStatorCurrents);
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Motor Dynamics/Max Module Forces",
-          maxModuleForceVisualizations);
+
+      if (enableLogging) {
+        var maxModuleForceVisualizations = new SwerveModuleState[4];
+        for (int i = 0; i < 4; i++) {
+          maxModuleForceVisualizations[i] =
+              new SwerveModuleState(maxModuleForceMagnitudesNewtons[i], lastStates[i].angle);
+        }
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Motor Dynamics/Last Wheel Vel Rad Per Sec",
+            lastWheelVelsRadPerSec);
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Motor Dynamics/Max Stator Current Amps",
+            maxStatorCurrentsAmps);
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Motor Dynamics/Max Module Forces",
+            maxModuleForceVisualizations);
+      }
 
       double largestMagnitude = 0;
       for (int i = 0; i < 4; i++) {
-        largestMagnitude = Math.max(largestMagnitude, Math.abs(maxModuleForceMagnitudes[i]));
+        largestMagnitude = Math.max(largestMagnitude, Math.abs(maxModuleForceMagnitudesNewtons[i]));
       }
       boolean exceededLimit = false;
+      // Loop over all the modules and see if they violate the max force constraints
       for (int i = 0; i < 4; i++) {
         // Small max force constraints (<15% of the largest max force constraint) are ignored
         // as they are relatively negligible and cause issues with slow transitions between
         // states
         // Some amount of kinematic infeasibility is worth it to avoid control weirdness
-        if (Math.abs(maxModuleForceMagnitudes[i]) / largestMagnitude > .15) {
-          exceededLimit = desiredModuleForces.get(i, 0) / maxModuleForceMagnitudes[i] > 1.01;
+        if (Math.abs(maxModuleForceMagnitudesNewtons[i]) / largestMagnitude > .15) {
+          exceededLimit = desiredModuleForces.get(i, 0) / maxModuleForceMagnitudesNewtons[i] > 1.01;
           if (exceededLimit) {
-            Logger.recordOutput(
-                "Swerve/Drive Calculations/Motor Dynamics/Module Exceeding Limits", i);
+            if (enableLogging) {
+              Logger.recordOutput(
+                  "Swerve/Drive Calculations/Motor Dynamics/Module Exceeding Limits", i);
+            }
             break;
           }
         }
       }
-      if (!exceededLimit) {
-        Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Module Exceeding Limits", -1);
+
+      if (enableLogging) {
+        if (!exceededLimit) {
+          Logger.recordOutput(
+              "Swerve/Drive Calculations/Motor Dynamics/Module Exceeding Limits", -1);
+        }
+        Logger.recordOutput(
+            "Swerve/Drive Calculations/Motor Dynamics/Largest Magnitude", largestMagnitude);
       }
-      Logger.recordOutput(
-          "Swerve/Drive Calculations/Motor Dynamics/Largest Magnitude", largestMagnitude);
+
+      // If there is a max force constraint violation, binary search to find the largest lerp
+      // value t that doesn't violate any constraints
       if (exceededLimit) {
         double high_t = 1;
         double low_t = 0;
@@ -339,11 +379,13 @@ public class CornySetpointGenerator {
         int iterations = 0;
         while (true) {
           var avg_t = (high_t + low_t) / 2;
+          // Iteration limit to prevent it from taking too long
           if (iterations >= iterationLimit) {
             t = avg_t;
             break;
           }
 
+          // Calculate new module forces at lerp value avg_t
           var newStates = new SwerveModuleState[4];
           for (int i = 0; i < 4; i++) {
             newStates[i] =
@@ -354,39 +396,53 @@ public class CornySetpointGenerator {
                         avg_t),
                     lastStates[i].angle.interpolate(desiredStates[i].angle, avg_t));
           }
-          var newModuleForces = getModuleForces(lastChassisSpeeds, newStates);
+          var newModuleForces =
+              getModuleForces(lastChassisSpeeds, kinematics.toChassisSpeeds(newStates));
+
+          // Loop over the new forces to see if there's a constraint violation
           int tooSmallCount = 0;
           int usedModulesCount = 0;
           boolean tooBig = false;
           for (int i = 0; i < 4; i++) {
-            if (Math.abs(maxModuleForceMagnitudes[i]) / largestMagnitude > .15) {
+            // Only count major constraints
+            if (Math.abs(maxModuleForceMagnitudesNewtons[i]) / largestMagnitude > .15) {
               usedModulesCount++;
               var desiredForce = newModuleForces.get(i, 0);
-              var maxForce = maxModuleForceMagnitudes[i];
+              var maxForce = maxModuleForceMagnitudesNewtons[i];
               if (desiredForce / maxForce > 1.01) {
+                // Constraint is violated, break the loop
                 tooBig = true;
                 break;
               } else if (desiredForce / maxForce < 0.99) {
+                // If the desired force is smaller than the constraint, it's too small
                 tooSmallCount++;
               }
             }
           }
           if (tooBig) {
+            // If any of the constraints are violated, avg_t is too big, so we need to search the
+            // range between low_t and avg_t
             high_t = avg_t;
           } else if (tooSmallCount == usedModulesCount) {
+            // If all the desired module forces are smaller than the constraint, avg_t is too small,
+            // we need to search the range between avg_t and high_t
             low_t = avg_t;
           } else {
+            // If it's within acceptable limits, we found the largest t value that satisfies the
+            // constraint, and break the loop
             t = avg_t;
             break;
           }
           iterations++;
         }
-        Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Iterations", iterations);
-        Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/t", t);
-        Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Final high t", high_t);
-        Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Final low t", low_t);
+        if (enableLogging) {
+          Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Iterations", iterations);
+          Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/t", t);
+          Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Final high t", high_t);
+          Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Final low t", low_t);
+        }
         updateDesiredStates(desiredStates, t);
-      } else {
+      } else if (enableLogging) {
         Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Iterations", 0);
         Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/t", 1.0);
         Logger.recordOutput("Swerve/Drive Calculations/Motor Dynamics/Final high t", 1.0);
@@ -394,44 +450,58 @@ public class CornySetpointGenerator {
       }
     }
 
-    var finalModuleForces = getModuleForces(lastChassisSpeeds, desiredStates);
-    var finalModuleForceVisualizations = new SwerveModuleState[4];
+    var finalModuleForces =
+        getModuleForces(lastChassisSpeeds, kinematics.toChassisSpeeds(desiredStates));
     var driveFeedforwardAmps = new double[4];
     for (int i = 0; i < 4; i++) {
-      finalModuleForceVisualizations[i] =
-          new SwerveModuleState(finalModuleForces.get(i, 0), lastStates[i].angle);
       driveFeedforwardAmps[i] =
           driveMotor.getCurrent(finalModuleForces.get(i, 0) * wheelRadiusMeters);
     }
-    Logger.recordOutput(
-        "Swerve/Drive Calculations/Final Module Forces", finalModuleForceVisualizations);
 
-    var steerFeedforwardsRadPerSec = new double[4];
+    if (enableLogging) {
+      var finalModuleForceVisualizations = new SwerveModuleState[4];
+      for (int i = 0; i < 4; i++) {
+        finalModuleForceVisualizations[i] =
+            new SwerveModuleState(finalModuleForces.get(i, 0), lastStates[i].angle);
+      }
+      Logger.recordOutput(
+          "Swerve/Drive Calculations/Final Module Forces", finalModuleForceVisualizations);
+    }
+
+    // Calculate
+    var steerVelocitiesRadPerSec = new double[4];
     for (int i = 0; i < 4; i++) {
-      steerFeedforwardsRadPerSec[i] =
+      steerVelocitiesRadPerSec[i] =
           desiredStates[i].angle.minus(lastStates[i].angle).getRadians() / Robot.defaultPeriodSecs;
     }
 
     lastStates = desiredStates;
 
-    Logger.recordOutput("Swerve/Drive Calculations/Output/Module States", desiredStates);
-    Logger.recordOutput(
-        "Swerve/Drive Calculations/Output/Drive Feedforwards Amps", driveFeedforwardAmps);
-    Logger.recordOutput(
-        "Swerve/Drive Calculations/Output/Steer Feedforwards Rad Per Sec",
-        steerFeedforwardsRadPerSec);
+    if (enableLogging) {
+      Logger.recordOutput("Swerve/Drive Calculations/Output/Module States", desiredStates);
+      Logger.recordOutput(
+          "Swerve/Drive Calculations/Output/Drive Feedforwards Amps", driveFeedforwardAmps);
+      Logger.recordOutput(
+          "Swerve/Drive Calculations/Output/Steer Feedforwards Rad Per Sec",
+          steerVelocitiesRadPerSec);
+    }
 
-    return new Setpoint(desiredStates, driveFeedforwardAmps, steerFeedforwardsRadPerSec);
+    return new Setpoint(desiredStates, driveFeedforwardAmps, steerVelocitiesRadPerSec);
   }
 
   public record Setpoint(
       SwerveModuleState[] states,
       double[] driveFeedforwardsAmps,
-      double[] steerFeedforwardRadPerSec) {}
+      double[] steerVelocitiesRadPerSec) {}
 
+  /**
+   * Calculate the module forces needed to accelerate from the last chassis speeds to the new
+   * chassis speeds.
+   *
+   * @return A 4x1 matrix containing the module forces in Newtons.
+   */
   private SimpleMatrix getModuleForces(
-      ChassisSpeeds lastChassisSpeeds, SwerveModuleState[] newStates) {
-    var newChassisSpeeds = kinematics.toChassisSpeeds(newStates);
+      ChassisSpeeds lastChassisSpeeds, ChassisSpeeds newChassisSpeeds) {
     return moduleForceIK.mult(
         new SimpleMatrix(
             3,
@@ -451,11 +521,15 @@ public class CornySetpointGenerator {
                 / 4));
   }
 
+  /** Mutate desiredStates based on a linear interpolation value t. */
   private void updateDesiredStates(SwerveModuleState[] desiredStates, double t) {
     for (int i = 0; i < 4; i++) {
       if (t == 0) {
+        // We don't need to do the full math, just set desiredStates to lastStates
         desiredStates[i] = lastStates[i];
       } else if (t != 1) {
+        // If t = 1, then desiredStates can be untouched, but if t != 1, then we do need to
+        // update it
         desiredStates[i] =
             new SwerveModuleState(
                 MathUtil.interpolate(
@@ -465,10 +539,25 @@ public class CornySetpointGenerator {
     }
   }
 
-  private double getMaxStatorCurrent(double velRadPerSec) {
+  /**
+   * Calculate the max useful stator current draw given the current drive motor velocity.
+   *
+   * <p>Useful stator current draw does not include free current as that is not contributing towards
+   * output torque.
+   *
+   * @param velRadPerSec The current angular velocity of the wheel.
+   * @return The max useful stator current draw.
+   */
+  private double getMaxTorqueCurrent(double velRadPerSec) {
+    // Stator current limit, supply current limit, and motor back-EMF all limit the max torque,
+    // so take the min of those
     return Math.min(
         Math.min(
             statorCurrentLimitAmps,
+            // Calculate max stator current given the supply limit and the current velocity
+            // Original derivation by rafi on ChiefDelphi:
+            // https://www.chiefdelphi.com/t/psa-your-motor-curves-are-still-wrong-a-correction-to-a-whitepaper-about-current-limits/504706
+            // Slightly modified to ignore free current
             (-driveMotor.stallCurrentAmps * (velRadPerSec / driveMotor.freeSpeedRadPerSec)
                     + Math.sqrt(
                         Math.pow(
@@ -480,6 +569,7 @@ public class CornySetpointGenerator {
                                 * driveMotor.stallCurrentAmps
                                 * supplyCurrentLimitAmps))
                 / 2),
+        // Don't use DCMotor's calculations since it includes free current which isn't desired
         Math.max(
             driveMotor.stallCurrentAmps * (RobotController.getBatteryVoltage() / 12)
                 - driveMotor.stallCurrentAmps * (velRadPerSec / driveMotor.freeSpeedRadPerSec),
