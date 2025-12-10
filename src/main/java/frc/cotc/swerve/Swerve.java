@@ -9,6 +9,7 @@ package frc.cotc.swerve;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -76,7 +77,7 @@ public class Swerve extends SubsystemBase {
   private void addVisionMeasurement(
       Pose2d visionPose, double visionTimestamp, Matrix<N3, N1> stdDevs) {
     if (Robot.mode == Robot.Mode.REPLAY) {
-      replayPoseEstimator.addVisionMeasurement(visionPose, visionTimestamp, stdDevs);
+      replayPoseEstimator.addVisionMeasurement(visionPose, Utils.fpgaToCurrentTime(visionTimestamp), stdDevs);
     } else {
       io.addVisionMeasurement(visionPose, visionTimestamp, stdDevs);
     }
