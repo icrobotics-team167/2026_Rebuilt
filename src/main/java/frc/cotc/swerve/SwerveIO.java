@@ -7,4 +7,23 @@
 
 package frc.cotc.swerve;
 
-public interface SwerveIO {}
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+
+public interface SwerveIO {
+  // @AutoLog
+  class SwerveIOInputs {
+    public SwerveDrivetrain.SwerveDriveState[] odoStates;
+    public SwerveDrivetrain.SwerveDriveState currentState;
+  }
+
+  default void updateInputs(SwerveIOInputs inputs) {}
+
+  default void drive(ChassisSpeeds speeds) {}
+
+  default void addVisionMeasurement(Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {}
+}

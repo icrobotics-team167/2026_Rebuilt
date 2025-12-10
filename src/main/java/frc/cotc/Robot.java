@@ -15,15 +15,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.cotc.swerve.Swerve;
-import frc.cotc.swerve.SwerveIO;
+import frc.cotc.swerve.SwerveIOPhoenix;
 
 public class Robot extends TimedRobot {
   @SuppressWarnings("unused")
-  private enum Mode {
+  public enum Mode {
     REAL,
     SIM,
     REPLAY
   }
+
+  public static Mode mode;
 
   @SuppressWarnings({"DataFlowIssue", "UnreachableCode", "ConstantValue"})
   public Robot() {
@@ -37,7 +39,7 @@ public class Robot extends TimedRobot {
     //    Logger.recordMetadata("Uncommited changes", BuildConstants.DIRTY == 1 ? "True" : "False");
     //    Logger.recordMetadata("Compile date", BuildConstants.BUILD_DATE);
 
-    Mode mode = Robot.isReal() ? Mode.REAL : Mode.SIM;
+    mode = Robot.isReal() ? Mode.REAL : Mode.SIM;
     //    Mode mode = Robot.isReal() ? Mode.REAL : Mode.REPLAY;
 
     switch (mode) {
@@ -94,8 +96,14 @@ public class Robot extends TimedRobot {
               CommandsLogging.commandEnded(interrupted);
             });
 
-    var swerve = new Swerve(new SwerveIO() {});
+    var swerve = new Swerve(new SwerveIOPhoenix());
     var controller = new CommandXboxController(0);
+
+    swerve.setDefaultCommand(
+        swerve.teleopDrive(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
   }
 
   @Override
