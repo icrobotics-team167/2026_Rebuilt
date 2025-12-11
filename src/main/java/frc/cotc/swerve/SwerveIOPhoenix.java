@@ -7,6 +7,7 @@
 
 package frc.cotc.swerve;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
@@ -49,6 +50,7 @@ public class SwerveIOPhoenix implements SwerveIO {
     }
     inputs.odoStates = statesArray;
     inputs.currentState = drivetrain.getState();
+    inputs.timeOffset = Utils.fpgaToCurrentTime(0);
   }
 
   @Override

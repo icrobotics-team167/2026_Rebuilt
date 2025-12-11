@@ -19,6 +19,7 @@ public interface SwerveIO {
   class SwerveIOInputs {
     public SwerveDrivetrain.SwerveDriveState[] odoStates;
     public SwerveDrivetrain.SwerveDriveState currentState;
+    public double timeOffset;
   }
 
   default void updateInputs(SwerveIOInputs inputs) {}

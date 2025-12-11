@@ -77,9 +77,10 @@ public class Swerve extends SubsystemBase {
   private void addVisionMeasurement(
       Pose2d visionPose, double visionTimestamp, Matrix<N3, N1> stdDevs) {
     if (Robot.mode == Robot.Mode.REPLAY) {
-      replayPoseEstimator.addVisionMeasurement(visionPose, Utils.fpgaToCurrentTime(visionTimestamp), stdDevs);
+      replayPoseEstimator.addVisionMeasurement(
+          visionPose, visionTimestamp + inputs.timeOffset, stdDevs);
     } else {
-      io.addVisionMeasurement(visionPose, visionTimestamp, stdDevs);
+      io.addVisionMeasurement(visionPose, Utils.fpgaToCurrentTime(visionTimestamp), stdDevs);
     }
   }
 
