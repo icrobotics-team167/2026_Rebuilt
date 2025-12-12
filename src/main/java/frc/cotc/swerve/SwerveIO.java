@@ -7,24 +7,124 @@
 
 package frc.cotc.swerve;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import java.util.Optional;
 
 public interface SwerveIO {
-  // @AutoLog
-  class SwerveIOInputs {
-    public SwerveDrivetrain.SwerveDriveState[] odoStates;
-    public SwerveDrivetrain.SwerveDriveState currentState;
-    public double timeOffset;
+//  @AutoLog
+  public static class SwerveIOInputs {
+    /* latest swerve drivetrain state */
+    public ChassisSpeeds Speeds = new ChassisSpeeds();
+    public SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
+    public SwerveModuleState[] ModuleTargets = new SwerveModuleState[4];
+    public SwerveModulePosition[] ModulePositions = new SwerveModulePosition[4];
+    public Rotation2d RawHeading = new Rotation2d();
+    public double Timestamp = 0.0;
+    public double OdometryPeriod = 0.0;
+    public int SuccessfulDaqs = 0;
+    public int FailedDaqs = 0;
+
+    /* queues for odometry updates */
+    public Pose2d[] poseQueue = new Pose2d[0];
+    public SwerveModulePosition[][] modulePositionsQueue = new SwerveModulePosition[4][0];
+    public Rotation2d[] rawHeadingQueue = new Rotation2d[0];
+    public double[] timestampQueue = new double[0];
   }
 
-  default void updateInputs(SwerveIOInputs inputs) {}
+  /** Updates the set of loggable inputs. */
+  public default void updateInputs(SwerveIOInputs inputs) {}
+  /** Updates the odometry pose estimate. */
+  public default void updateOdometry(SwerveIOInputs inputs) {}
 
-  default void drive(ChassisSpeeds speeds) {}
+  /** Gets the robot pose estimate. */
+  public Pose2d getPose();
 
-  default void addVisionMeasurement(Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {}
+  /**
+   * Zero's this swerve drive's odometry entirely.
+   *
+   * <p>This will zero the entire odometry, and place the robot at 0,0
+   */
+  public void tareEverything();
+  /**
+   * Resets the rotation of the robot pose to 0 from the {@link
+   * SwerveRequest.ForwardPerspectiveValue#OperatorPerspective} perspective.
+   *
+   * <p>This is equivalent to calling {@link #resetRotation} with the operator perspective rotation.
+   */
+  public void seedFieldCentric();
+  /**
+   * Resets the pose of the robot. The pose should be from the {@link
+   * SwerveRequest.ForwardPerspectiveValue#BlueAlliance} perspective.
+   */
+  public void resetPose(Pose2d pose);
+  /**
+   * Resets the translation of the robot pose without affecting rotation. The translation should be
+   * from the {@link SwerveRequest.ForwardPerspectiveValue#BlueAlliance} perspective.
+   */
+  public void resetTranslation(Translation2d translation);
+  /**
+   * Resets the rotation of the robot pose without affecting translation. The rotation should be
+   * from the {@link SwerveRequest.ForwardPerspectiveValue#BlueAlliance} perspective.
+   */
+  public void resetRotation(Rotation2d rotation);
+
+  /**
+   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
+   * while still accounting for measurement noise.
+   */
+  public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds);
+
+  public void addVisionMeasurement(
+    Pose2d visionRobotPoseMeters,
+    double timestampSeconds,
+    Matrix<N3, N1> visionMeasurementStdDevs);
+
+  /** Sets the pose estimator's trust of global measurements. */
+  public void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs);
+
+  /** Return the pose at a given timestamp, if the buffer is not empty. */
+  public Optional<Pose2d> samplePoseAt(double timestampSeconds);
+
+  // ----------- Everything below is inherited from SwerveDrivetrain -----------//
+
+  /** Gets whether the drivetrain is on a CAN FD bus. */
+  public boolean isOnCANFD();
+
+  /** Gets a reference to the kinematics used for the drivetrain. */
+  public SwerveDriveKinematics getKinematics();
+
+  /** Applies the specified control request to the swerve drivetrain. */
+  public void setControl(SwerveRequest request);
+
+  /** Configures the neutral mode to use for all modules' drive motors. */
+  public StatusCode configNeutralMode(NeutralModeValue neutralMode);
+
+  /**
+   * Takes the {@link SwerveRequest.ForwardPerspectiveValue#BlueAlliance} perpective direction and
+   * treats it as the forward direction for {@link
+   * SwerveRequest.ForwardPerspectiveValue#OperatorPerspective}.
+   */
+  public void setOperatorPerspectiveForward(Rotation2d fieldDirection);
+
+  /**
+   * Returns the {@link SwerveRequest.ForwardPerspectiveValue#BlueAlliance} perpective direction
+   * that is treated as the forward direction for {@link
+   * SwerveRequest.ForwardPerspectiveValue#OperatorPerspective}.
+   */
+  public Rotation2d getOperatorForwardDirection();
+
+  /** Gets the locations of the swerve modules. */
+  public Translation2d[] getModuleLocations();
 }
