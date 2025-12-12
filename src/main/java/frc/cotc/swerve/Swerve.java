@@ -47,13 +47,13 @@ public class Swerve extends SubsystemBase {
       TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private final double maxAngularSpeedRadiansPerSecond =
       maxLinearSpeedMetersPerSecond
-          / Math.min(
-              Math.min(
+          / Math.max(
+              Math.max(
                   Math.hypot(
                       TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
                   Math.hypot(
                       TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
-              Math.min(
+              Math.max(
                   Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                   Math.hypot(
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
