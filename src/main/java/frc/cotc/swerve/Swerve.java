@@ -24,8 +24,10 @@ public class Swerve extends SubsystemBase {
   public Swerve(SwerveIO io) {
     this.io = io;
 
+    // capture initial state and set up odometry
     io.updateInputs(inputs);
     // TODO: Log
+    io.updateOdometry(inputs);
   }
 
   private final StructPublisher<Pose2d> posePublisher =
