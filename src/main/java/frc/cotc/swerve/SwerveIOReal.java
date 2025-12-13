@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Notifier;
+import frc.cotc.Robot;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
@@ -36,8 +37,10 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
     stateQueue.add(getStateCopy());
     registerTelemetry(this::updateTelemetry);
 
-    double freq = 250;
-    new Notifier(() -> updateSimState(1.0 / freq, 12)).startPeriodic(1.0 / freq);
+    if (Robot.isSimulation()) {
+      double freq = 250;
+      new Notifier(() -> updateSimState(1.0 / freq, 12)).startPeriodic(1.0 / freq);
+    }
   }
 
   @Override
