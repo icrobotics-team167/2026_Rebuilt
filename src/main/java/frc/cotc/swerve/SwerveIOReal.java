@@ -8,7 +8,6 @@
 package frc.cotc.swerve;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,8 +15,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.Notifier;
-import frc.cotc.Robot;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,17 +27,19 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
   private Pose2d pose = new Pose2d();
 
-  public SwerveIOReal(
-      SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
-    super(drivetrainConstants, modules);
+  public SwerveIOReal() {
+    this(
+        TunerConstants.FrontLeft,
+        TunerConstants.FrontRight,
+        TunerConstants.BackLeft,
+        TunerConstants.BackRight);
+  }
+
+  SwerveIOReal(SwerveModuleConstants<?, ?, ?>... modules) {
+    super(TunerConstants.DrivetrainConstants, modules);
 
     stateQueue.add(getStateCopy());
     registerTelemetry(this::updateTelemetry);
-
-    if (Robot.isSimulation()) {
-      double freq = 250;
-      new Notifier(() -> updateSimState(1.0 / freq, 12)).startPeriodic(1.0 / freq);
-    }
   }
 
   @Override
@@ -80,11 +79,6 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.ModuleStates = state.ModuleStates;
       inputs.ModuleTargets = state.ModuleTargets;
       inputs.ModulePositions = state.ModulePositions;
-      inputs.RawHeading = state.RawHeading;
-      inputs.Timestamp = Utils.currentTimeToFPGATime(state.Timestamp);
-      inputs.OdometryPeriod = state.OdometryPeriod;
-      inputs.SuccessfulDaqs = state.SuccessfulDaqs;
-      inputs.FailedDaqs = state.FailedDaqs;
 
       pose = state.Pose;
     }

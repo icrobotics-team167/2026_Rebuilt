@@ -8,6 +8,7 @@
 package frc.cotc;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
@@ -17,8 +18,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.cotc.swerve.Swerve;
 import frc.cotc.swerve.SwerveIOReal;
 import frc.cotc.swerve.SwerveIOReplay;
-import frc.cotc.swerve.TunerConstants;
+import frc.cotc.swerve.SwerveIOSim;
 import java.io.FileNotFoundException;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -28,7 +30,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
-  @SuppressWarnings("unused")
   public enum Mode {
     REAL,
     SIM,
@@ -37,7 +38,7 @@ public class Robot extends LoggedRobot {
 
   public static Mode mode;
 
-  @SuppressWarnings({"DataFlowIssue", "UnreachableCode", "ConstantValue"})
+  @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot() {
     // If this is erroring, hit build
     // Compiling auto-generates the BuildConstants file
@@ -102,19 +103,11 @@ public class Robot extends LoggedRobot {
 
     var swerve =
         new Swerve(
-            mode != Mode.REPLAY
-                ? new SwerveIOReal(
-                    TunerConstants.DrivetrainConstants,
-                    TunerConstants.FrontLeft,
-                    TunerConstants.FrontRight,
-                    TunerConstants.BackLeft,
-                    TunerConstants.BackRight)
-                : new SwerveIOReplay(
-                    TunerConstants.DrivetrainConstants,
-                    TunerConstants.FrontLeft,
-                    TunerConstants.FrontRight,
-                    TunerConstants.BackLeft,
-                    TunerConstants.BackRight));
+            switch (mode) {
+              case REAL -> new SwerveIOReal();
+              case SIM -> new SwerveIOSim();
+              case REPLAY -> new SwerveIOReplay();
+            });
     var controller = new CommandXboxController(0);
 
     swerve.setDefaultCommand(
@@ -122,7 +115,6 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-    controller.a().whileTrue(swerve.fakeVision());
   }
 
   @Override
@@ -141,6 +133,9 @@ public class Robot extends LoggedRobot {
         "LoggedRobot/MemoryUsageMB",
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6);
     Logger.recordOutput("IsOnRed", isOnRed());
+    if (groundTruthPoseSupplier != null) {
+      Logger.recordOutput("Swerve/Ground Truth Pose", groundTruthPoseSupplier.get());
+    }
     SmartDashboard.putData(CommandScheduler.getInstance());
 
     Threads.setCurrentThreadPriority(false, 10);
@@ -150,4 +145,6 @@ public class Robot extends LoggedRobot {
     return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
         == DriverStation.Alliance.Red;
   }
+
+  public static Supplier<Pose2d> groundTruthPoseSupplier;
 }

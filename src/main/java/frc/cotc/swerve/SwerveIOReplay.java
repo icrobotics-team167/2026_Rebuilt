@@ -7,8 +7,6 @@
 
 package frc.cotc.swerve;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,12 +21,16 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean poseEstInit = false;
 
-  public SwerveIOReplay(
-      SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
-    super(drivetrainConstants, modules);
+  public SwerveIOReplay() {
+    super(
+        TunerConstants.DrivetrainConstants,
+        TunerConstants.FrontLeft,
+        TunerConstants.FrontRight,
+        TunerConstants.BackLeft,
+        TunerConstants.BackRight);
 
-    var modulePositions = new SwerveModulePosition[modules.length];
-    for (int i = 0; i < modules.length; ++i) {
+    var modulePositions = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition();
     }
     poseEstimator =

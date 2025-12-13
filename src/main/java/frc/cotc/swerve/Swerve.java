@@ -10,11 +10,7 @@ package frc.cotc.swerve;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
@@ -65,10 +61,5 @@ public class Swerve extends SubsystemBase {
                     .withVelocityX(vx.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)));
-  }
-
-  public Command fakeVision() {
-    return Commands.run(
-        () -> io.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.kZero), Timer.getTimestamp()));
   }
 }

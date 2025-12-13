@@ -31,11 +31,6 @@ public interface SwerveIO {
     public SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
     public SwerveModuleState[] ModuleTargets = new SwerveModuleState[4];
     public SwerveModulePosition[] ModulePositions = new SwerveModulePosition[4];
-    public Rotation2d RawHeading = new Rotation2d();
-    public double Timestamp = 0.0;
-    public double OdometryPeriod = 0.0;
-    public int SuccessfulDaqs = 0;
-    public int FailedDaqs = 0;
 
     /* queues for odometry updates */
     public Pose2d[] poseQueue = new Pose2d[0];
