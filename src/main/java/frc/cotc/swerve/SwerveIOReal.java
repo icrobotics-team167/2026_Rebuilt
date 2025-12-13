@@ -16,16 +16,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import edu.wpi.first.wpilibj.Notifier;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final ReentrantLock m_queueLock = new ReentrantLock();
   /* double buffer setup */
-  private Deque<SwerveDriveState> stateQueue = new ArrayDeque<>();
-  private Deque<SwerveDriveState> tmpStateQueue = new ArrayDeque<>();
+  private ArrayList<SwerveDriveState> stateQueue = new ArrayList<>();
+  private ArrayList<SwerveDriveState> tmpStateQueue = new ArrayList<>();
 
   private Pose2d pose = new Pose2d();
 
@@ -35,6 +35,9 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
     stateQueue.add(getStateCopy());
     registerTelemetry(this::updateTelemetry);
+
+    double freq = 250;
+    new Notifier(() -> updateSimState(1.0 / freq, 12)).startPeriodic(1.0 / freq);
   }
 
   @Override
@@ -49,23 +52,33 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       m_queueLock.unlock();
     }
 
+    if (stateQueue.isEmpty()) {
+      stateQueue.add(getStateCopy());
+    }
+
     /* grab queues of information needed for odometry */
-    inputs.poseQueue = stateQueue.stream().map(s -> s.Pose).toArray(Pose2d[]::new);
-    inputs.modulePositionsQueue =
-        stateQueue.stream().map(s -> s.ModulePositions).toArray(SwerveModulePosition[][]::new);
-    inputs.rawHeadingQueue = stateQueue.stream().map(s -> s.RawHeading).toArray(Rotation2d[]::new);
-    inputs.timestampQueue = stateQueue.stream().mapToDouble(s -> Utils.currentTimeToFPGATime(s.Timestamp)).toArray();
+    inputs.poseQueue = new Pose2d[stateQueue.size()];
+    inputs.modulePositionsQueue = new SwerveModulePosition[stateQueue.size()][4];
+    inputs.rawHeadingQueue = new Rotation2d[stateQueue.size()];
+    inputs.timestampQueue = new double[stateQueue.size()];
+    for (int i = 0; i < stateQueue.size(); ++i) {
+      final var state = stateQueue.get(i);
+      inputs.poseQueue[i] = state.Pose;
+      inputs.modulePositionsQueue[i] = state.ModulePositions;
+      inputs.rawHeadingQueue[i] = state.RawHeading;
+      inputs.timestampQueue[i] = Utils.currentTimeToFPGATime(state.Timestamp);
+    }
 
     if (!stateQueue.isEmpty()) {
       /* grab the newest drive state */
-      final var state = stateQueue.peekLast();
+      final var state = stateQueue.get(stateQueue.size() - 1);
 
       inputs.Speeds = state.Speeds;
       inputs.ModuleStates = state.ModuleStates;
       inputs.ModuleTargets = state.ModuleTargets;
       inputs.ModulePositions = state.ModulePositions;
       inputs.RawHeading = state.RawHeading;
-      inputs.Timestamp = state.Timestamp;
+      inputs.Timestamp = Utils.currentTimeToFPGATime(state.Timestamp);
       inputs.OdometryPeriod = state.OdometryPeriod;
       inputs.SuccessfulDaqs = state.SuccessfulDaqs;
       inputs.FailedDaqs = state.FailedDaqs;

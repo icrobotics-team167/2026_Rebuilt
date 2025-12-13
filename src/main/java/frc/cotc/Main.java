@@ -8,6 +8,7 @@
 package frc.cotc;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import java.util.Arrays;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -17,12 +18,18 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Main {
   private Main() {}
 
+  public static boolean isReplay = false;
+
   /**
    * Main initialization method. Do not perform any initialization here.
    *
    * <p>If you change your main Robot class (name), change the parameter type.
    */
   public static void main(String... args) {
+    isReplay = Arrays.asList(args).contains("--replay");
+    if (isReplay) {
+      System.out.println("Starting Replay mode!");
+    }
     RobotBase.startRobot(Robot::new);
   }
 }

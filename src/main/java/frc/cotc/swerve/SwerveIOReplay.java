@@ -1,6 +1,12 @@
+// Copyright (c) 2026 FRC 167
+// https://github.com/icrobotics-team167
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.cotc.swerve;
 
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
@@ -13,34 +19,35 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.Optional;
 
-public class SwerveIOReplay  extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
+public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean poseEstInit = false;
 
   public SwerveIOReplay(
-    SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
+      SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
     super(drivetrainConstants, modules);
 
+    var modulePositions = new SwerveModulePosition[modules.length];
+    for (int i = 0; i < modules.length; ++i) {
+      modulePositions[i] = new SwerveModulePosition();
+    }
     poseEstimator =
-      new SwerveDrivePoseEstimator(
-        getKinematics(),
-        Rotation2d.kZero,
-        new SwerveModulePosition[modules.length],
-        Pose2d.kZero);
+        new SwerveDrivePoseEstimator(
+            getKinematics(), Rotation2d.kZero, modulePositions, Pose2d.kZero);
   }
 
   @Override
   public void updateOdometry(SwerveIOInputs inputs) {
     if (!poseEstInit) {
       poseEstimator.resetPosition(
-        inputs.rawHeadingQueue[0], inputs.modulePositionsQueue[0], inputs.poseQueue[0]);
+          inputs.rawHeadingQueue[0], inputs.modulePositionsQueue[0], inputs.poseQueue[0]);
       poseEstInit = true;
     }
 
     for (int i = 0; i < inputs.timestampQueue.length; ++i) {
       // Apply update
       poseEstimator.updateWithTime(
-        inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
+          inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
     }
   }
 
@@ -76,17 +83,16 @@ public class SwerveIOReplay  extends TunerConstants.TunerSwerveDrivetrain implem
 
   @Override
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-    poseEstimator.addVisionMeasurement(
-      visionRobotPoseMeters, timestampSeconds);
+    poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
   }
 
   @Override
   public void addVisionMeasurement(
-    Pose2d visionRobotPoseMeters,
-    double timestampSeconds,
-    Matrix<N3, N1> visionMeasurementStdDevs) {
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
     poseEstimator.addVisionMeasurement(
-      visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   @Override

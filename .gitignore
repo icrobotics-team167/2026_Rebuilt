@@ -163,6 +163,7 @@ bin/
 *.ipr
 *.iws
 .idea/
+!.idea/runConfigurations
 out/
 
 # Fleet

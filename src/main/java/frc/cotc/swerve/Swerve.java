@@ -11,36 +11,33 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
   private final SwerveIO io;
-  private final SwerveIO.SwerveIOInputs inputs = new SwerveIO.SwerveIOInputs();
+  private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
   public Swerve(SwerveIO io) {
     this.io = io;
 
     // capture initial state and set up odometry
     io.updateInputs(inputs);
-    // TODO: Log
+    Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
   }
-
-  private final StructPublisher<Pose2d> posePublisher =
-      NetworkTableInstance.getDefault()
-          .getTable("Swerve")
-          .getStructTopic("Estimated Pose", Pose2d.struct)
-          .publish();
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    // TODO: Log
-    posePublisher.set(inputs.poseQueue[inputs.poseQueue.length - 1]);
+    Logger.processInputs("Swerve", inputs);
+    io.updateOdometry(inputs);
+    Logger.recordOutput("Swerve/Pose", io.getPose());
   }
 
   private final double maxLinearSpeedMetersPerSecond =
@@ -68,5 +65,10 @@ public class Swerve extends SubsystemBase {
                     .withVelocityX(vx.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)));
+  }
+
+  public Command fakeVision() {
+    return Commands.run(
+        () -> io.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.kZero), Timer.getTimestamp()));
   }
 }

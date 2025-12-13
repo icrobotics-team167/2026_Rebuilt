@@ -10,6 +10,7 @@ package frc.cotc;
 import edu.wpi.first.wpilibj2.command.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * A utility that heavily abuses the {@link edu.wpi.first.wpilibj.Alert}s system to allow for
@@ -284,8 +285,7 @@ public class CommandsLogging {
   }
 
   public static void logRunningCommands() {
-    // TODO: Undo the commenting out when AKit is installed again
-    //    Logger.recordOutput("CommandScheduler/Running/.type", "Alerts");
+    Logger.recordOutput("CommandScheduler/Running/.type", "Alerts");
 
     final ArrayList<String> runningCommands = new ArrayList<>();
     final ArrayList<String> runningDefaultCommands = new ArrayList<>();
@@ -304,10 +304,10 @@ public class CommandsLogging {
       }
       addCommand(command, getCommandName(command), commandsList);
     }
-    //    Logger.recordOutput(
-    //        "CommandScheduler/Running/warnings", runningCommands.toArray(new String[0]));
-    //    Logger.recordOutput(
-    //        "CommandScheduler/Running/infos", runningDefaultCommands.toArray(new String[0]));
+    Logger.recordOutput(
+        "CommandScheduler/Running/warnings", runningCommands.toArray(new String[0]));
+    Logger.recordOutput(
+        "CommandScheduler/Running/infos", runningDefaultCommands.toArray(new String[0]));
 
     final String[] interrupters = new String[runningInterrupters.size()];
     int j = 0;
@@ -319,7 +319,7 @@ public class CommandsLogging {
       j++;
     }
 
-    //    Logger.recordOutput("CommandScheduler/Running/errors", interrupters);
+    Logger.recordOutput("CommandScheduler/Running/errors", interrupters);
   }
 
   private static void addCommand(
@@ -422,7 +422,7 @@ public class CommandsLogging {
   }
 
   public static void logRequiredSubsystems() {
-    //    Logger.recordOutput("CommandScheduler/Subsystems/.type", "Alerts");
+    Logger.recordOutput("CommandScheduler/Subsystems/.type", "Alerts");
 
     final String[] subsystems = new String[requiredSubsystems.size()];
     {
@@ -435,6 +435,6 @@ public class CommandsLogging {
         i++;
       }
     }
-    //    Logger.recordOutput("CommandScheduler/Subsystems/infos", subsystems);
+    Logger.recordOutput("CommandScheduler/Subsystems/infos", subsystems);
   }
 }
