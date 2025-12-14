@@ -114,6 +114,7 @@ public class SwerveIOSim extends SwerveIOReal {
 
     SimulatedArena.overrideSimulationTimings(Seconds.of(1.0 / simFrequencyHz), 1);
     SimulatedArena.getInstance().addDriveTrainSimulation(simulation);
+    var simThread = new Notifier(this::update);
     simThread.startPeriodic(1.0 / simFrequencyHz);
 
     Robot.groundTruthPoseSupplier = simulation::getSimulatedDriveTrainPose;
