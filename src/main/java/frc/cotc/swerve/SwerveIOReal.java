@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
+/** Implementation for a real swerve drivetrain using Phoenix swerve. */
 public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
-  private final ReentrantLock m_queueLock = new ReentrantLock();
+  private final ReentrantLock queueLock = new ReentrantLock();
   /* double buffer setup */
   private ArrayList<SwerveDriveState> stateQueue = new ArrayList<>();
   private ArrayList<SwerveDriveState> tmpStateQueue = new ArrayList<>();
@@ -42,19 +43,32 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
     registerTelemetry(this::updateTelemetry);
   }
 
+  private void updateTelemetry(SwerveDriveState state) {
+    try {
+      // Loctite™️
+      queueLock.lock();
+      // Add the latest state to the queue
+      stateQueue.add(state.clone());
+    } finally {
+      queueLock.unlock();
+    }
+  }
+
   @Override
   public void updateInputs(SwerveIOInputs inputs) {
     final var stateQueue = this.stateQueue;
     try {
-      m_queueLock.lock();
-      /* swap buffers */
+      // Loctite™️
+      queueLock.lock();
+      // Swap buffers so that the other buffer can be filled while we process this one
       this.stateQueue = tmpStateQueue;
       tmpStateQueue = stateQueue;
     } finally {
-      m_queueLock.unlock();
+      // Unlock
+      queueLock.unlock();
     }
 
-    /* grab queues of information needed for odometry */
+    // Grab queues of data needed for odometry
     inputs.poseQueue = new Pose2d[stateQueue.size()];
     inputs.modulePositionsQueue = new SwerveModulePosition[stateQueue.size()][4];
     inputs.rawHeadingQueue = new Rotation2d[stateQueue.size()];
@@ -64,13 +78,15 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.poseQueue[i] = state.Pose;
       inputs.modulePositionsQueue[i] = state.ModulePositions;
       inputs.rawHeadingQueue[i] = state.RawHeading;
+      // Timestamp needs to be converted from CTRE time to FPGA time
       inputs.timestampQueue[i] = Utils.currentTimeToFPGATime(state.Timestamp);
     }
 
     if (!stateQueue.isEmpty()) {
-      /* grab the newest drive state */
+      // Grab the newsest state
       final var state = stateQueue.get(stateQueue.size() - 1);
 
+      // Fill in the data with the latest state
       inputs.Speeds = state.Speeds;
       inputs.ModuleStates = state.ModuleStates;
       inputs.ModuleTargets = state.ModuleTargets;
@@ -82,36 +98,20 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
     stateQueue.clear();
   }
 
+  // updateOdometry is a noop in real/sim since we can use the real pose estimator directly
+
   @Override
   public Pose2d getPose() {
     return pose;
   }
 
-  /**
-   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-   * while still accounting for measurement noise.
-   *
-   * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
-   * @param timestampSeconds The timestamp of the vision measurement in seconds.
-   */
+  // *** Pose estimation stuff has a shim to convert from FPGA time to CTRE time ***
+
   @Override
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
   }
 
-  /**
-   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-   * while still accounting for measurement noise.
-   *
-   * <p>Note that the vision measurement standard deviations passed into this method will continue
-   * to apply to future measurements until a subsequent call to {@link
-   * #setVisionMeasurementStdDevs(Matrix)} or this method.
-   *
-   * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
-   * @param timestampSeconds The timestamp of the vision measurement in seconds.
-   * @param visionMeasurementStdDevs Standard deviations of the vision pose measurement in the form
-   *     [x, y, theta]ᵀ, with units in meters and radians.
-   */
   @Override
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
@@ -124,14 +124,5 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
   @Override
   public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
     return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
-  }
-
-  private void updateTelemetry(SwerveDriveState state) {
-    try {
-      m_queueLock.lock();
-      stateQueue.add(state.clone());
-    } finally {
-      m_queueLock.unlock();
-    }
   }
 }

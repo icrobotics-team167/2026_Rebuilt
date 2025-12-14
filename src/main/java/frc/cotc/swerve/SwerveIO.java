@@ -34,7 +34,7 @@ public interface SwerveIO {
 
     /* queues for odometry updates */
     public Pose2d[] poseQueue = new Pose2d[0];
-    public SwerveModulePosition[][] modulePositionsQueue = new SwerveModulePosition[4][0];
+    public SwerveModulePosition[][] modulePositionsQueue = new SwerveModulePosition[0][4];
     public Rotation2d[] rawHeadingQueue = new Rotation2d[0];
     public double[] timestampQueue = new double[0];
   }
@@ -98,7 +98,7 @@ public interface SwerveIO {
   /** Return the pose at a given timestamp, if the buffer is not empty. */
   Optional<Pose2d> samplePoseAt(double timestampSeconds);
 
-  // ----------- Everything below is inherited from SwerveDrivetrain -----------//
+  // *** Everything below is inherited from SwerveDrivetrain ***//
 
   /** Gets whether the drivetrain is on a CAN FD bus. */
   boolean isOnCANFD();

@@ -29,31 +29,39 @@ import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 
+/**
+ * Implementation that extends the real implementation to add MapleSim-based drivetrain simulation.
+ */
 public class SwerveIOSim extends SwerveIOReal {
   private final SwerveDriveSimulation simulation;
   private final Pigeon2SimState pigeonSim;
 
-  private final Notifier simThread = new Notifier(this::update);
+  @SuppressWarnings("FieldCanBeLocal")
   private final double simFrequencyHz = 250.0;
 
   private final Pose2d initPose = new Pose2d(7, 2, Rotation2d.fromDegrees(120));
 
   public SwerveIOSim() {
+    // Tuner constants need to be adjusted for simulation to avoid some MapleSim bugs
     super(
         adjustConstants(TunerConstants.FrontLeft),
         adjustConstants(TunerConstants.FrontRight),
         adjustConstants(TunerConstants.BackLeft),
         adjustConstants(TunerConstants.BackRight));
 
+    // Initialize drivetrain simulation
     simulation =
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                Inches.of(25),
-                Inches.of(25),
+                Inches.of(25), // Bumper width
+                Inches.of(25), // Bumper length
+                // Track width
                 getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
+                // Track length
                 getModuleLocations()[0].getMeasureX().minus(getModuleLocations()[2].getMeasureX()),
                 COTS.ofPigeon2(),
+                // Module specs
                 new SwerveModuleSimulationConfig(
                     DCMotor.getKrakenX60Foc(1),
                     DCMotor.getKrakenX60Foc(1),
@@ -65,6 +73,7 @@ public class SwerveIOSim extends SwerveIOReal {
                     TunerConstants.kSteerInertia,
                     1.5)),
             initPose);
+    // Set up motor controller sims for each module
     for (int i = 0; i < 4; i++) {
       int I = i;
       simulation.getModules()[i].useDriveMotorController(
@@ -109,9 +118,12 @@ public class SwerveIOSim extends SwerveIOReal {
           });
     }
     pigeonSim = getPigeon2().getSimState();
+    // The default friction value for MapleSim is unrealistically high.
+    // This needs tuning to the real robot.
     simulation.setLinearDamping(0.1);
     simulation.setAngularDamping(0.1);
 
+    // Run the simulation at a higher frequency than the default
     SimulatedArena.overrideSimulationTimings(Seconds.of(1.0 / simFrequencyHz), 1);
     SimulatedArena.getInstance().addDriveTrainSimulation(simulation);
     var simThread = new Notifier(this::update);
@@ -121,7 +133,9 @@ public class SwerveIOSim extends SwerveIOReal {
   }
 
   private void update() {
+    // Update the simulation one timestep forwards
     SimulatedArena.getInstance().simulationPeriodic();
+    // Update the gyro sim
     pigeonSim.setRawYaw(
         simulation
             .getSimulatedDriveTrainPose()

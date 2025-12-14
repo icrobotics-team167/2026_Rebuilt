@@ -17,6 +17,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.Optional;
 
+/** Replaces the Phoenix Swerve pose estimator with a replay-compatible one. */
 public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean poseEstInit = false;
@@ -29,6 +30,8 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
         TunerConstants.BackLeft,
         TunerConstants.BackRight);
 
+    // Initialize pose estimator
+    // We create an array of module positions with zeroed positions to avoid a NullPointerException
     var modulePositions = new SwerveModulePosition[4];
     for (int i = 0; i < 4; i++) {
       modulePositions[i] = new SwerveModulePosition();
@@ -40,18 +43,29 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
 
   @Override
   public void updateOdometry(SwerveIOInputs inputs) {
+    // Update the shimmed pose estimator with the odometry updates captured from the inputs
+
+    // In replay, the pose estimator is constructed with zeroed everything, but in hardware that's
+    // not the case, Phoenix swerve constructs it with non-zero heading and module positions.
+    // The resetPosition() is functioning as the initial constructor with the initial measurements.
+    // Can't explicitly pass in a Pose2d.kZero in the unlikely event that the hardware one
+    // already read movement associated with those measurements.
+    // - Ben CTRE (Paraphrased)
     if (!poseEstInit) {
       poseEstimator.resetPosition(
           inputs.rawHeadingQueue[0], inputs.modulePositionsQueue[0], inputs.poseQueue[0]);
       poseEstInit = true;
     }
 
+    // Apply all the logged odometry updates
     for (int i = 0; i < inputs.timestampQueue.length; ++i) {
       // Apply update
       poseEstimator.updateWithTime(
           inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
     }
   }
+
+  // *** Shims over the Phoenix swerve pose estimator ***
 
   @Override
   public Pose2d getPose() {

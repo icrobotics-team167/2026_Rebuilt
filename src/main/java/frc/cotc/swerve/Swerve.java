@@ -30,8 +30,10 @@ public class Swerve extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Update and process inputs
     io.updateInputs(inputs);
     Logger.processInputs("Swerve", inputs);
+    // Update odometry using those inputs
     io.updateOdometry(inputs);
     Logger.recordOutput("Swerve/Pose", io.getPose());
   }
