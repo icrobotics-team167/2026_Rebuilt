@@ -54,10 +54,6 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       m_queueLock.unlock();
     }
 
-    if (stateQueue.isEmpty()) {
-      stateQueue.add(getStateCopy());
-    }
-
     /* grab queues of information needed for odometry */
     inputs.poseQueue = new Pose2d[stateQueue.size()];
     inputs.modulePositionsQueue = new SwerveModulePosition[stateQueue.size()][4];
