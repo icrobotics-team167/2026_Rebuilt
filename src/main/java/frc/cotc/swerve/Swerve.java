@@ -10,8 +10,12 @@ package frc.cotc.swerve;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.cotc.Robot;
+import frc.cotc.vision.AprilTagPoseEstimator;
+import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,13 +23,25 @@ public class Swerve extends SubsystemBase {
   private final SwerveIO io;
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
-  public Swerve(SwerveIO io) {
+  private final AprilTagPoseEstimator[] aprilTagPoseEstimators;
+
+  public Swerve(SwerveIO io, AprilTagPoseEstimator.IO[] cameraIOs) {
     this.io = io;
 
     // capture initial state and set up odometry
     io.updateInputs(inputs);
     Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
+
+    aprilTagPoseEstimators = new AprilTagPoseEstimator[cameraIOs.length];
+    for (int i = 0; i < cameraIOs.length; i++) {
+      aprilTagPoseEstimators[i] =
+          new AprilTagPoseEstimator(
+              cameraIOs[i].io(),
+              cameraIOs[i].name(),
+              (timestamp) -> io.getPose().getRotation(),
+              io::getPose);
+    }
   }
 
   @Override
@@ -35,6 +51,24 @@ public class Swerve extends SubsystemBase {
     Logger.processInputs("Swerve", inputs);
     // Update odometry using those inputs
     io.updateOdometry(inputs);
+
+    if (Robot.mode == Robot.Mode.SIM) {
+      AprilTagPoseEstimatorIOPhoton.Sim.update();
+    }
+    for (AprilTagPoseEstimator aprilTagPoseEstimator : aprilTagPoseEstimators) {
+      var estimates = aprilTagPoseEstimator.poll();
+
+      for (var estimate : estimates) {
+        io.addVisionMeasurement(
+            estimate.pose(),
+            estimate.timestamp(),
+            VecBuilder.fill(
+                estimate.translationalStdDevs(),
+                estimate.translationalStdDevs(),
+                estimate.rotationalStdDevs()));
+      }
+    }
+
     Logger.recordOutput("Swerve/Pose", io.getPose());
   }
 
