@@ -38,6 +38,7 @@ public class Swerve extends SubsystemBase {
     Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
     Logger.recordOutput("Swerve/Pose", io.getPose());
+    io.clearVisionMeasurements();
   }
 
   private final double maxLinearSpeedMetersPerSecond =

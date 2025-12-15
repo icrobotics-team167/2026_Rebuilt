@@ -17,7 +17,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import java.util.ArrayList;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final SwerveDrivePoseEstimator poseEstimator;
@@ -28,7 +30,7 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
     super(drivetrainConstants, modules);
 
     var modulePositions = new SwerveModulePosition[modules.length];
-    for (int i = 0; i < modules.length; ++i) {
+    for (int i = 0; i < modules.length; i++) {
       modulePositions[i] = new SwerveModulePosition();
     }
     poseEstimator =
@@ -44,7 +46,7 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
       poseEstInit = true;
     }
 
-    for (int i = 0; i < inputs.timestampQueue.length; ++i) {
+    for (int i = 0; i < inputs.timestampQueue.length; i++) {
       // Apply update
       poseEstimator.updateWithTime(
           inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
@@ -81,9 +83,14 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
     poseEstimator.resetRotation(rotation);
   }
 
+  private final ArrayList<Pose2d> poses = new ArrayList<>();
+  private final ArrayList<Double> timestamps = new ArrayList<>();
+
   @Override
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+    poses.add(visionRobotPoseMeters);
+    timestamps.add(timestampSeconds);
   }
 
   @Override
@@ -93,6 +100,18 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
       Matrix<N3, N1> visionMeasurementStdDevs) {
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    poses.add(visionRobotPoseMeters);
+    timestamps.add(timestampSeconds);
+  }
+
+  @Override
+  public void clearVisionMeasurements() {
+    for (int i = 0; i < poses.size(); i++) {
+      Logger.recordOutput("Swerve/Vision/" + i + "/Pose", poses.get(i));
+      Logger.recordOutput("Swerve/Vision/" + i + "/Timestamp", timestamps.get(i));
+    }
+    poses.clear();
+    timestamps.clear();
   }
 
   @Override

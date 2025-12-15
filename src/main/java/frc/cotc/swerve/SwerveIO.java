@@ -53,6 +53,8 @@ public interface SwerveIO {
   /** Gets the robot pose estimate. */
   Pose2d getPose();
 
+  default void clearVisionMeasurements() {}
+
   /**
    * Zero's this swerve drive's odometry entirely.
    *

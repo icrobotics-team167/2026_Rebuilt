@@ -21,6 +21,7 @@ import frc.cotc.Robot;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final ReentrantLock m_queueLock = new ReentrantLock();
@@ -97,6 +98,9 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
     return pose;
   }
 
+  private final ArrayList<Pose2d> poses = new ArrayList<>();
+  private final ArrayList<Double> timestamps = new ArrayList<>();
+
   /**
    * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
    * while still accounting for measurement noise.
@@ -107,6 +111,8 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
   @Override
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
+    poses.add(visionRobotPoseMeters);
+    timestamps.add(timestampSeconds);
   }
 
   /**
@@ -129,6 +135,18 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       Matrix<N3, N1> visionMeasurementStdDevs) {
     super.addVisionMeasurement(
         visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
+    poses.add(visionRobotPoseMeters);
+    timestamps.add(timestampSeconds);
+  }
+
+  @Override
+  public void clearVisionMeasurements() {
+    for (int i = 0; i < poses.size(); i++) {
+      Logger.recordOutput("Swerve/Vision/" + i + "/Pose", poses.get(i));
+      Logger.recordOutput("Swerve/Vision/" + i + "/Timestamp", timestamps.get(i));
+    }
+    poses.clear();
+    timestamps.clear();
   }
 
   @Override
