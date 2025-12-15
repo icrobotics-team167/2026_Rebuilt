@@ -15,27 +15,33 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import java.util.ArrayList;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean poseEstInit = false;
 
+  private Pose2d m_pose = new Pose2d();
+  private SwerveModuleState[] moduleTargets;
+
   public SwerveIOReplay(
       SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
     super(drivetrainConstants, modules);
 
-    var modulePositions = new SwerveModulePosition[modules.length];
-    for (int i = 0; i < modules.length; i++) {
+    final var modulePositions = new SwerveModulePosition[modules.length];
+    for (int i = 0; i < modulePositions.length; ++i) {
       modulePositions[i] = new SwerveModulePosition();
     }
     poseEstimator =
         new SwerveDrivePoseEstimator(
             getKinematics(), Rotation2d.kZero, modulePositions, Pose2d.kZero);
+    moduleTargets = new SwerveModuleState[modules.length];
+    for (int i = 0; i < moduleTargets.length; ++i) {
+      moduleTargets[i] = new SwerveModuleState();
+    }
   }
 
   @Override
@@ -46,16 +52,25 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
       poseEstInit = true;
     }
 
-    for (int i = 0; i < inputs.timestampQueue.length; i++) {
+    for (int i = 0; i < inputs.timestampQueue.length; ++i) {
       // Apply update
       poseEstimator.updateWithTime(
           inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
     }
+
+    m_pose = poseEstimator.getEstimatedPosition();
+    // TODO: force a control refresh and pull out the new module targets
+    moduleTargets = inputs.ModuleTargets;
   }
 
   @Override
   public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+    return m_pose;
+  }
+
+  @Override
+  public SwerveModuleState[] getModuleTargets() {
+    return moduleTargets;
   }
 
   @Override
@@ -66,6 +81,11 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
   @Override
   public void seedFieldCentric() {
     poseEstimator.resetRotation(getOperatorForwardDirection());
+  }
+
+  @Override
+  public void seedFieldCentric(Rotation2d rotation) {
+    poseEstimator.resetRotation(rotation.plus(getOperatorForwardDirection()));
   }
 
   @Override
@@ -83,14 +103,9 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
     poseEstimator.resetRotation(rotation);
   }
 
-  private final ArrayList<Pose2d> poses = new ArrayList<>();
-  private final ArrayList<Double> timestamps = new ArrayList<>();
-
   @Override
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
-    poses.add(visionRobotPoseMeters);
-    timestamps.add(timestampSeconds);
   }
 
   @Override
@@ -100,18 +115,6 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
       Matrix<N3, N1> visionMeasurementStdDevs) {
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-    poses.add(visionRobotPoseMeters);
-    timestamps.add(timestampSeconds);
-  }
-
-  @Override
-  public void clearVisionMeasurements() {
-    for (int i = 0; i < poses.size(); i++) {
-      Logger.recordOutput("Swerve/Vision/" + i + "/Pose", poses.get(i));
-      Logger.recordOutput("Swerve/Vision/" + i + "/Timestamp", timestamps.get(i));
-    }
-    poses.clear();
-    timestamps.clear();
   }
 
   @Override

@@ -10,32 +10,33 @@ package frc.cotc.swerve;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
 import frc.cotc.Robot;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
-import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final ReentrantLock m_queueLock = new ReentrantLock();
   /* double buffer setup */
-  private ArrayList<SwerveDriveState> stateQueue = new ArrayList<>();
-  private ArrayList<SwerveDriveState> tmpStateQueue = new ArrayList<>();
+  private ArrayList<SwerveDriveState> m_stateQueue = new ArrayList<>();
+  private ArrayList<SwerveDriveState> m_tmpStateQueue = new ArrayList<>();
 
-  private Pose2d pose = new Pose2d();
+  private Pose2d m_pose = new Pose2d();
+  private SwerveModuleState[] m_moduleTargets;
 
   public SwerveIOReal(
       SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
     super(drivetrainConstants, modules);
 
-    stateQueue.add(getStateCopy());
+    final var initialState = getStateCopy();
+    m_stateQueue.add(initialState);
+    m_moduleTargets = initialState.ModuleTargets;
+
     registerTelemetry(this::updateTelemetry);
 
     if (Robot.isSimulation()) {
@@ -46,23 +47,21 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
   @Override
   public void updateInputs(SwerveIOInputs inputs) {
-    final var stateQueue = this.stateQueue;
+    final var stateQueue = m_stateQueue;
     try {
       m_queueLock.lock();
       /* swap buffers */
-      this.stateQueue = tmpStateQueue;
-      tmpStateQueue = stateQueue;
+      m_stateQueue = m_tmpStateQueue;
+      m_tmpStateQueue = stateQueue;
     } finally {
       m_queueLock.unlock();
     }
 
-    if (stateQueue.isEmpty()) {
-      stateQueue.add(getStateCopy());
-    }
+    inputs.fpgaToCurrentTime = Utils.getCurrentTimeSeconds() - Timer.getFPGATimestamp();
 
     /* grab queues of information needed for odometry */
     inputs.poseQueue = new Pose2d[stateQueue.size()];
-    inputs.modulePositionsQueue = new SwerveModulePosition[stateQueue.size()][4];
+    inputs.modulePositionsQueue = new SwerveModulePosition[stateQueue.size()][];
     inputs.rawHeadingQueue = new Rotation2d[stateQueue.size()];
     inputs.timestampQueue = new double[stateQueue.size()];
     for (int i = 0; i < stateQueue.size(); ++i) {
@@ -70,7 +69,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.poseQueue[i] = state.Pose;
       inputs.modulePositionsQueue[i] = state.ModulePositions;
       inputs.rawHeadingQueue[i] = state.RawHeading;
-      inputs.timestampQueue[i] = Utils.currentTimeToFPGATime(state.Timestamp);
+      inputs.timestampQueue[i] = state.Timestamp;
     }
 
     if (!stateQueue.isEmpty()) {
@@ -82,12 +81,13 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.ModuleTargets = state.ModuleTargets;
       inputs.ModulePositions = state.ModulePositions;
       inputs.RawHeading = state.RawHeading;
-      inputs.Timestamp = Utils.currentTimeToFPGATime(state.Timestamp);
+      inputs.Timestamp = state.Timestamp;
       inputs.OdometryPeriod = state.OdometryPeriod;
       inputs.SuccessfulDaqs = state.SuccessfulDaqs;
       inputs.FailedDaqs = state.FailedDaqs;
 
-      pose = state.Pose;
+      m_pose = state.Pose;
+      m_moduleTargets = state.ModuleTargets;
     }
 
     stateQueue.clear();
@@ -95,69 +95,18 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
   @Override
   public Pose2d getPose() {
-    return pose;
-  }
-
-  private final ArrayList<Pose2d> poses = new ArrayList<>();
-  private final ArrayList<Double> timestamps = new ArrayList<>();
-
-  /**
-   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-   * while still accounting for measurement noise.
-   *
-   * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
-   * @param timestampSeconds The timestamp of the vision measurement in seconds.
-   */
-  @Override
-  public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-    super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
-    poses.add(visionRobotPoseMeters);
-    timestamps.add(timestampSeconds);
-  }
-
-  /**
-   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-   * while still accounting for measurement noise.
-   *
-   * <p>Note that the vision measurement standard deviations passed into this method will continue
-   * to apply to future measurements until a subsequent call to {@link
-   * #setVisionMeasurementStdDevs(Matrix)} or this method.
-   *
-   * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
-   * @param timestampSeconds The timestamp of the vision measurement in seconds.
-   * @param visionMeasurementStdDevs Standard deviations of the vision pose measurement in the form
-   *     [x, y, theta]ᵀ, with units in meters and radians.
-   */
-  @Override
-  public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
-    super.addVisionMeasurement(
-        visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
-    poses.add(visionRobotPoseMeters);
-    timestamps.add(timestampSeconds);
+    return m_pose;
   }
 
   @Override
-  public void clearVisionMeasurements() {
-    for (int i = 0; i < poses.size(); i++) {
-      Logger.recordOutput("Swerve/Vision/" + i + "/Pose", poses.get(i));
-      Logger.recordOutput("Swerve/Vision/" + i + "/Timestamp", timestamps.get(i));
-    }
-    poses.clear();
-    timestamps.clear();
-  }
-
-  @Override
-  public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
-    return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
+  public SwerveModuleState[] getModuleTargets() {
+    return m_moduleTargets;
   }
 
   private void updateTelemetry(SwerveDriveState state) {
     try {
       m_queueLock.lock();
-      stateQueue.add(state.clone());
+      m_stateQueue.add(state.clone());
     } finally {
       m_queueLock.unlock();
     }

@@ -26,6 +26,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface SwerveIO {
   @AutoLog
   class SwerveIOInputs {
+    public double fpgaToCurrentTime = 0.0;
+
     /* latest swerve drivetrain state */
     public ChassisSpeeds Speeds = new ChassisSpeeds();
     public SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
@@ -53,7 +55,8 @@ public interface SwerveIO {
   /** Gets the robot pose estimate. */
   Pose2d getPose();
 
-  default void clearVisionMeasurements() {}
+  /** Gets the swerve module target states. */
+  SwerveModuleState[] getModuleTargets();
 
   /**
    * Zero's this swerve drive's odometry entirely.
@@ -69,6 +72,15 @@ public interface SwerveIO {
    * <p>This is equivalent to calling {@link #resetRotation} with the operator perspective rotation.
    */
   void seedFieldCentric();
+
+  /**
+   * Resets the rotation of the robot pose to the given value from the {@link
+   * SwerveRequest.ForwardPerspectiveValue#OperatorPerspective} perspective.
+   *
+   * <p>This is equivalent to calling {@link #resetRotation} with {@code
+   * rotation.plus(getOperatorForwardDirection())}.
+   */
+  void seedFieldCentric(Rotation2d rotation);
 
   /**
    * Resets the pose of the robot. The pose should be from the {@link

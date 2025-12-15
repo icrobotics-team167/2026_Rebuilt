@@ -38,7 +38,6 @@ public class Swerve extends SubsystemBase {
     Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
     Logger.recordOutput("Swerve/Pose", io.getPose());
-    io.clearVisionMeasurements();
   }
 
   private final double maxLinearSpeedMetersPerSecond =
@@ -70,6 +69,23 @@ public class Swerve extends SubsystemBase {
 
   public Command fakeVision() {
     return Commands.run(
-        () -> io.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.kZero), Timer.getTimestamp()));
+        () ->
+            io.addVisionMeasurement(
+                new Pose2d(3, 3, Rotation2d.kZero), fpgaToCurrentTime(Timer.getTimestamp())));
+  }
+
+  /**
+   * Converts an FPGA timestamp to the timebase reported by {@link Utils#getCurrentTimeSeconds()}.
+   */
+  private double fpgaToCurrentTime(double fpgaTimeSeconds) {
+    return fpgaTimeSeconds + inputs.fpgaToCurrentTime;
+  }
+
+  /**
+   * Converts a timestamp in the timebase reported by {@link Utils#getCurrentTimeSeconds()} to an
+   * FPGA timestamp.
+   */
+  private double currentTimeToFPGATime(double currentTimeSeconds) {
+    return currentTimeSeconds - inputs.fpgaToCurrentTime;
   }
 }
