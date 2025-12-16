@@ -14,6 +14,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.Robot;
@@ -127,5 +128,13 @@ public class Swerve extends SubsystemBase {
                     .withVelocityX(vx.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)));
+  }
+
+  public Command setToBlue() {
+    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.kZero));
+  }
+
+  public Command setToRed() {
+    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg));
   }
 }

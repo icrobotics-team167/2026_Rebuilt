@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIO;
@@ -124,6 +125,17 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
+    new Trigger(
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
+        .onTrue(swerve.setToBlue());
+    new Trigger(
+      () ->
+        DriverStation.getAlliance().isPresent()
+          && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
+      .onTrue(swerve.setToRed());
   }
 
   @Override
