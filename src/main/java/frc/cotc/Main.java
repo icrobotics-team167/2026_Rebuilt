@@ -18,18 +18,12 @@ import java.util.Arrays;
 public final class Main {
   private Main() {}
 
-  public static boolean isReplay = false;
-
   /**
    * Main initialization method. Do not perform any initialization here.
    *
    * <p>If you change your main Robot class (name), change the parameter type.
    */
   public static void main(String... args) {
-    isReplay = Arrays.asList(args).contains("--replay");
-    if (isReplay) {
-      System.out.println("Starting Replay mode!");
-    }
-    RobotBase.startRobot(Robot::new);
+    RobotBase.startRobot(() -> new Robot(Arrays.asList(args).contains("--replay")));
   }
 }

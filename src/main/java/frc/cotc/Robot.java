@@ -47,7 +47,7 @@ public class Robot extends LoggedRobot {
   public static Mode mode;
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
-  public Robot() {
+  public Robot(boolean isReplay) {
     // If this is erroring, hit build
     // Compiling auto-generates the BuildConstants file
     Logger.recordMetadata("Project", BuildConstants.MAVEN_NAME);
@@ -58,7 +58,7 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("Uncommited changes", BuildConstants.DIRTY == 1 ? "True" : "False");
     Logger.recordMetadata("Compile date", BuildConstants.BUILD_DATE);
 
-    mode = Robot.isReal() ? Mode.REAL : (Main.isReplay ? Mode.REPLAY : Mode.SIM);
+    mode = Robot.isReal() ? Mode.REAL : (isReplay ? Mode.REPLAY : Mode.SIM);
 
     switch (mode) {
       case REAL -> {
