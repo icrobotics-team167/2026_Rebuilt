@@ -7,6 +7,7 @@
 
 package frc.cotc.swerve;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.cotc.Robot;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,6 +29,8 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
   private ArrayList<SwerveDriveState> tmpStateQueue = new ArrayList<>();
 
   private Pose2d pose = new Pose2d();
+
+  private final BaseStatusSignal[] connectedSignals;
 
   public SwerveIOReal() {
     this(
@@ -41,6 +45,15 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
     stateQueue.add(getStateCopy());
     registerTelemetry(this::updateTelemetry);
+
+    connectedSignals = new BaseStatusSignal[3 * 4];
+    for (int i = 0; i < 4; i++) {
+      connectedSignals[i * 3] = getModule(i).getDriveMotor().getVersion();
+      connectedSignals[i * 3 + 1] = getModule(i).getSteerMotor().getVersion();
+      connectedSignals[i * 3 + 2] = getModule(i).getEncoder().getVersion();
+    }
+    Robot.canivoreSignals.addSignals(connectedSignals);
+    BaseStatusSignal.setUpdateFrequencyForAll(10, connectedSignals);
   }
 
   private void updateTelemetry(SwerveDriveState state) {
@@ -96,6 +109,12 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
     }
 
     stateQueue.clear();
+
+    for (int i = 0; i < 4; i++) {
+      inputs.driveMotorConnected[i] = connectedSignals[i * 3].getStatus().isOK();
+      inputs.steerMotorConnected[i] = connectedSignals[i * 3 + 1].getStatus().isOK();
+      inputs.encoderConnected[i] = connectedSignals[i * 3 + 2].getStatus().isOK();
+    }
   }
 
   // updateOdometry is a noop in real/sim since we can use the real pose estimator directly

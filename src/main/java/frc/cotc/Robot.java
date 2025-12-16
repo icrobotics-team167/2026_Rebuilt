@@ -8,6 +8,7 @@
 package frc.cotc;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -18,10 +19,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.cotc.swerve.Swerve;
-import frc.cotc.swerve.SwerveIOReal;
-import frc.cotc.swerve.SwerveIOReplay;
-import frc.cotc.swerve.SwerveIOSim;
+import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIO;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
@@ -45,6 +43,8 @@ public class Robot extends LoggedRobot {
   }
 
   public static Mode mode;
+
+  public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
@@ -130,7 +130,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     Threads.setCurrentThreadPriority(true, 39);
 
-    //    PhoenixBatchRefresher.refresh();
+    canivoreSignals.refreshAll();
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
     // running already-scheduled commands, removing finished or interrupted commands, and running
     // subsystem periodic() methods. This must be called from the robot's periodic block in order

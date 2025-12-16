@@ -26,17 +26,22 @@ import org.littletonrobotics.junction.AutoLog;
 public interface SwerveIO {
   @AutoLog
   class SwerveIOInputs {
-    /* latest swerve drivetrain state */
-    public ChassisSpeeds Speeds = new ChassisSpeeds();
-    public SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
-    public SwerveModuleState[] ModuleTargets = new SwerveModuleState[4];
-    public SwerveModulePosition[] ModulePositions = new SwerveModulePosition[4];
+    // Latest swerve drivetrain state
+    ChassisSpeeds Speeds = new ChassisSpeeds();
+    SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
+    SwerveModuleState[] ModuleTargets = new SwerveModuleState[4];
+    SwerveModulePosition[] ModulePositions = new SwerveModulePosition[4];
 
-    /* queues for odometry updates */
-    public Pose2d[] poseQueue = new Pose2d[0];
-    public SwerveModulePosition[][] modulePositionsQueue = new SwerveModulePosition[0][4];
-    public Rotation2d[] rawHeadingQueue = new Rotation2d[0];
-    public double[] timestampQueue = new double[0];
+    // Queues for odometry updates
+    Pose2d[] poseQueue = new Pose2d[0];
+    SwerveModulePosition[][] modulePositionsQueue = new SwerveModulePosition[0][4];
+    Rotation2d[] rawHeadingQueue = new Rotation2d[0];
+    double[] timestampQueue = new double[0];
+
+    // Connected devices
+    boolean[] driveMotorConnected = new boolean[] {true, true, true, true};
+    boolean[] steerMotorConnected = new boolean[] {true, true, true, true};
+    boolean[] encoderConnected = new boolean[] {true, true, true, true};
   }
 
   /** Updates the set of loggable inputs. */

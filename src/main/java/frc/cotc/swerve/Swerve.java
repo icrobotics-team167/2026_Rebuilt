@@ -11,8 +11,11 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.cotc.Constants;
 import frc.cotc.Robot;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
@@ -24,6 +27,8 @@ public class Swerve extends SubsystemBase {
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
   private final AprilTagPoseEstimator[] aprilTagPoseEstimators;
+
+  private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
   public Swerve(SwerveIO io, AprilTagPoseEstimator.IO[] cameraIOs) {
     this.io = io;
@@ -41,6 +46,25 @@ public class Swerve extends SubsystemBase {
               cameraIOs[i].name(),
               (timestamp) -> io.getPose().getRotation(),
               io::getPose);
+    }
+
+    final String[] names = new String[] {"Front Left", "Front Right", "Back Left", "Back Right"};
+    for (int i = 0; i < 4; i++) {
+      deviceDisconnectAlerts[i * 3] =
+          new Alert(
+              Constants.MOTOR_DISCONNECT_ALERT_GROUP,
+              names[i] + " Drive Disconnected",
+              Alert.AlertType.kError);
+      deviceDisconnectAlerts[i * 3 + 1] =
+          new Alert(
+              Constants.MOTOR_DISCONNECT_ALERT_GROUP,
+              names[i] + " Steer Disconnected",
+              Alert.AlertType.kError);
+      deviceDisconnectAlerts[i * 3 + 2] =
+          new Alert(
+              Constants.MOTOR_DISCONNECT_ALERT_GROUP,
+              names[i] + " Disconnected",
+              Alert.AlertType.kError);
     }
   }
 
@@ -67,6 +91,12 @@ public class Swerve extends SubsystemBase {
                 estimate.translationalStdDevs(),
                 estimate.rotationalStdDevs()));
       }
+    }
+
+    for (int i = 0; i < 4; i++) {
+      deviceDisconnectAlerts[i * 3].set(inputs.driveMotorConnected[i]);
+      deviceDisconnectAlerts[i * 3 + 1].set(inputs.steerMotorConnected[i]);
+      deviceDisconnectAlerts[i * 3 + 2].set(inputs.encoderConnected[i]);
     }
 
     Logger.recordOutput("Swerve/Pose", io.getPose());
