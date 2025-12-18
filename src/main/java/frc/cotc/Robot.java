@@ -132,10 +132,10 @@ public class Robot extends LoggedRobot {
                     && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
         .onTrue(swerve.setToBlue());
     new Trigger(
-      () ->
-        DriverStation.getAlliance().isPresent()
-          && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
-      .onTrue(swerve.setToRed());
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
+        .onTrue(swerve.setToRed());
   }
 
   @Override
