@@ -39,7 +39,7 @@ public class SwerveIOSim extends SwerveIOReal {
   @SuppressWarnings("FieldCanBeLocal")
   private final double simFrequencyHz = 250.0;
 
-  private final Pose2d initPose = new Pose2d(7, 2, Rotation2d.fromDegrees(120));
+  private final Pose2d initPose = new Pose2d(7, 2, Rotation2d.fromDegrees(0));
 
   public SwerveIOSim() {
     // Tuner constants need to be adjusted for simulation to avoid some MapleSim bugs
@@ -106,9 +106,9 @@ public class SwerveIOSim extends SwerveIOReal {
                 AngularVelocity mechanismVelocity,
                 Angle encoderAngle,
                 AngularVelocity encoderVelocity) {
-              encoderSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
               encoderSimState.setRawPosition(mechanismAngle);
               encoderSimState.setVelocity(mechanismVelocity);
+              encoderSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
               motorSimState.setRawRotorPosition(encoderAngle);
               motorSimState.setRotorVelocity(encoderVelocity);
               motorSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
@@ -158,6 +158,8 @@ public class SwerveIOSim extends SwerveIOReal {
         .withSteerMotorInverted(false)
         // Disable CANCoder inversion
         .withEncoderInverted(false)
+        // MapleSim doesn't simulate coupling ratio
+        .withCouplingGearRatio(0)
         // Adjust steer motor PID gains for simulation
         .withSteerMotorGains(moduleConstants.SteerMotorGains.withKP(70).withKD(.5));
   }
