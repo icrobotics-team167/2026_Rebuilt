@@ -86,7 +86,8 @@ public class Swerve extends SubsystemBase {
       for (var estimate : estimates) {
         io.addVisionMeasurement(
             estimate.pose(),
-            estimate.timestamp(),
+            // FPGA time needs to be converted to CTRE time
+            estimate.timestamp() + inputs.timeOffsetSeconds,
             VecBuilder.fill(
                 estimate.translationalStdDevs(),
                 estimate.translationalStdDevs(),

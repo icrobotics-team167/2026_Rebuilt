@@ -37,6 +37,7 @@ public interface SwerveIO {
     SwerveModulePosition[][] modulePositionsQueue = new SwerveModulePosition[0][4];
     Rotation2d[] rawHeadingQueue = new Rotation2d[0];
     double[] timestampQueue = new double[0];
+    double timeOffsetSeconds = 0;
 
     // Connected devices
     boolean[] driveMotorConnected = new boolean[] {true, true, true, true};
@@ -86,19 +87,10 @@ public interface SwerveIO {
    */
   void resetRotation(Rotation2d rotation);
 
-  /**
-   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-   * while still accounting for measurement noise.
-   */
-  void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds);
-
   void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs);
-
-  /** Sets the pose estimator's trust of global measurements. */
-  void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs);
 
   /** Return the pose at a given timestamp, if the buffer is not empty. */
   Optional<Pose2d> samplePoseAt(double timestampSeconds);

@@ -98,22 +98,12 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
   }
 
   @Override
-  public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-    poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
-  }
-
-  @Override
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-  }
-
-  @Override
-  public void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs) {
-    poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
   }
 
   @Override

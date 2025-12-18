@@ -10,15 +10,11 @@ package frc.cotc.swerve;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import frc.cotc.Robot;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
 /** Implementation for a real swerve drivetrain using Phoenix swerve. */
@@ -91,8 +87,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.poseQueue[i] = state.Pose;
       inputs.modulePositionsQueue[i] = state.ModulePositions;
       inputs.rawHeadingQueue[i] = state.RawHeading;
-      // Timestamp needs to be converted from CTRE time to FPGA time
-      inputs.timestampQueue[i] = Utils.currentTimeToFPGATime(state.Timestamp);
+      inputs.timestampQueue[i] = state.Timestamp;
     }
 
     if (!stateQueue.isEmpty()) {
@@ -115,6 +110,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.steerMotorConnected[i] = connectedSignals[i * 3 + 1].getStatus().isOK();
       inputs.encoderConnected[i] = connectedSignals[i * 3 + 2].getStatus().isOK();
     }
+    inputs.timeOffsetSeconds = Utils.fpgaToCurrentTime(0);
   }
 
   // updateOdometry is a noop in real/sim since we can use the real pose estimator directly
@@ -122,26 +118,5 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
   @Override
   public Pose2d getPose() {
     return pose;
-  }
-
-  // *** Pose estimation stuff has a shim to convert from FPGA time to CTRE time ***
-
-  @Override
-  public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-    super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
-  }
-
-  @Override
-  public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
-    super.addVisionMeasurement(
-        visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
-  }
-
-  @Override
-  public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
-    return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
   }
 }
