@@ -10,9 +10,6 @@ package frc.cotc;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
@@ -22,15 +19,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
-import frc.cotc.vision.AprilTagPoseEstimatorIO;
-import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.io.FileNotFoundException;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
@@ -117,7 +110,8 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-            getCameras());
+            new AprilTagPoseEstimator("FrontLeft"),
+            new AprilTagPoseEstimator("FrontRight"));
     var controller = new CommandXboxController(0);
 
     swerve.setDefaultCommand(
@@ -168,64 +162,4 @@ public class Robot extends LoggedRobot {
   }
 
   public static Supplier<Pose2d> groundTruthPoseSupplier;
-
-  private AprilTagPoseEstimator.IO[] getCameras() {
-    var cameraNames =
-        new LoggableInputs() {
-          String[] names;
-
-          @Override
-          public void toLog(LogTable table) {
-            table.put("Names", names);
-          }
-
-          @Override
-          public void fromLog(LogTable table) {
-            names = table.get("Names", new String[0]);
-          }
-        };
-    switch (mode) {
-      case REAL, SIM -> {
-        var IOs =
-            new AprilTagPoseEstimator.IO[] {
-              new AprilTagPoseEstimator.IO(
-                  new AprilTagPoseEstimatorIOPhoton(
-                      "NewFrontLeft",
-                      new Transform3d(
-                          Units.inchesToMeters(22.75 / 2 - 1.5),
-                          Units.inchesToMeters(22.75 / 2 + .125),
-                          Units.inchesToMeters(8.375),
-                          new Rotation3d(
-                              0, Units.degreesToRadians(-15), Units.degreesToRadians(-30)))),
-                  "NewFrontLeft"),
-              new AprilTagPoseEstimator.IO(
-                  new AprilTagPoseEstimatorIOPhoton(
-                      "NewFrontRight",
-                      new Transform3d(
-                          Units.inchesToMeters(22.75 / 2 - 1.5),
-                          -Units.inchesToMeters(22.75 / 2 + .125),
-                          Units.inchesToMeters(8.375),
-                          new Rotation3d(
-                              0, Units.degreesToRadians(-15), Units.degreesToRadians(30)))),
-                  "NewFrontRight")
-            };
-        cameraNames.names = new String[IOs.length];
-        for (int i = 0; i < IOs.length; i++) {
-          cameraNames.names[i] = IOs[i].name();
-        }
-        Logger.processInputs("Vision", cameraNames);
-
-        return IOs;
-      }
-      default -> {
-        Logger.processInputs("Vision", cameraNames);
-        var IOs = new AprilTagPoseEstimator.IO[cameraNames.names.length];
-        for (int i = 0; i < cameraNames.names.length; i++) {
-          IOs[i] =
-              new AprilTagPoseEstimator.IO(new AprilTagPoseEstimatorIO() {}, cameraNames.names[i]);
-        }
-        return IOs;
-      }
-    }
-  }
 }

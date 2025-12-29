@@ -63,13 +63,17 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
       poseEstimator.updateWithTime(
           inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
     }
+
+    pose = poseEstimator.getEstimatedPosition();
   }
+
+  private Pose2d pose = Pose2d.kZero;
 
   // *** Shims over the Phoenix swerve pose estimator ***
 
   @Override
   public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+    return pose;
   }
 
   @Override

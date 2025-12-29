@@ -10,8 +10,11 @@ package frc.cotc.swerve;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,6 +23,7 @@ import frc.cotc.Constants;
 import frc.cotc.Robot;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
+import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,27 +31,20 @@ public class Swerve extends SubsystemBase {
   private final SwerveIO io;
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
-  private final AprilTagPoseEstimator[] aprilTagPoseEstimators;
-
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
-  public Swerve(SwerveIO io, AprilTagPoseEstimator.IO[] cameraIOs) {
+  AprilTagPoseEstimator[] cameras;
+
+  @SuppressWarnings("resource")
+  public Swerve(SwerveIO io, AprilTagPoseEstimator... cameras) {
     this.io = io;
+
+    this.cameras = cameras;
 
     // capture initial state and set up odometry
     io.updateInputs(inputs);
     Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
-
-    aprilTagPoseEstimators = new AprilTagPoseEstimator[cameraIOs.length];
-    for (int i = 0; i < cameraIOs.length; i++) {
-      aprilTagPoseEstimators[i] =
-          new AprilTagPoseEstimator(
-              cameraIOs[i].io(),
-              cameraIOs[i].name(),
-              (timestamp) -> io.getPose().getRotation(),
-              io::getPose);
-    }
 
     final String[] names = new String[] {"Front Left", "Front Right", "Back Left", "Back Right"};
     for (int i = 0; i < 4; i++) {
@@ -69,6 +66,8 @@ public class Swerve extends SubsystemBase {
     }
   }
 
+  private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
+
   @Override
   public void periodic() {
     // Update and process inputs
@@ -78,22 +77,18 @@ public class Swerve extends SubsystemBase {
     io.updateOdometry(inputs);
 
     if (Robot.mode == Robot.Mode.SIM) {
-      AprilTagPoseEstimatorIOPhoton.Sim.update();
+      AprilTagPoseEstimatorIOPhoton.updateSim();
     }
-    for (AprilTagPoseEstimator aprilTagPoseEstimator : aprilTagPoseEstimators) {
-      var estimates = aprilTagPoseEstimator.poll();
 
-      for (var estimate : estimates) {
-        io.addVisionMeasurement(
-            estimate.pose(),
-            // FPGA time needs to be converted to CTRE time
-            estimate.timestamp() + inputs.timeOffsetSeconds,
-            VecBuilder.fill(
-                estimate.translationalStdDevs(),
-                estimate.translationalStdDevs(),
-                estimate.rotationalStdDevs()));
-      }
+    for (var camera : cameras) {
+      camera.update(
+          (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
+            visionPoses.add(pose);
+            io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
+          });
     }
+    Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
+    visionPoses.clear();
 
     for (int i = 0; i < 4; i++) {
       deviceDisconnectAlerts[i * 3].set(inputs.driveMotorConnected[i]);

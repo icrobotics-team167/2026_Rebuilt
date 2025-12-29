@@ -9,19 +9,25 @@ package frc.cotc.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.cotc.vision.AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs;
-import frc.cotc.vision.AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs.AprilTagPoseEstimate;
+import frc.cotc.Robot;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.function.Supplier;
+import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.PhotonPoseEstimator;
 
 public class AprilTagPoseEstimator {
   public static final AprilTagFieldLayout tagLayout;
+
+  protected static final HashMap<String, Transform3d> cameraTransforms = new HashMap<>();
 
   static {
     AprilTagFieldLayout fieldLayout;
@@ -33,191 +39,64 @@ public class AprilTagPoseEstimator {
       fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     }
     tagLayout = fieldLayout;
+
+    cameraTransforms.put(
+        "FrontLeft",
+        new Transform3d(
+            Units.inchesToMeters(22.75 / 2 - 1.5),
+            Units.inchesToMeters(22.75 / 2 + .125),
+            Units.inchesToMeters(8.375),
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-30))));
+    cameraTransforms.put(
+        "FrontRight",
+        new Transform3d(
+            Units.inchesToMeters(22.75 / 2 - 1.5),
+            -Units.inchesToMeters(22.75 / 2 + .125),
+            Units.inchesToMeters(8.375),
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(30))));
   }
+
+  private final PhotonPoseEstimator poseEstimator;
 
   private final AprilTagPoseEstimatorIO io;
-  private final AprilTagPoseEstimatorIOInputs inputs = new AprilTagPoseEstimatorIOInputs();
-  public final Transform3d robotToCameraTransform;
-  private final Transform2d cameraToRobotTransform2d;
-
-  private final GyroYawGetter gyroYawGetter;
-  private final Supplier<Pose2d> currentPoseEstimateSupplier;
-
-  public final String name;
-
-  public record IO(AprilTagPoseEstimatorIO io, String name) {}
+  private final AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs inputs =
+      new AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs();
 
   @FunctionalInterface
-  public interface GyroYawGetter {
-    Rotation2d get(double timestamp);
+  public interface VisionEstimateConsumer {
+    void accept(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs);
   }
 
-  public AprilTagPoseEstimator(
-      AprilTagPoseEstimatorIO io,
-      String name,
-      GyroYawGetter gyroYawGetter,
-      Supplier<Pose2d> currentPoseEstimateSupplier) {
-    this.io = io;
+  private final String name;
+
+  public AprilTagPoseEstimator(String name) {
+    io =
+        Robot.mode == Robot.Mode.REPLAY
+            ? new AprilTagPoseEstimatorIO() {}
+            : new AprilTagPoseEstimatorIOPhoton(name);
     this.name = name;
-
-    var constants = io.getConstants();
-    Logger.processInputs("Vision/" + name + "/CONSTANTS", constants);
-    robotToCameraTransform = constants.robotToCameraTransform;
-    var cameraToRobotTransform3d = constants.robotToCameraTransform.inverse();
-    cameraToRobotTransform2d =
-        new Transform2d(
-            cameraToRobotTransform3d.getTranslation().toTranslation2d(),
-            cameraToRobotTransform3d.getRotation().toRotation2d());
-    this.gyroYawGetter = gyroYawGetter;
-    this.currentPoseEstimateSupplier = currentPoseEstimateSupplier;
+    poseEstimator =
+        new PhotonPoseEstimator(
+            tagLayout,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            cameraTransforms.get(name));
   }
 
-  private final ArrayList<PoseEstimate> estimatesList = new ArrayList<>();
-  private final ArrayList<Pose3d> posesUsed = new ArrayList<>();
-  private final ArrayList<Pose3d> tagsUsed = new ArrayList<>();
-
-  public PoseEstimate[] poll() {
+  public void update(VisionEstimateConsumer estimateConsumer) {
     io.updateInputs(inputs);
-    Logger.processInputs("Vision/" + name, inputs);
-
-    estimatesList.clear();
-    posesUsed.clear();
-    tagsUsed.clear();
-    for (int i = 0; i < inputs.poseEstimates.length; i++) {
-      var estimate = inputs.poseEstimates[i];
-
-      switch (estimate.tagsUsed().length) {
-        case 0 -> {} // Do nothing
-        case 1 -> trigEstimate(estimate);
-        default -> solvePnPEstimate(estimate);
-      }
+    Logger.processInputs("AprilTags/" + name, inputs);
+    for (var result : inputs.results) {
+      poseEstimator
+          .update(result)
+          .ifPresent(
+              poseEstimate ->
+                  estimateConsumer.accept(
+                      poseEstimate.estimatedPose.toPose2d(),
+                      result.getTimestampSeconds(),
+                      VecBuilder.fill(
+                          .9 / poseEstimate.targetsUsed.size(),
+                          .9 / poseEstimate.targetsUsed.size(),
+                          .9 / poseEstimate.targetsUsed.size())));
     }
-
-    Logger.recordOutput("Vision/" + name + "/Poses Used", posesUsed.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/" + name + "/Tags Used", tagsUsed.toArray(new Pose3d[0]));
-    return estimatesList.toArray(new PoseEstimate[0]);
   }
-
-  private void trigEstimate(AprilTagPoseEstimate estimate) {
-    var tag = estimate.tagsUsed()[0];
-
-    // Fall back to SolvePnP if key data is missing (position of tag and gyro yaw)
-    var tagPoseOptional = tagLayout.getTagPose(tag.id());
-    var gyroYaw = gyroYawGetter.get(estimate.timestamp());
-    if (tagPoseOptional.isEmpty() || gyroYaw == null) {
-      solvePnPEstimate(estimate);
-      return;
-    }
-    var tagPose = tagPoseOptional.get();
-
-    // Algorithm adapted from 6328 Mechanical Advantage
-    // https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2025-build-thread/477314/85
-    var cameraToTagTranslation =
-        new Pose3d(
-                Translation3d.kZero,
-                new Rotation3d(
-                    0, Units.degreesToRadians(-tag.ty()), Units.degreesToRadians(-tag.tx())))
-            .transformBy(
-                new Transform3d(new Translation3d(tag.distanceToCamera(), 0, 0), Rotation3d.kZero))
-            .getTranslation()
-            .rotateBy(new Rotation3d(0, robotToCameraTransform.getRotation().getY(), 0))
-            .toTranslation2d();
-    var cameraToTagRotation =
-        gyroYaw.plus(
-            robotToCameraTransform
-                .getRotation()
-                .toRotation2d()
-                .plus(cameraToTagTranslation.getAngle()));
-
-    var cameraTranslation =
-        new Pose2d(
-                tagPose.getTranslation().toTranslation2d(),
-                cameraToTagRotation.plus(Rotation2d.kPi))
-            .transformBy(new Transform2d(cameraToTagTranslation.getNorm(), 0, Rotation2d.kZero))
-            .getTranslation();
-    var robotPose =
-        new Pose2d(
-                cameraTranslation,
-                gyroYaw.plus(robotToCameraTransform.getRotation().toRotation2d()))
-            .transformBy(cameraToRobotTransform2d);
-    robotPose = new Pose2d(robotPose.getTranslation(), gyroYaw);
-
-    // Obviously bad data falls back to SolvePnP
-    if (robotPose.getX() < 0 || robotPose.getX() > tagLayout.getFieldLength()) {
-      solvePnPEstimate(estimate);
-      return;
-    }
-    if (robotPose.getY() < 0 || robotPose.getY() > tagLayout.getFieldWidth()) {
-      solvePnPEstimate(estimate);
-      return;
-    }
-
-    // If it's too far off the pose estimate that's already in, fall back to SolvePnP
-    // Prevents bad data from bad initial conditions from affecting estimates
-    var delta = robotPose.minus(currentPoseEstimateSupplier.get());
-    if (delta.getTranslation().getNorm() > .025 || delta.getRotation().getDegrees() > 2) {
-      solvePnPEstimate(estimate);
-      return;
-    }
-
-    tagsUsed.add(tagPose);
-    posesUsed.add(new Pose3d(robotPose));
-
-    // Heavy distrust compared multi-tag SolvePnp, due to the inherent lack of information
-    // usable in the solve
-    var stdDev = .3 * tag.distanceToCamera() * tag.distanceToCamera();
-
-    estimatesList.add(new PoseEstimate(robotPose, estimate.timestamp(), stdDev, 15));
-  }
-
-  private void solvePnPEstimate(AprilTagPoseEstimate estimate) {
-    // Filter out obviously bad data
-    if (Math.abs(estimate.robotPoseEstimate().getZ()) > .025) {
-      return;
-    }
-    if (estimate.robotPoseEstimate().getX() < 0
-        || estimate.robotPoseEstimate().getX() > tagLayout.getFieldLength()) {
-      return;
-    }
-    if (estimate.robotPoseEstimate().getY() < 0
-        || estimate.robotPoseEstimate().getY() > tagLayout.getFieldWidth()) {
-      return;
-    }
-    double maxAmbiguity = .2;
-    if (estimate.tagsUsed().length == 1 && estimate.tagsUsed()[0].ambiguity() > maxAmbiguity) {
-      return;
-    }
-
-    double translationalScoresSum = 0;
-    double angularScoresSum = 0;
-    for (var tag : estimate.tagsUsed()) {
-      tagsUsed.add(tag.location());
-      var tagDistance = tag.distanceToCamera();
-
-      translationalScoresSum += .3 * tagDistance * tagDistance;
-      angularScoresSum += .15 * tagDistance * tagDistance;
-    }
-
-    // Heavily distrust single tag observations
-    if (estimate.tagsUsed().length == 1) {
-      var scale = estimate.tagsUsed()[0].ambiguity() / maxAmbiguity;
-      translationalScoresSum *= MathUtil.interpolate(10, 50, scale);
-      angularScoresSum *= MathUtil.interpolate(25, 100, scale);
-    }
-
-    var translationalDivisor = Math.pow(estimate.tagsUsed().length, 1.5);
-    var angularDivisor = Math.pow(estimate.tagsUsed().length, 3);
-
-    posesUsed.add(estimate.robotPoseEstimate());
-
-    estimatesList.add(
-        new PoseEstimate(
-            estimate.robotPoseEstimate().toPose2d(),
-            estimate.timestamp(),
-            translationalScoresSum / translationalDivisor,
-            angularScoresSum / angularDivisor));
-  }
-
-  public record PoseEstimate(
-      Pose2d pose, double timestamp, double translationalStdDevs, double rotationalStdDevs) {}
 }

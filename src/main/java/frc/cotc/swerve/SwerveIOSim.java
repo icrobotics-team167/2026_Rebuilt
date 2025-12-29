@@ -39,7 +39,7 @@ public class SwerveIOSim extends SwerveIOReal {
   @SuppressWarnings("FieldCanBeLocal")
   private final double simFrequencyHz = 250.0;
 
-  private final Pose2d initPose = new Pose2d(7, 2, Rotation2d.fromDegrees(0));
+  private final Pose2d initPose = new Pose2d(7, 2, Rotation2d.fromDegrees(120));
 
   public SwerveIOSim() {
     // Tuner constants need to be adjusted for simulation to avoid some MapleSim bugs
