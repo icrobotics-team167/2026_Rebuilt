@@ -116,15 +116,15 @@ public class Swerve extends SubsystemBase {
           fakeVisionPoseIOInputsAutoLogged.timestamp + inputs.timeOffsetSeconds,
           VecBuilder.fill(0.5, 0.5, 0.5));
     } else {
-      for (var camera : cameras) {
-        camera.update(
-            (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
-              visionPoses.add(pose);
-              io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
-            });
-      }
-      Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
-      visionPoses.clear();
+//      for (var camera : cameras) {
+//        camera.update(
+//            (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
+//              visionPoses.add(pose);
+//              io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
+//            });
+//      }
+//      Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
+//      visionPoses.clear();
     }
 
     for (int i = 0; i < 4; i++) {
