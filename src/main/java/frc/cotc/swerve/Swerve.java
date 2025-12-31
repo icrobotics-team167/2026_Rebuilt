@@ -11,11 +11,13 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,7 +27,9 @@ import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class Swerve extends SubsystemBase {
   private final SwerveIO io;
@@ -68,6 +72,31 @@ public class Swerve extends SubsystemBase {
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
 
+  interface FakeVisionPoseIO {
+    @AutoLog
+    class FakeVisionPoseIOInputs {
+      public double timestamp = 0;
+      public Pose2d pose = Pose2d.kZero;
+    }
+
+    default void updateInputs(FakeVisionPoseIOInputs inputs) {}
+  }
+
+  private final FakeVisionPoseIO fakeVisionIO =
+      Robot.mode == Robot.Mode.REPLAY
+          ? new FakeVisionPoseIO() {}
+          : new FakeVisionPoseIO() {
+            @Override
+            public void updateInputs(FakeVisionPoseIOInputs inputs) {
+              inputs.timestamp = Timer.getFPGATimestamp();
+              inputs.pose = Robot.groundTruthPoseSupplier.get();
+            }
+          };
+  private final FakeVisionPoseIOInputsAutoLogged fakeVisionPoseIOInputsAutoLogged =
+      new FakeVisionPoseIOInputsAutoLogged();
+  private final LoggedNetworkBoolean fakeVision =
+      new LoggedNetworkBoolean("Swerve/Fake Vision Enabled", false);
+
   @Override
   public void periodic() {
     // Update and process inputs
@@ -79,16 +108,24 @@ public class Swerve extends SubsystemBase {
     if (Robot.mode == Robot.Mode.SIM) {
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
-
-    for (var camera : cameras) {
-      camera.update(
+    if (fakeVision.get()) {
+      fakeVisionIO.updateInputs(fakeVisionPoseIOInputsAutoLogged);
+      Logger.processInputs("Swerve/FakeVision", fakeVisionPoseIOInputsAutoLogged);
+      io.addVisionMeasurement(
+          fakeVisionPoseIOInputsAutoLogged.pose,
+          fakeVisionPoseIOInputsAutoLogged.timestamp + inputs.timeOffsetSeconds,
+          VecBuilder.fill(0.5, 0.5, 0.5));
+    } else {
+      for (var camera : cameras) {
+        camera.update(
           (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
             visionPoses.add(pose);
             io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
           });
+      }
+      Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
+      visionPoses.clear();
     }
-    Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
-    visionPoses.clear();
 
     for (int i = 0; i < 4; i++) {
       deviceDisconnectAlerts[i * 3].set(inputs.driveMotorConnected[i]);
