@@ -10,15 +10,11 @@ package frc.cotc.swerve;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import frc.cotc.Robot;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
 /** Implementation for a real swerve drivetrain using Phoenix swerve. */
@@ -91,7 +87,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.poseQueue[i] = state.Pose;
       inputs.modulePositionsQueue[i] = state.ModulePositions;
       inputs.rawHeadingQueue[i] = state.RawHeading;
-      inputs.timestampQueue[i] = Utils.currentTimeToFPGATime(state.Timestamp);
+      inputs.timestampQueue[i] = state.Timestamp;
     }
 
     if (!stateQueue.isEmpty()) {
