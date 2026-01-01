@@ -33,7 +33,10 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
       var cameraSim =
           new PhotonCameraSim(
               camera,
-              new SimCameraProperties().setCalibration(1280, 800, Rotation2d.fromDegrees(80)),
+              new SimCameraProperties()
+                  .setCalibration(1280, 800, Rotation2d.fromDegrees(80))
+                  .setAvgLatencyMs(10)
+                  .setLatencyStdDevMs(1),
               AprilTagPoseEstimator.tagLayout);
       cameraSim.enableDrawWireframe(true);
       cameraSim.enableRawStream(true);
