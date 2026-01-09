@@ -2,7 +2,14 @@
 
 The code for Team 167 Children of the Corn's 2026 Rebuilt robot.
 
-WPILib can be downloaded [here](https://github.com/wpilibsuite/allwpilib/releases)
+- Used libraries:
+  - WPILib
+    - [Docs](https://docs.wpilib.org/en/stable/index.html)
+    - [Download](https://github.com/wpilibsuite/allwpilib/releases)
+  - AdvantageKit
+    - [Docs](https://docs.advantagekit.org/)
+  - Phoenix 6
+    - [Docs](https://v6.docs.ctr-electronics.com/en/latest/)
 
 ## Useful Gradle commands:
 
