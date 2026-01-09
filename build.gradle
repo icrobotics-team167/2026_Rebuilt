@@ -2,9 +2,9 @@ import com.diffplug.spotless.LineEnding
 
 plugins {
     id "java"
+    id "edu.wpi.first.GradleRIO" version "2026.1.1"
     id "com.peterabeles.gversion" version "1.10.3"
     id "com.diffplug.spotless" version "8.1.0"
-    id "edu.wpi.first.GradleRIO" version "2026.1.1-beta-1"
     id "idea"
 }
 
@@ -83,50 +83,6 @@ dependencies {
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
 
-test {
-    useJUnitPlatform()
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-}
-
-// Simulation configuration (e.g. environment variables).
-wpi.sim.addDriverstation()
-
-simulateJavaRelease {
-    project.logger.lifecycle('Checking if replay mode...')
-    if (frc.project.hasProperty("replay")) {
-        project.logger.lifecycle('Replay mode activated!')
-        args '--replay'
-        wpi.sim.addGui().defaultEnabled = false
-    } else {
-        wpi.sim.addGui().defaultEnabled = true
-    }
-}
-
-// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
-// in order to make them all available at runtime. Also adding the manifest so WPILib
-// knows where to look for our Robot Class.
-jar {
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    from sourceSets.main.allSource
-    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
-// Configure jar and deploy tasks
-deployArtifact.jarTask = jar
-wpi.java.configureExecutableTasks(jar)
-wpi.java.configureTestTasks(test)
-
-// Configure string concat to always inline compile
-tasks.withType(JavaCompile) {
-    options.compilerArgs.add '-XDstringConcat=inline'
-}
-
-
 idea {
     project {
         // The project.sourceCompatibility setting is not always picked up, so we set explicitly
@@ -142,6 +98,61 @@ idea {
     }
 }
 
+task(replayWatch, type: JavaExec) {
+    mainClass = "org.littletonrobotics.junction.ReplayWatch"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+simulateJavaRelease {
+    if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("simulate") })) {
+        project.logger.lifecycle('Checking if replay mode...')
+        if (frc.project.hasProperty("replay")) {
+            project.logger.lifecycle('Replay mode activated!')
+            args '--replay'
+            wpi.sim.addGui().defaultEnabled = false
+        } else {
+            wpi.sim.addGui().defaultEnabled = true
+        }
+    } else {
+        project.logger.lifecycle('Not a simulation, skipping replay check')
+    }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+}
+
+// Simulation configuration (e.g. environment variables).
+wpi.sim.addDriverstation()
+
+// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
+// in order to make them all available at runtime. Also adding the manifest so WPILib
+// knows where to look for our Robot Class.
+jar {
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    from('src') { into 'backup/src' }
+    from('vendordeps') { into 'backup/vendordeps' }
+    from('build.gradle') { into 'backup' }
+    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+// Configure jar and deploy tasks
+deployArtifact.jarTask = jar
+wpi.java.configureExecutableTasks(jar)
+wpi.java.configureTestTasks(test)
+
+// Configure string concat to always inline compile
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+// Create version file
 project.compileJava.dependsOn(createVersionFile)
 gversion {
     srcDir       = "src/main/java/"
@@ -156,7 +167,6 @@ gversion {
 task(eventDeploy) {
     doLast {
         if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
-
             def branchPrefix = "event"
             def branch = 'git branch --show-current'.execute().text.trim()
             def commitMessage = "Update at '${new Date().toString()}'"
@@ -186,6 +196,8 @@ task(eventDeploy) {
 }
 createVersionFile.dependsOn(eventDeploy)
 
+// Spotless formatting
+project.compileJava.dependsOn(spotlessApply)
 spotless {
     lineEndings(LineEnding.UNIX)
     java {
@@ -196,8 +208,13 @@ spotless {
         googleJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
-        licenseHeader("// Copyright (c) 2026 FRC 167\n// https://github." +
-                "com/icrobotics-team167\n//\n// Use of this source code is governed by an MIT-style\n// license that can be found in the LICENSE file at\n// the root directory of this project.\n\n")
+        licenseHeader(
+                "// Copyright (c) 2026 FRC 167"+
+                "\n// https://github.com/icrobotics-team167"+
+                "\n//"+
+                "\n// Use of this source code is governed by an MIT-style"+
+                "\n// license that can be found in the LICENSE file at"+
+                "\n// the root directory of this project.\n\n")
         endWithNewline()
     }
     groovyGradle {
@@ -210,14 +227,20 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
+    json {
+        target fileTree(".") {
+            include "**/*.json"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        gson().indentWithSpaces(2)
+    }
     format "misc", {
         target fileTree(".") {
             include "**/*.md", "**/.gitignore"
             exclude "**/build/**", "**/build-*/**"
         }
         trimTrailingWhitespace()
-        leadingTabsToSpaces(4)
+        leadingTabsToSpaces(2)
         endWithNewline()
     }
 }
-compileJava.dependsOn(spotlessApply)
