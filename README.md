@@ -2,7 +2,7 @@
 
 Useful gradle commands:
 
-```
+```sh
 # Compile the code
 $ ./gradlew build
 
