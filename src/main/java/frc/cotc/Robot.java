@@ -39,6 +39,7 @@ public class Robot extends LoggedRobot {
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
+  public static final StatusSignalCollection rioSignals = new StatusSignalCollection();
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
@@ -137,6 +138,7 @@ public class Robot extends LoggedRobot {
     Threads.setCurrentThreadPriority(true, 39);
 
     canivoreSignals.refreshAll();
+    rioSignals.refreshAll();
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
     // running already-scheduled commands, removing finished or interrupted commands, and running
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
