@@ -2,24 +2,21 @@
 name: Task Delegation / Assignment
 about: Use this template for assigning any development, documentation, or research
   task to a student.
-title: "[TASK TYPE] Concise Summary of Work (e.g., Implement X, Fix Y)"
+title: "Concise Summary of Work (e.g., Implement X, Fix Y)"
 labels: needs-triage, task
 assignees: ''
 
 ---
 
 ## Task Goal & Description
-
 ### Description:
 Describe the task in detail. Include any necessary context, background information, or design considerations here.
 
 ## Assignment Details & Technical Guidance
-
-### Assignee:
 ### Relevant Code Navigation:
 * **Files/Modules:**
-    * `src/components/SpecificComponent.js`
-    * `src/api/data-fetcher.py`
+    * `src/components/Example.js`
+    * `src/api/example.py`
 * **Classes/Methods:**
     * `UserProfileManager.updateProfile()`
     * `ValidationService.validateInput()`
@@ -31,11 +28,9 @@ Describe the task in detail. Include any necessary context, background informati
 * [ ] (Add any specific, task-related criteria here...)
 
 ## Deadline and Priority
-
 ### Task Due Date:
 **Priority/Deadline:**
 
 ## Attachments and Logs
-
 * **Screenshot/Image:** (Link or Paste Here)
 * **Relevant Log Snippet:**
