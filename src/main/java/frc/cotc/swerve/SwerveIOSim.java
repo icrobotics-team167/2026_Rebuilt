@@ -37,10 +37,11 @@ public class SwerveIOSim extends SwerveIOReal {
   private final Pigeon2SimState pigeonSim;
 
   @SuppressWarnings("FieldCanBeLocal")
-  private final double simFrequencyHz = 250.0;
+  private final double SIM_FREQUENCY_HZ = 250.0;
 
-  private final Pose2d initPose = new Pose2d(7, 2, Rotation2d.fromDegrees(120));
+  private final Pose2d INIT_POSE = new Pose2d(7, 2, Rotation2d.fromDegrees(120));
 
+  @SuppressWarnings("unchecked")
   public SwerveIOSim() {
     // Tuner constants need to be adjusted for simulation to avoid some MapleSim bugs
     super(
@@ -72,7 +73,7 @@ public class SwerveIOSim extends SwerveIOReal {
                     TunerConstants.kWheelRadius,
                     TunerConstants.kSteerInertia,
                     1.5)),
-            initPose);
+            INIT_POSE);
     // Set up motor controller sims for each module
     for (int i = 0; i < 4; i++) {
       int I = i;
@@ -124,10 +125,10 @@ public class SwerveIOSim extends SwerveIOReal {
     simulation.setAngularDamping(0.1);
 
     // Run the simulation at a higher frequency than the default
-    SimulatedArena.overrideSimulationTimings(Seconds.of(1.0 / simFrequencyHz), 1);
+    SimulatedArena.overrideSimulationTimings(Seconds.of(1.0 / SIM_FREQUENCY_HZ), 1);
     SimulatedArena.getInstance().addDriveTrainSimulation(simulation);
     var simThread = new Notifier(this::update);
-    simThread.startPeriodic(1.0 / simFrequencyHz);
+    simThread.startPeriodic(1.0 / SIM_FREQUENCY_HZ);
 
     Robot.groundTruthPoseSupplier = simulation::getSimulatedDriveTrainPose;
   }
@@ -140,7 +141,7 @@ public class SwerveIOSim extends SwerveIOReal {
         simulation
             .getSimulatedDriveTrainPose()
             .getRotation()
-            .minus(initPose.getRotation())
+            .minus(INIT_POSE.getRotation())
             .getMeasure());
     pigeonSim.setAngularVelocityZ(
         RadiansPerSecond.of(
