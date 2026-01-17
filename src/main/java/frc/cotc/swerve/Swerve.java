@@ -15,12 +15,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.Robot;
+import frc.cotc.shooter.ShotSolver;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ public class Swerve extends SubsystemBase {
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
   AprilTagPoseEstimator[] cameras;
+
+  private final ShotSolver solver;
 
   @SuppressWarnings("resource")
   public Swerve(SwerveIO io, AprilTagPoseEstimator... cameras) {
@@ -64,6 +68,9 @@ public class Swerve extends SubsystemBase {
               names[i] + " Disconnected",
               Alert.AlertType.kError);
     }
+
+    solver = new ShotSolver(Units.inchesToMeters(20));
+    solver.init();
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -96,6 +103,7 @@ public class Swerve extends SubsystemBase {
     }
 
     Logger.recordOutput("Swerve/Pose", io.getPose());
+    //    solver.solve(io.getPose().getX(), io.getPose().getY(), 0, 0, 15);
   }
 
   private final double maxLinearSpeedMetersPerSecond =

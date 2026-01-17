@@ -7,7 +7,6 @@
 
 package frc.cotc.shooter;
 
-import static org.wpilib.math.autodiff.Variable.hypot;
 import static org.wpilib.math.optimization.Constraints.*;
 
 import edu.wpi.first.math.MathUtil;
@@ -16,10 +15,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
-import frc.cotc.Robot;
+import edu.wpi.first.wpilibj.Timer;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.util.Optional;
-import java.util.function.Function;
 import org.ejml.simple.SimpleMatrix;
 import org.littletonrobotics.junction.Logger;
 import org.wpilib.math.autodiff.Slice;
@@ -27,6 +25,7 @@ import org.wpilib.math.autodiff.Variable;
 import org.wpilib.math.autodiff.VariableMatrix;
 import org.wpilib.math.optimization.Problem;
 import org.wpilib.math.optimization.solver.ExitStatus;
+import org.wpilib.math.optimization.solver.Options;
 
 public class ShotSolver {
   private final SimpleMatrix blueTargetWrtField =
@@ -49,27 +48,25 @@ public class ShotSolver {
 
   private VariableMatrix lastX;
 
+  private final double shooterHeight;
+
+  public ShotSolver(double shooterHeight) {
+    this.shooterHeight = shooterHeight;
+  }
+
+  private final int N = 20;
+
   public Optional<Pair<Double, Rotation2d>> solve(
       double x, double y, double vx, double vy, double shooterVel) {
+    var time = Timer.getFPGATimestamp();
+    // Setup problem
     var shooterWrtField =
-        new SimpleMatrix(
-            new double[][] {
-              new double[] {x},
-              new double[] {y},
-              new double[] {Units.inchesToMeters(20)},
-              new double[] {vx},
-              new double[] {vy},
-              new double[] {0},
-            });
-
-    var targetWrtField = Robot.isOnRed() ? redTargetWrtField : blueTargetWrtField;
+        new SimpleMatrix(new double[][] {{x}, {y}, {shooterHeight}, {vx}, {vy}, {0}});
+    var targetWrtField = blueTargetWrtField;
 
     var problem = new Problem();
-
-    int N = 20;
-
     var T = problem.decisionVariable();
-    problem.subjectTo(gt(T, 0));
+    problem.subjectTo(ge(T, 0));
     T.setValue(1);
     var dt = T.div(N);
 
@@ -79,115 +76,112 @@ public class ShotSolver {
     var p_x = X.get(0, Slice.__);
     var p_y = X.get(1, Slice.__);
     var p_z = X.get(2, Slice.__);
-
+    var v = X.get(new Slice(3, 6), Slice.__);
     var v_x = X.get(3, Slice.__);
     var v_y = X.get(4, Slice.__);
     var v_z = X.get(5, Slice.__);
 
-    var x_shooterToTarget = targetWrtField.get(0) - shooterWrtField.get(0);
-    var y_shooterToTarget = targetWrtField.get(1) - shooterWrtField.get(1);
-    var z_shooterToTarget = targetWrtField.get(2) - shooterWrtField.get(2);
+    var v0WrtShooter = X.get(new Slice(3, 6), 0).minus(shooterWrtField.extractMatrix(3, 6, 0, 1));
 
-    var magnitude =
-        Math.sqrt(
-            x_shooterToTarget * x_shooterToTarget
-                + y_shooterToTarget * y_shooterToTarget
-                + z_shooterToTarget * z_shooterToTarget);
-
-    if (lastX == null) {
-      // Initial guess is straight line to target if no previous solve
-      for (int k = 0; k <= N; k++) {
-        p_x.get(k)
-            .setValue(
-                MathUtil.interpolate(
-                    shooterWrtField.get(0), targetWrtField.get(0), (double) k / (double) N));
-        p_y.get(k)
-            .setValue(
-                MathUtil.interpolate(
-                    shooterWrtField.get(1), targetWrtField.get(1), (double) k / (double) N));
-        p_z.get(k)
-            .setValue(
-                MathUtil.interpolate(
-                    shooterWrtField.get(2), targetWrtField.get(2), (double) k / (double) N));
-        v_x.get(k).setValue(shooterWrtField.get(3) + shooterVel * x_shooterToTarget / magnitude);
-        v_y.get(k).setValue(shooterWrtField.get(4) + shooterVel * y_shooterToTarget / magnitude);
-        v_z.get(k).setValue(shooterWrtField.get(5) + shooterVel * z_shooterToTarget / magnitude);
-      }
-
-    } else {
-      // Last solve is initial guess
-      var last_p_x = lastX.get(0, Slice.__);
-      var last_p_y = lastX.get(1, Slice.__);
-      var last_p_z = lastX.get(2, Slice.__);
-      var last_v_x = lastX.get(3, Slice.__);
-      var last_v_y = lastX.get(4, Slice.__);
-      var last_v_z = lastX.get(5, Slice.__);
-      for (int k = 0; k <= N; k++) {
-        p_x.get(k).setValue(last_p_x.get(k).value());
-        p_y.get(k).setValue(last_p_y.get(k).value());
-        p_z.get(k).setValue(last_p_z.get(k).value());
-        v_x.get(k).setValue(last_v_x.get(k).value());
-        v_y.get(k).setValue(last_v_y.get(k).value());
-        v_z.get(k).setValue(last_v_z.get(k).value());
-      }
-    }
-
-    var v0_wrt_shooter = X.get(new Slice(3, 6), 0).minus(shooterWrtField);
-
-    problem.subjectTo(eq(p.get(Slice.__, 0), shooterWrtField));
-
-    for (var k = 0; k < N - 1; k++) {
-      var x_k = X.get(Slice.__, k);
+    // RK4 integration
+    for (int k = 0; k < N - 1; k++) {
+      var x_k = new VariableMatrix(X.get(Slice.__, k));
       var x_k1 = X.get(Slice.__, k + 1);
 
-      var k1 = f(new VariableMatrix(x_k));
+      var k1 = f(x_k);
       var k2 = f(x_k.plus(k1.times(dt.div(2))));
       var k3 = f(x_k.plus(k2.times(dt.div(2))));
       var k4 = f(x_k.plus(k3.times(dt)));
       problem.subjectTo(
-          eq(x_k1, x_k.plus((k1.plus(k2.times(2)).plus(k3.times(2)).plus(k4)).times(dt.div(6)))));
+          eq(x_k1, x_k.plus(k1.plus(k2.times(2)).plus(k3.times(2)).plus(k4).times(dt.div(6)))));
     }
 
+    problem.subjectTo(eq(p.get(Slice.__, 0), shooterWrtField.extractMatrix(0, 3, 0, 1)));
     problem.subjectTo(eq(p.get(Slice.__, -1), targetWrtField));
 
-    problem.subjectTo(le(hypot(v_x.get(-1), v_y.get(-1)), 6.5));
     problem.subjectTo(lt(v_z.get(-1), 0));
+    //    problem.subjectTo(le(hypot(v_x.get(-1), v_y.get(-1)), 7));
+
+    if (lastX == null) {
+      Logger.recordOutput("ShotSolver/Seeded", false);
+      var uvecShooterToTarget = targetWrtField.minus(shooterWrtField.extractMatrix(0, 3, 0, 1));
+      uvecShooterToTarget.scale(1.0 / uvecShooterToTarget.normF());
+
+      for (int k = 0; k < N; k++) {
+        p_x.get(k)
+            .setValue(
+                MathUtil.interpolate(
+                    shooterWrtField.get(0, 0), targetWrtField.get(0, 0), k / ((double) N)));
+        p_y.get(k)
+            .setValue(
+                MathUtil.interpolate(
+                    shooterWrtField.get(1, 0), targetWrtField.get(1, 0), k / ((double) N)));
+        p_z.get(k)
+            .setValue(
+                MathUtil.interpolate(
+                    shooterWrtField.get(2, 0), targetWrtField.get(2, 0), k / ((double) N)));
+        v_x.get(k).setValue(shooterWrtField.get(3, 0) + uvecShooterToTarget.get(0, 0) * shooterVel);
+        v_y.get(k).setValue(shooterWrtField.get(4, 0) + uvecShooterToTarget.get(1, 0) * shooterVel);
+        v_z.get(k).setValue(shooterWrtField.get(5, 0) + uvecShooterToTarget.get(2, 0) * shooterVel);
+      }
+    } else {
+      for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < N; j++) {
+          X.get(i, j).setValue(lastX.get(i, j).value());
+        }
+      }
+      Logger.recordOutput("ShotSolver/Seeded", true);
+    }
 
     problem.subjectTo(
         eq(
-            (v0_wrt_shooter.get(0).times(v0_wrt_shooter.get(0)))
-                .plus(v0_wrt_shooter.get(0).times(v0_wrt_shooter.get(0)))
-                .plus(v0_wrt_shooter.get(0).times(v0_wrt_shooter.get(0))),
+            v0WrtShooter
+                .get(0)
+                .times(v0WrtShooter.get(0))
+                .plus(v0WrtShooter.get(1).times(v0WrtShooter.get(1)))
+                .plus(v0WrtShooter.get(2).times(v0WrtShooter.get(2))),
             shooterVel * shooterVel));
 
-    var status = problem.solve();
-    Logger.recordOutput("ShotSolver/Status", status);
+    var status =
+        problem.solve(
+            new Options().withDiagnostics(false).withTolerance(.01).withMaxIterations(1000));
+    Logger.recordOutput("ShotCalculator/Status", status.name());
+    var trajectory = new Pose3d[N];
+    for (int i = 0; i < N; i++) {
+      trajectory[i] =
+          new Pose3d(p_x.get(i).value(), p_y.get(i).value(), p_z.get(i).value(), Rotation3d.kZero);
+    }
+    Logger.recordOutput("ShotCalculator/Trajectory", trajectory);
+    Logger.recordOutput("ShotCalculator/V_z at target", v_z.get(-1).value());
+    Logger.recordOutput("ShotCalculator/Time", Timer.getFPGATimestamp() - time);
     if (status == ExitStatus.SUCCESS) {
       lastX = X;
-      var pitch =
-          Math.atan2(
-              v0_wrt_shooter.get(1).value(),
-              Math.hypot(v0_wrt_shooter.get(0).value(), v0_wrt_shooter.get(1).value()));
-      var yaw = new Rotation2d(v0_wrt_shooter.get(0).value(), v0_wrt_shooter.get(1).value());
-      Logger.recordOutput("ShotSolver/Pitch", pitch);
-      Logger.recordOutput("ShotSolver/Yaw", yaw);
-
-      var trajectory = new Pose3d[N];
-      for (int i = 0; i < N; i++) {
-        trajectory[i] =
-            new Pose3d(
-                p.get(0, N).value(), p.get(1, N).value(), p.get(2, N).value(), Rotation3d.kZero);
-      }
-
-      Logger.recordOutput("ShotSolver/Trajectory", trajectory);
-      return Optional.of(new Pair<>(pitch, yaw));
-    } else {
-      return Optional.empty();
+      return Optional.of(
+          new Pair<>(
+              Math.atan2(
+                  v0WrtShooter.get(2).value(),
+                  Math.hypot(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())),
+              new Rotation2d(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())));
     }
+    return Optional.empty();
   }
 
-  /** Apply the drag equation to a velocity. */
   private VariableMatrix f(VariableMatrix x) {
+    var v_x = x.get(3, 0);
+    var v_y = x.get(4, 0);
+    var v_z = x.get(5, 0);
+    return new VariableMatrix(
+        new Variable[][] {
+          {v_x},
+          {v_y},
+          {v_z},
+          {a_D(v_x).unaryMinus()},
+          {a_D(v_y).unaryMinus()},
+          {v_z.unaryMinus().minus(9.81)}
+        });
+  }
+
+  private Variable a_D(Variable v) {
     // x' = x'
     // y' = y'
     // z' = z'
@@ -200,26 +194,13 @@ public class ShotSolver {
     var rho = 1.204;
     var C_D = 0.5;
     var m = 0.5 / 2.205;
-    var r = 5.91 * 0.0254 / 2;
+    var r = 5.91 * .0254 / 2;
     var A = Math.PI * r * r;
-    Function<Variable, Variable> a_D = (v) -> v.times(v).times(0.5 * rho * C_D * A / m);
 
-    var v_x = x.get(3, 0);
-    var v_y = x.get(4, 0);
-    var v_z = x.get(5, 0);
-
-    return new VariableMatrix(
-        new Variable[][] {
-          new Variable[] {v_x},
-          new Variable[] {v_y},
-          new Variable[] {v_z},
-          new Variable[] {a_D.apply(v_x).unaryMinus()},
-          new Variable[] {a_D.apply(v_y).unaryMinus()},
-          new Variable[] {a_D.apply(v_z).unaryMinus().minus(9.81)}
-        });
+    return v.times(v).times(0.5 * rho * C_D * A / m);
   }
 
-  private void init() {
-    solve(0, 4, 0, 0, 10);
+  public void init() {
+    solve(0, 4.1, 0, 0, 12);
   }
 }
