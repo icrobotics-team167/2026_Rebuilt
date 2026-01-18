@@ -7,6 +7,7 @@
 
 package frc.cotc.shooter;
 
+import static org.wpilib.math.autodiff.Variable.hypot;
 import static org.wpilib.math.optimization.Constraints.*;
 
 import edu.wpi.first.math.MathUtil;
@@ -33,7 +34,7 @@ public class ShotSolver {
           new double[][] {
             new double[] {Units.inchesToMeters(158.6 + (47.0 / 2))},
             new double[] {AprilTagPoseEstimator.tagLayout.getFieldWidth() / 2},
-            new double[] {Units.inchesToMeters(72)}
+            new double[] {Units.inchesToMeters(66)}
           });
   private final SimpleMatrix redTargetWrtField =
       new SimpleMatrix(
@@ -43,10 +44,8 @@ public class ShotSolver {
                   - Units.inchesToMeters(158.6 + (47.0 / 2))
             },
             new double[] {AprilTagPoseEstimator.tagLayout.getFieldWidth() / 2},
-            new double[] {Units.inchesToMeters(72)}
+            new double[] {Units.inchesToMeters(66)}
           });
-
-  private VariableMatrix lastX;
 
   private final double shooterHeight;
 
@@ -98,38 +97,35 @@ public class ShotSolver {
     var targetPosWrtField = blueTargetWrtField;
 
     // Setup problem
-    var problem = new Problem();
+    try (var problem = new Problem()) {
+      // Set up time and delta time
+      var T = problem.decisionVariable();
+      problem.subjectTo(ge(T, 0));
+      T.setValue(1);
+      var dt = T.div(N);
 
-    // Set up time and delta time
-    var T = problem.decisionVariable();
-    problem.subjectTo(ge(T, 0));
-    T.setValue(1);
-    var dt = T.div(N);
+      // Ball state in field frame
+      //
+      //     [x position]
+      //     [y position]
+      //     [z position]
+      // x = [x velocity]
+      //     [y velocity]
+      //     [z velocity]
+      var X = problem.decisionVariable(6, N);
 
-    // Ball state in field frame
-    //
-    //     [x position]
-    //     [y position]
-    //     [z position]
-    // x = [x velocity]
-    //     [y velocity]
-    //     [z velocity]
-    var X = problem.decisionVariable(6, N);
+      var p = X.get(new Slice(0, 3), Slice.__);
+      var p_x = X.get(0, Slice.__);
+      var p_y = X.get(1, Slice.__);
+      var p_z = X.get(2, Slice.__);
 
-    var p = X.get(new Slice(0, 3), Slice.__);
-    var p_x = X.get(0, Slice.__);
-    var p_y = X.get(1, Slice.__);
-    var p_z = X.get(2, Slice.__);
+      var v = X.get(new Slice(3, 6), Slice.__);
+      var v_x = X.get(3, Slice.__);
+      var v_y = X.get(4, Slice.__);
+      var v_z = X.get(5, Slice.__);
 
-    var v = X.get(new Slice(3, 6), Slice.__);
-    var v_x = X.get(3, Slice.__);
-    var v_y = X.get(4, Slice.__);
-    var v_z = X.get(5, Slice.__);
+      var v0WrtShooter = v.get(Slice.__, 0).minus(shooterVelWrtField);
 
-    var v0WrtShooter = v.get(Slice.__, 0).minus(shooterVelWrtField);
-
-    if (lastX == null) {
-      Logger.recordOutput("ShotSolver/Seeded", false);
       var uvecShooterToTarget = targetPosWrtField.minus(shooterPosWrtField);
       uvecShooterToTarget.scale(1.0 / uvecShooterToTarget.normF());
 
@@ -148,74 +144,61 @@ public class ShotSolver {
                     shooterPosWrtField.get(2, 0), targetPosWrtField.get(2, 0), k / ((double) N)));
         v.get(Slice.__, k).setValue(shooterVelWrtField.plus(uvecShooterToTarget.scale(shotVel)));
       }
-    } else {
-      for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < N; j++) {
-          X.get(i, j).setValue(lastX.get(i, j).value());
-        }
+
+      // Initial pos of ball at the shooter's pos
+      problem.subjectTo(eq(p.get(Slice.__, 0), shooterPosWrtField));
+
+      // Set initial velocity of shot
+      //
+      // √(v_x² + v_y² + v_z²) = v
+      // v_x² + v_y² + v_z² = v²
+      // vᵀv = v_x² + v_y² + v_z² = v²
+      problem.subjectTo(eq(v0WrtShooter.T().times(v0WrtShooter), shotVel * shotVel));
+
+      // RK4 integration to enforce dynamics
+      for (int k = 0; k < N - 1; k++) {
+        var x_k = new VariableMatrix(X.get(Slice.__, k));
+        var x_k1 = X.get(Slice.__, k + 1);
+
+        var k1 = f(x_k);
+        var k2 = f(x_k.plus(k1.times(dt.div(2))));
+        var k3 = f(x_k.plus(k2.times(dt.div(2))));
+        var k4 = f(x_k.plus(k3.times(dt)));
+        problem.subjectTo(
+            eq(x_k1, x_k.plus((k1.plus(k2.times(2)).plus(k3.times(2)).plus(k4)).times(dt.div(6)))));
       }
-      Logger.recordOutput("ShotSolver/Seeded", true);
+
+      // Final pos of ball at target
+      problem.subjectTo(eq(p.get(Slice.__, N - 1), targetPosWrtField));
+
+      problem.subjectTo(lt(v_z.get(N - 1), 0));
+      problem.subjectTo(lt(hypot(v_x.get(N - 1), v_y.get(N - 1)), v_z.get(N - 1).times(-2)));
+
+      var status =
+          problem.solve(
+              new Options().withDiagnostics(false).withTolerance(.01).withMaxIterations(1000));
+      Logger.recordOutput("ShotCalculator/Status", status.name());
+      var trajectory = new Pose3d[N];
+      for (int i = 0; i < N; i++) {
+        trajectory[i] =
+            new Pose3d(
+                p_x.get(i).value(), p_y.get(i).value(), p_z.get(i).value(), Rotation3d.kZero);
+      }
+      Logger.recordOutput("ShotCalculator/Trajectory", trajectory);
+      Logger.recordOutput("ShotCalculator/v_z", v_z.value(N - 1));
+      Logger.recordOutput(
+          "ShotCalculator/v_horiz", Math.hypot(v_x.get(N - 1).value(), v_y.get(N - 1).value()));
+      Logger.recordOutput("ShotCalculator/Time", Timer.getFPGATimestamp() - startTime);
+      if (status == ExitStatus.SUCCESS) {
+        return Optional.of(
+            new Pair<>(
+                Math.atan2(
+                    v0WrtShooter.get(2).value(),
+                    Math.hypot(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())),
+                new Rotation2d(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())));
+      }
+      return Optional.empty();
     }
-
-    // Initial pos of ball at the shooter's pos
-    problem.subjectTo(eq(p.get(Slice.__, 0), shooterPosWrtField));
-
-    // Set initial velocity of shot
-    //
-    //   √(v_x² + v_y² + v_z²) = v
-    //   v_x² + v_y² + v_z² = v²
-    problem.subjectTo(
-        eq(
-            (v0WrtShooter.get(0).times(v0WrtShooter.get(0)))
-                .plus(v0WrtShooter.get(1).times(v0WrtShooter.get(1)))
-                .plus(v0WrtShooter.get(2).times(v0WrtShooter.get(2))),
-            shotVel * shotVel));
-
-    // RK4 integration to enforce dynamics
-    for (int k = 0; k < N - 1; k++) {
-      var x_k = new VariableMatrix(X.get(Slice.__, k));
-      var x_k1 = X.get(Slice.__, k + 1);
-
-      var k1 = f(x_k);
-      var k2 = f(x_k.plus(k1.times(dt.div(2))));
-      var k3 = f(x_k.plus(k2.times(dt.div(2))));
-      var k4 = f(x_k.plus(k3.times(dt)));
-      problem.subjectTo(
-          eq(x_k1, x_k.plus((k1.plus(k2.times(2)).plus(k3.times(2)).plus(k4)).times(dt.div(6)))));
-    }
-
-    // Final pos of ball at target
-    problem.subjectTo(eq(p.get(Slice.__, -1), targetPosWrtField));
-
-    problem.subjectTo(lt(v_z.get(-1), 0));
-    //    problem.subjectTo(le(hypot(v_x.get(-1), v_y.get(-1)), v_z.get(-1).times(-1.4)));
-
-    var status =
-        problem.solve(
-            new Options().withDiagnostics(false).withTolerance(.01).withMaxIterations(1000));
-    Logger.recordOutput("ShotCalculator/Status", status.name());
-    var trajectory = new Pose3d[N];
-    for (int i = 0; i < N; i++) {
-      trajectory[i] =
-          new Pose3d(p_x.get(i).value(), p_y.get(i).value(), p_z.get(i).value(), Rotation3d.kZero);
-    }
-    Logger.recordOutput("ShotCalculator/Trajectory", trajectory);
-    Logger.recordOutput(
-        "ShotCalculator/Trajectory angle at target deg",
-        Units.radiansToDegrees(
-            Math.atan2(v_z.get(-1).value(), Math.hypot(v_x.get(-1).value(), v_y.get(-1).value()))));
-    Logger.recordOutput("ShotCalculator/Time", Timer.getFPGATimestamp() - startTime);
-    problem.close();
-    if (status == ExitStatus.SUCCESS) {
-      lastX = X;
-      return Optional.of(
-          new Pair<>(
-              Math.atan2(
-                  v0WrtShooter.get(2).value(),
-                  Math.hypot(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())),
-              new Rotation2d(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())));
-    }
-    return Optional.empty();
   }
 
   public void init() {
