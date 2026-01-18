@@ -34,7 +34,7 @@ public class ShotSolver {
           new double[][] {
             new double[] {Units.inchesToMeters(158.6 + (47.0 / 2))},
             new double[] {AprilTagPoseEstimator.tagLayout.getFieldWidth() / 2},
-            new double[] {Units.inchesToMeters(66)}
+            new double[] {Units.inchesToMeters(72)}
           });
   private final SimpleMatrix redTargetWrtField =
       new SimpleMatrix(
@@ -44,7 +44,7 @@ public class ShotSolver {
                   - Units.inchesToMeters(158.6 + (47.0 / 2))
             },
             new double[] {AprilTagPoseEstimator.tagLayout.getFieldWidth() / 2},
-            new double[] {Units.inchesToMeters(66)}
+            new double[] {Units.inchesToMeters(72)}
           });
 
   private final double shooterHeight;
@@ -87,7 +87,9 @@ public class ShotSolver {
     return v.times(v).times(0.5 * rho * C_D * A / m);
   }
 
-  private final int N = 20;
+  private SimpleMatrix lastX;
+
+  private final int N = 8;
 
   public Optional<Pair<Double, Rotation2d>> solve(
       double x, double y, double vx, double vy, double shotVel) {
@@ -126,23 +128,27 @@ public class ShotSolver {
 
       var v0WrtShooter = v.get(Slice.__, 0).minus(shooterVelWrtField);
 
-      var uvecShooterToTarget = targetPosWrtField.minus(shooterPosWrtField);
-      uvecShooterToTarget.scale(1.0 / uvecShooterToTarget.normF());
+      if (lastX == null) {
+        var uvecShooterToTarget = targetPosWrtField.minus(shooterPosWrtField);
+        uvecShooterToTarget.scale(1.0 / uvecShooterToTarget.normF());
 
-      for (int k = 0; k < N; k++) {
-        p_x.get(k)
-            .setValue(
-                MathUtil.interpolate(
-                    shooterPosWrtField.get(0, 0), targetPosWrtField.get(0, 0), k / ((double) N)));
-        p_y.get(k)
-            .setValue(
-                MathUtil.interpolate(
-                    shooterPosWrtField.get(1, 0), targetPosWrtField.get(1, 0), k / ((double) N)));
-        p_z.get(k)
-            .setValue(
-                MathUtil.interpolate(
-                    shooterPosWrtField.get(2, 0), targetPosWrtField.get(2, 0), k / ((double) N)));
-        v.get(Slice.__, k).setValue(shooterVelWrtField.plus(uvecShooterToTarget.scale(shotVel)));
+        for (int k = 0; k < N; k++) {
+          p_x.get(k)
+              .setValue(
+                  MathUtil.interpolate(
+                      shooterPosWrtField.get(0, 0), targetPosWrtField.get(0, 0), k / ((double) N)));
+          p_y.get(k)
+              .setValue(
+                  MathUtil.interpolate(
+                      shooterPosWrtField.get(1, 0), targetPosWrtField.get(1, 0), k / ((double) N)));
+          p_z.get(k)
+              .setValue(
+                  MathUtil.interpolate(
+                      shooterPosWrtField.get(2, 0), targetPosWrtField.get(2, 0), k / ((double) N)));
+          v.get(Slice.__, k).setValue(shooterVelWrtField.plus(uvecShooterToTarget.scale(shotVel)));
+        }
+      } else {
+        X.setValue(lastX);
       }
 
       // Initial pos of ball at the shooter's pos
@@ -153,7 +159,8 @@ public class ShotSolver {
       // √(v_x² + v_y² + v_z²) = v
       // v_x² + v_y² + v_z² = v²
       // vᵀv = v_x² + v_y² + v_z² = v²
-      problem.subjectTo(eq(v0WrtShooter.T().times(v0WrtShooter), shotVel * shotVel));
+      // problem.subjectTo(eq(v0WrtShooter.T().times(v0WrtShooter), shotVel * shotVel));
+      problem.minimize(T);
 
       // RK4 integration to enforce dynamics
       for (int k = 0; k < N - 1; k++) {
@@ -171,12 +178,19 @@ public class ShotSolver {
       // Final pos of ball at target
       problem.subjectTo(eq(p.get(Slice.__, N - 1), targetPosWrtField));
 
+      // Final velocity has to be going down
       problem.subjectTo(lt(v_z.get(N - 1), 0));
-      problem.subjectTo(lt(hypot(v_x.get(N - 1), v_y.get(N - 1)), v_z.get(N - 1).times(-2)));
+      // Final horizontal velocity can't be too shallow (~26.5 degrees from horizontal at a minimum)
+      problem.subjectTo(lt(hypot(v_x.get(N - 1), v_y.get(N - 1)), v_z.get(N - 1).times(-2.5)));
 
+      // Solve
       var status =
           problem.solve(
-              new Options().withDiagnostics(false).withTolerance(.01).withMaxIterations(1000));
+              new Options()
+                  .withDiagnostics(false)
+                  .withTolerance(.05)
+                  .withTimeout(0.01)
+                  .withMaxIterations(100));
       Logger.recordOutput("ShotCalculator/Status", status.name());
       var trajectory = new Pose3d[N];
       for (int i = 0; i < N; i++) {
@@ -188,20 +202,22 @@ public class ShotSolver {
       Logger.recordOutput("ShotCalculator/v_z", v_z.value(N - 1));
       Logger.recordOutput(
           "ShotCalculator/v_horiz", Math.hypot(v_x.get(N - 1).value(), v_y.get(N - 1).value()));
-      Logger.recordOutput("ShotCalculator/Time", Timer.getFPGATimestamp() - startTime);
+      Logger.recordOutput(
+          "ShotCalculator/Shot vel",
+          Math.sqrt(v0WrtShooter.value().transpose().mult(v0WrtShooter.value()).get(0)));
+      Logger.recordOutput("ShotCalculator/Calc time", Timer.getFPGATimestamp() - startTime);
       if (status == ExitStatus.SUCCESS) {
-        return Optional.of(
-            new Pair<>(
-                Math.atan2(
-                    v0WrtShooter.get(2).value(),
-                    Math.hypot(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())),
-                new Rotation2d(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value())));
+        lastX = X.value();
+        var pitch =
+            Math.atan2(
+                v0WrtShooter.get(2).value(),
+                Math.hypot(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value()));
+        var yaw = new Rotation2d(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value());
+        Logger.recordOutput("ShotCalculator/Pitch", pitch);
+        Logger.recordOutput("ShotCalculator/Yaw", yaw);
+        return Optional.of(new Pair<>(pitch, yaw));
       }
       return Optional.empty();
     }
-  }
-
-  public void init() {
-    solve(0, AprilTagPoseEstimator.tagLayout.getFieldWidth() / 2, 0, 0, 8.5);
   }
 }

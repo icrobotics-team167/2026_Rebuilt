@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -70,7 +71,6 @@ public class Swerve extends SubsystemBase {
     }
 
     solver = new ShotSolver(Units.inchesToMeters(20));
-    solver.init();
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -103,7 +103,14 @@ public class Swerve extends SubsystemBase {
     }
 
     Logger.recordOutput("Swerve/Pose", io.getPose());
-    //    solver.solve(io.getPose().getX(), io.getPose().getY(), 0, 0, 15);
+    var fieldSpeeds =
+        ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, io.getPose().getRotation());
+    solver.solve(
+        io.getPose().getX(),
+        io.getPose().getY(),
+        fieldSpeeds.vxMetersPerSecond,
+        fieldSpeeds.vyMetersPerSecond,
+        10);
   }
 
   private final double maxLinearSpeedMetersPerSecond =

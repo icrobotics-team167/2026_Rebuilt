@@ -1,7 +1,7 @@
 {
   "fileName": "SleipnirJava.json",
   "name": "SleipnirJava",
-  "version": "2026.0.0",
+  "version": "2026.0.1",
   "frcYear": "2026",
   "uuid": "bb03ce60-d4e3-4b8a-a607-2250bd5f6c38",
   "mavenUrls": [
@@ -12,14 +12,14 @@
     {
       "groupId": "org.wpilib.math",
       "artifactId": "SleipnirJava-java",
-      "version": "2026.0.0"
+      "version": "2026.0.1"
     }
   ],
   "jniDependencies": [
     {
       "groupId": "org.wpilib.math",
       "artifactId": "SleipnirJava-driver",
-      "version": "2026.0.0",
+      "version": "2026.0.1",
       "skipInvalidPlatforms": true,
       "isJar": false,
       "validPlatforms": [
@@ -36,7 +36,7 @@
     {
       "groupId": "org.wpilib.math",
       "artifactId": "SleipnirJava-driver",
-      "version": "2026.0.0",
+      "version": "2026.0.1",
       "libName": "SleipnirJavaDriver",
       "headerClassifier": "headers",
       "sharedLibrary": false,
