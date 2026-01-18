@@ -179,7 +179,7 @@ public class ShotSolver {
       problem.subjectTo(eq(p.get(Slice.__, N - 1), targetPosWrtField));
 
       // Final velocity has to be going down
-      problem.subjectTo(lt(v_z.get(N - 1), 0));
+      problem.subjectTo(lt(v_z.get(N - 1), -1.5));
       // Final horizontal velocity can't be too shallow (~26.5 degrees from horizontal at a minimum)
       problem.subjectTo(lt(hypot(v_x.get(N - 1), v_y.get(N - 1)), v_z.get(N - 1).times(-2.5)));
 
@@ -202,19 +202,18 @@ public class ShotSolver {
       Logger.recordOutput("ShotCalculator/v_z", v_z.value(N - 1));
       Logger.recordOutput(
           "ShotCalculator/v_horiz", Math.hypot(v_x.get(N - 1).value(), v_y.get(N - 1).value()));
+      var v0 = v0WrtShooter.value();
+      Logger.recordOutput("ShotCalculator/Shot vel", v0.normF());
+      var pitch = Math.atan2(v0.get(2), Math.hypot(v0.get(0), v0.get(1)));
+      var yaw = new Rotation2d(v0.get(0), v0.get(1));
+      Logger.recordOutput("ShotCalculator/Pitch", pitch);
+      Logger.recordOutput("ShotCalculator/Yaw", yaw);
       Logger.recordOutput(
-          "ShotCalculator/Shot vel",
-          Math.sqrt(v0WrtShooter.value().transpose().mult(v0WrtShooter.value()).get(0)));
+          "ShotCalculator/Turret pos",
+          new Pose3d(x, y, shooterHeight, new Rotation3d(0, pitch, yaw.getRadians())));
       Logger.recordOutput("ShotCalculator/Calc time", Timer.getFPGATimestamp() - startTime);
       if (status == ExitStatus.SUCCESS) {
         lastX = X.value();
-        var pitch =
-            Math.atan2(
-                v0WrtShooter.get(2).value(),
-                Math.hypot(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value()));
-        var yaw = new Rotation2d(v0WrtShooter.get(0).value(), v0WrtShooter.get(1).value());
-        Logger.recordOutput("ShotCalculator/Pitch", pitch);
-        Logger.recordOutput("ShotCalculator/Yaw", yaw);
         return Optional.of(new Pair<>(pitch, yaw));
       }
       return Optional.empty();
