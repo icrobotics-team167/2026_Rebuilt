@@ -210,7 +210,8 @@ public class ShotSolver {
       Logger.recordOutput("ShotCalculator/Yaw", yaw);
       Logger.recordOutput(
           "ShotCalculator/Turret pos",
-          new Pose3d(x, y, shooterHeight, new Rotation3d(0, pitch, yaw.getRadians())));
+          new Pose3d(
+              x, y, shooterHeight, new Rotation3d(0, Math.PI / 2 - pitch, yaw.getRadians())));
       Logger.recordOutput("ShotCalculator/Calc time", Timer.getFPGATimestamp() - startTime);
       if (status == ExitStatus.SUCCESS) {
         lastX = X.value();
