@@ -1,56 +1,49 @@
-package frc.cotc.Intake;
+// Copyright (c) 2026 FRC 167
+// https://github.com/icrobotics-team167
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
+package frc.cotc.Intake;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.cotc.Intake.IntakeIO.IntakeIOInputs;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Intake {
-    private final IntakeIO io;
-    private final IntakeIOInputs inputs;
-    private final DigitalInput beamBreakSensor;
-    private final int BEAM_BREAK_SENSOR_ID = 0;//Placeholder ID for beamBreakSensor
+import org.littletonrobotics.junction.Logger;
 
-    public Intake(IntakeIO io) {
-        this.io = io;
-    }
+public class Intake extends SubsystemBase {
+  private final IntakeIO io;
+  private IntakeIOInputsAutoLogged inputs;
+  private final DigitalInput beamBreakSensor;
+  private final int BEAM_BREAK_SENSOR_ID = 0; // Placeholder ID for beamBreakSensor
 
-    public Intake() {
-        beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
-    }
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs); // 1, Get new data from hardware
+    Logger.processInputs("Intake", inputs);
+  }
 
-    public Command intake() {
-        return Commands.parallel(run(() -> intakeMotor1.setVoltage()), run(() -> intakeMotor2.setVoltage()));
-    }
-    
-    public Command outtake() {
-        return Commands.parallel(runReverse(() -> intakeMotor1.setVoltage()), runReverse(() -> intakeMotor2.setVoltage()));
-    }
+  public Intake(IntakeIO io) {
+    this.io = io;
+    beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
+  }
 
-    public Command getIntakeCommand() {
-        return run(io::run).finallyDo(io::stop);
-    }
+  public Command getIntakeCommand() {
+    return run(io::run).finallyDo(io::stop);
+  }
 
-    public Command getIntakeOutCommand() {
-        return run(io::runReverse).finallyDo(io::stop);
-    }
+  public Command getIntakeOutCommand() {
+    return run(io::runReverse).finallyDo(io::stop);
+  }
 
-    public boolean isRunning() {
-        return inputs.isRunning;
-    }
+  public boolean hasGamePiece() {
+    return !beamBreakSensor.get();
+  }
 
-    public boolean hasGamePiece() {
-        return !beamBreakSensor.get();
-      }
-
-    public Command outtakeUntilGamepiece() {
-        return outtake().until(this::hasGamePiece).withName("Outtake Until Gamepiece");
-    }
-    
-
+  public Command outtakeUntilGamepiece() {
+    return getIntakeOutCommand().until(this::hasGamePiece).withName("Outtake Until Gamepiece");
+  }
 }
