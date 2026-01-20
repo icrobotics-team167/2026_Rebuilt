@@ -71,7 +71,7 @@ def f(x):
     # where a_D(v) = ½ρv² C_D A / m
     # (see https://en.wikipedia.org/wiki/Drag_(physics)#The_drag_equation)
     rho = 1.204  # kg/m³
-    C_D = 0.5
+    C_D = 0.4
     m = ball_mass
     A = math.pi * ((ball_diameter / 2) ** 2)
     a_D = lambda v: 0.5 * rho * v**2 * C_D * A / m
