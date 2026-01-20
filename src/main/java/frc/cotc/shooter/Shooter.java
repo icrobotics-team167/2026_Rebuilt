@@ -68,7 +68,7 @@ public class Shooter extends SubsystemBase {
             + fieldChassisSpeeds.omegaRadiansPerSecond * robotCenterToShooter.getX();
 
     var result = HubShotMap.get(shooterToTarget.getNorm(), 15);
-    int iterations = 10;
+    int iterations = 5;
     var iterationTargets = new ArrayList<Pose2d>();
     if (result == null) {
       return;
