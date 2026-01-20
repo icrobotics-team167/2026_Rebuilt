@@ -118,13 +118,12 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("FrontRight"));
     var controller = new CommandXboxController(0);
 
-    var intake = 
-      new Intake(
-        switch (mode) {
-          case REAL -> new IntakeIOPhoenix();
-          case SIM, REPLAY -> new IntakeIO(){};
-        }
-      );
+    var intake =
+        new Intake(
+            switch (mode) {
+              case REAL -> new IntakeIOPhoenix();
+              case SIM, REPLAY -> new IntakeIO() {};
+            });
 
     swerve.setDefaultCommand(
         swerve.teleopDrive(
