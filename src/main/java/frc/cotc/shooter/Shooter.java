@@ -9,12 +9,26 @@ package frc.cotc.shooter;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   private final HoodIO hoodIO;
+  private final FlywheelIO flywheelIO;
 
-  public Shooter(HoodIO hoodIO) {
+  private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+  private final FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
+
+  public Shooter(HoodIO hoodIO, FlywheelIO flywheelIO) {
     this.hoodIO = hoodIO;
+    this.flywheelIO = flywheelIO;
+  }
+
+  @Override
+  public void periodic() {
+    hoodIO.updateInputs(hoodInputs);
+    Logger.processInputs("Shooter/Hood", hoodInputs);
+    flywheelIO.updateInputs(flywheelInputs);
+    Logger.processInputs("Shooter/Flywheel", flywheelInputs);
   }
 
   private void runShotAngle() {

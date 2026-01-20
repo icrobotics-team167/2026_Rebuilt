@@ -7,6 +7,18 @@
 
 package frc.cotc.shooter;
 
+import org.littletonrobotics.junction.AutoLog;
+
 public interface HoodIO {
+  @AutoLog
+  class HoodIOInputs {
+    public double pitchRad;
+    public double pitchVelRadPerSec;
+    public double motorStatorCurrentAmps;
+    public double motorSupplyCurrentAmps;
+  }
+
+  default void updateInputs(HoodIOInputs inputs) {}
+
   default void runPitch(double pitchRad) {}
 }
