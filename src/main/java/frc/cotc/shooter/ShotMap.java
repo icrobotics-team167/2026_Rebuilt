@@ -9,24 +9,40 @@ package frc.cotc.shooter;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class ShotMap {
-  private final TreeMap<Double, InterpolatingDoubleTreeMap> resultsMap = new TreeMap<>();
+  private final TreeMap<Double, InterpolatingTreeMap<Double, ShotResult>> resultsMap =
+      new TreeMap<>();
   private final InterpolatingDoubleTreeMap minimumVelsMap = new InterpolatingDoubleTreeMap();
 
   @SafeVarargs
-  public final void put(double distanceMeters, Map.Entry<Double, Double>... shotVelToPitchEntries) {
+  public final void put(
+      double distanceMeters, Map.Entry<Double, ShotResult>... shotVelToPitchEntries) {
     minimumVelsMap.put(distanceMeters, shotVelToPitchEntries[0].getKey());
-    var shotVelToResultsMap = new InterpolatingDoubleTreeMap();
+    var shotVelToResultsMap =
+        new InterpolatingTreeMap<>(MathUtil::inverseInterpolate, ShotResult::interpolate);
     for (var entry : shotVelToPitchEntries) {
       shotVelToResultsMap.put(entry.getKey(), entry.getValue());
     }
     resultsMap.put(distanceMeters, shotVelToResultsMap);
   }
 
-  public Double getPitchRad(double distanceMeters, double velocityMetersPerSecond) {
+  public record ShotResult(double pitchRad, double timeToFlightSeconds) {
+    public ShotResult interpolate(ShotResult endValue, double t) {
+      return new ShotResult(
+          MathUtil.interpolate(pitchRad, endValue.pitchRad, t),
+          MathUtil.interpolate(timeToFlightSeconds, endValue.timeToFlightSeconds, t));
+    }
+  }
+
+  public ShotResult get(double distanceMeters, double velocityMetersPerSecond) {
+    if (minimumVelsMap.get(distanceMeters) > velocityMetersPerSecond) {
+      return null;
+    }
+
     var val = resultsMap.get(distanceMeters);
     if (val == null) {
       var ceilingKey = resultsMap.ceilingKey(distanceMeters);
@@ -43,10 +59,11 @@ public class ShotMap {
       }
       var floor = resultsMap.get(floorKey);
       var ceiling = resultsMap.get(ceilingKey);
-      return MathUtil.interpolate(
-          floor.get(velocityMetersPerSecond),
-          ceiling.get(velocityMetersPerSecond),
-          MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters));
+      return floor
+          .get(velocityMetersPerSecond)
+          .interpolate(
+              ceiling.get(velocityMetersPerSecond),
+              MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters));
     } else {
       return val.get(velocityMetersPerSecond);
     }

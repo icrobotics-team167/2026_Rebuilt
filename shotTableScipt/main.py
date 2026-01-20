@@ -362,28 +362,39 @@ def iterate_distance(distance):
 
         file.write("    map.put(\n")
         file.write(f"        {distance},\n")
-        file.write(f"        entry({min_vel_solve[1]}, {min_vel_solve[2]}),\n")
+        file.write(f"        entry({min_vel_solve[1]}, new ShotResult({min_vel_solve[2]},"
+                   f" {min_vel_solve[3]})),\n")
         prev_solve = min_vel_solve
         for i in range(1, pitch_samples - 1):
             pitch = lerp(min_vel_solve[2], max_vel_solve[2], i / (pitch_samples - 1))
             solve = fixed_pitch(distance, pitch, prev_solve[4])
             if solve[0]:
-                file.write(f"        entry({solve[1]}, {solve[2]}),\n")
+                file.write(f"        entry({solve[1]}, new ShotResult({solve[2]}, {solve[3]})),\n")
                 prev_solve = solve
             else:
                 break
             if pitch + delta_pitch > max_vel_solve[2]:
                 break
-        file.write(f"        entry({max_vel_solve[1]}, {max_vel_solve[2]})\n")
-        file.write("    );\n")
+        file.write(f"        entry({max_vel_solve[1]}, new ShotResult({max_vel_solve[2]}, "
+                   f"{max_vel_solve[3]})));\n")
         return min_vel_solve[2]
 
 
 if __name__ == "__main__":
     file: TextIOWrapper = open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w")
+
+    file.write("// Copyright (c) 2026 FRC 167\n")
+    file.write("// https://github.com/icrobotics-team167\n")
+    file.write("//\n")
+    file.write("// Use of this source code is governed by an MIT-style\n")
+    file.write("// license that can be found in the LICENSE file at\n")
+    file.write("// the root directory of this project.\n\n")
+
     file.write("package frc.cotc.shooter;\n\n")
 
     file.write("import static java.util.Map.entry;\n\n")
+
+    file.write("import frc.cotc.shooter.ShotMap.ShotResult;\n\n")
 
     file.write("public final class HubShotMap {\n")
     file.write("  private HubShotMap() {}\n\n")
@@ -400,9 +411,9 @@ if __name__ == "__main__":
 
     file.write("  }\n\n")
     file.write(
-        "  public static Double getPitchRad(double distanceMeters, double "
-        "shotVelocityMetersPerSec) {\n"
+        "  public static ShotResult get(double distanceMeters, double "
+        "shotVelMetersPerSec) {\n"
     )
-    file.write("    return map.getPitchRad(distanceMeters, shotVelocityMetersPerSec);\n")
+    file.write("    return map.get(distanceMeters, shotVelMetersPerSec);\n")
     file.write("  }\n")
     file.write("}")
