@@ -142,9 +142,9 @@ def setup_problem(distance):
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    problem.subject_to(v_z[-1] < 0)
+    problem.subject_to(v_z[-1] < -1)
     # Max horizontal velocity is 2.5 times the downwards velocity (~21 degrees from horizontal)
-    problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -2.5)
+    problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -5)
 
     return problem, shooter_wrt_field, v0_wrt_shooter, T, X
 
@@ -247,6 +247,8 @@ def fixed_pitch(distance, pitch, prev_X):
         == pitch
     )
 
+    problem.minimize(T)
+
     status = problem.solve()
     if status == ExitStatus.SUCCESS:
         # Initial velocity vector with respect to shooter
@@ -326,6 +328,8 @@ def max_velocity(distance, min_vel_solve):
         + (v_z[0] - shooter_wrt_field[5, 0]) ** 2
         == max_shooter_velocity**2
     )
+
+    problem.minimize(T)
 
     status = problem.solve()
     if status == ExitStatus.SUCCESS:
