@@ -31,11 +31,11 @@ public class Intake extends SubsystemBase {
     beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
   }
 
-  public Command getIntakeCommand() {
+  public Command intake() {
     return run(io::run).finallyDo(io::stop);
   }
 
-  public Command getIntakeOutCommand() {
+  public Command outtake() {
     return run(io::runReverse).finallyDo(io::stop);
   }
 
@@ -44,6 +44,6 @@ public class Intake extends SubsystemBase {
   }
 
   public Command outtakeUntilGamepiece() {
-    return getIntakeOutCommand().until(this::hasGamePiece).withName("Outtake Until Gamepiece");
+    return outtake().until(this::hasGamePiece).withName("Outtake Until Gamepiece");
   }
 }

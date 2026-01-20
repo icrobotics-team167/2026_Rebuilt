@@ -122,7 +122,7 @@ public class Robot extends LoggedRobot {
       new Intake(
         switch (mode) {
           case REAL -> new IntakeIOPhoenix();
-          case SIM,REPLAY -> new IntakeIO(){};
+          case SIM, REPLAY -> new IntakeIO(){};
         }
       );
 

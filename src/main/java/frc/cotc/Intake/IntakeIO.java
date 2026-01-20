@@ -20,10 +20,10 @@ public interface IntakeIO {
 
   @AutoLog
   public class IntakeIOInputs {
-    public double appleidVolts1 = 0.0;
+    public double appliedVolts1 = 0.0;
     public double statorCurrentAmps1 = 0.0;
     public double supplyCurrentAmps1 = 0.0;
-    public double appleidVolts2 = 0.0;
+    public double appliedVolts2 = 0.0;
     public double statorCurrentAmps2 = 0.0;
     public double supplyCurrentAmps2 = 0.0;
   }
