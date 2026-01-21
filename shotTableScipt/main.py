@@ -26,16 +26,6 @@ from sleipnir.optimization import ExitStatus, Problem
 # Field dimensions
 field_width = 8.043  # m
 field_length = 16.518  # m
-target_wrt_field = np.array(
-    [
-        [0],
-        [0],
-        [72 * 0.0254],
-        [0.0],
-        [0.0],
-        [0.0],
-    ]
-)
 # Physical characteristics
 shooter_height = 20 * 0.0254  # m
 g = 9.81  # m/s²
@@ -47,8 +37,8 @@ ball_diameter = 5.91 * 0.0254  # m
 # Solve settings
 delta_pitch = np.deg2rad(2.5)
 start_distance = 0.5
-end_distance = 13.5
-distance_samples = 15
+end_distance = 22.5
+distance_samples = 20
 distance_exponent = 2
 printResults = False
 
@@ -87,13 +77,24 @@ def f(x):
 N = 40
 
 
-def setup_problem(distance):
+def setup_problem(distance, target_height):
     """
     Set up the problem and any shared constraints between the two solve modes (min and fix vel)
     """
     # Robot initial state
     shooter_wrt_field = np.array(
         [[-distance], [0], [shooter_height], [0.0], [0.0], [0.0]]
+    )
+
+    target_wrt_field = np.array(
+        [
+            [0],
+            [0],
+            [target_height],
+            [0.0],
+            [0.0],
+            [0.0],
+        ]
     )
 
     problem = Problem()
@@ -146,24 +147,21 @@ def setup_problem(distance):
     # Max horizontal velocity is 2.5 times the downwards velocity (~21 degrees from horizontal)
     problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -5)
 
-    return problem, shooter_wrt_field, v0_wrt_shooter, T, X
+    return problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X
 
 
-def min_velocity(distance):
+def min_velocity(distance, target_height):
     """
     Solve for minimum velocity.
     :returns: A tuple of [True, velocity, pitch, yaw, X] if it succeeds at a solve, and a tuple of[False, 0] if it fails.
     """
-    problem, shooter_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance)
+    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance, target_height)
 
     p_x = X[0, :]
     p_y = X[1, :]
     p_z = X[2, :]
 
     v = X[3:, :]
-    v_x = X[3, :]
-    v_y = X[4, :]
-    v_z = X[5, :]
 
     # Position initial guess is linear interpolation between start and end position
     for k in range(N):
@@ -181,12 +179,11 @@ def min_velocity(distance):
 
     # Require initial velocity is less than max shooter velocity
     #
-    #   √(v_x² + v_y² + v_z²) = v
-    #   v_x² + v_y² + v_z² = v²
+    #   √(v_x² + v_y² + v_z²) ≤ v
+    #   v_x² + v_y² + v_z² ≤ v²
+    #   vᵀv ≤ v²
     problem.subject_to(
-        (v_x[0] - shooter_wrt_field[3, 0]) ** 2
-        + (v_y[0] - shooter_wrt_field[4, 0]) ** 2
-        + (v_z[0] - shooter_wrt_field[5, 0]) ** 2
+        v0_wrt_shooter.T @ v0_wrt_shooter
         <= max_shooter_velocity**2
     )
 
@@ -213,12 +210,12 @@ def min_velocity(distance):
     return False, 0
 
 
-def fixed_pitch(distance, pitch, prev_X):
+def fixed_pitch(distance, target_height, pitch, prev_X):
     """
     Solve for minimum velocity.
     :returns: A tuple of [True, velocity, pitch, yaw, X] if it succeeds at a solve, and a tuple of[False, 0] if it fails.
     """
-    problem, shooter_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance)
+    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance, target_height)
 
     prev_p_x = prev_X[0, :]
     prev_p_y = prev_X[1, :]
@@ -271,7 +268,7 @@ def fixed_pitch(distance, pitch, prev_X):
     return False, 0
 
 
-def max_velocity(distance, min_vel_solve):
+def max_velocity(distance, target_height, min_vel_solve):
     # Three stage solve: solve for the average of 90 degrees and the min vel solve's pitch,
     # then solve for 89 degrees pitch, then do the actual max vel solve.
     # The solver likes the fixed pitch solve more than it likes the max vel solve,
@@ -280,16 +277,17 @@ def max_velocity(distance, min_vel_solve):
     # so an intermediate step is introduced.
     avg_pitch_solve = fixed_pitch(
         distance,
+        target_height,
         (min_vel_solve[2] + np.deg2rad(90)) / 2,
         min_vel_solve[4],
     )
     if not avg_pitch_solve[0]:
         raise Exception("Fixed pitch solve stage 1 failed")
-    fixed_pitch_solve = fixed_pitch(distance, np.deg2rad(89), avg_pitch_solve[4])
+    fixed_pitch_solve = fixed_pitch(distance, target_height, np.deg2rad(89), avg_pitch_solve[4])
     if not fixed_pitch_solve[0]:
         raise Exception("Fixed pitch solve stage 2 failed")
 
-    problem, shooter_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance)
+    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance, target_height)
 
     fixed_pitch_X = fixed_pitch_solve[4]
 
@@ -322,6 +320,7 @@ def max_velocity(distance, min_vel_solve):
     #
     #   √(v_x² + v_y² + v_z²) = v
     #   v_x² + v_y² + v_z² = v²
+    #   vᵀv = v²
     problem.subject_to(
         (v_x[0] - shooter_wrt_field[3, 0]) ** 2
         + (v_y[0] - shooter_wrt_field[4, 0]) ** 2
@@ -351,27 +350,27 @@ def max_velocity(distance, min_vel_solve):
     return False, 0
 
 
-def iterate_distance(distance):
+def iterate_distance(file, distance, target_height):
     # Solve for minimum velocity
-    min_vel_solve = min_velocity(distance)
+    min_vel_solve = min_velocity(distance, target_height)
     # If the position is possible, lerp between min velocity and max velocity
     # to search the in between velocities
     if min_vel_solve[0]:
-        max_vel_solve = max_velocity(distance, min_vel_solve)
+        max_vel_solve = max_velocity(distance, target_height, min_vel_solve)
         if not max_vel_solve[0]:
             raise Exception("Max vel solve failed")
 
         min_max_pitch_delta = max_vel_solve[2] - min_vel_solve[2]
         pitch_samples = math.ceil(min_max_pitch_delta / delta_pitch)
 
-        file.write("    map.put(\n")
+        file.write("    put(\n")
         file.write(f"        {distance},\n")
         file.write(f"        entry({min_vel_solve[1]}, new ShotResult({min_vel_solve[2]},"
                    f" {min_vel_solve[3]})),\n")
         prev_solve = min_vel_solve
         for i in range(1, pitch_samples - 1):
             pitch = lerp(min_vel_solve[2], max_vel_solve[2], i / (pitch_samples - 1))
-            solve = fixed_pitch(distance, pitch, prev_solve[4])
+            solve = fixed_pitch(distance, target_height, pitch, prev_solve[4])
             if solve[0]:
                 file.write(f"        entry({solve[1]}, new ShotResult({solve[2]}, {solve[3]})),\n")
                 prev_solve = solve
@@ -384,9 +383,7 @@ def iterate_distance(distance):
         return min_vel_solve[2]
 
 
-if __name__ == "__main__":
-    file: TextIOWrapper = open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w")
-
+def write(file, target_height, name):
     file.write("// Copyright (c) 2026 FRC 167\n")
     file.write("// https://github.com/icrobotics-team167\n")
     file.write("//\n")
@@ -398,12 +395,8 @@ if __name__ == "__main__":
 
     file.write("import static java.util.Map.entry;\n\n")
 
-    file.write("import frc.cotc.shooter.ShotMap.ShotResult;\n\n")
-
-    file.write("public final class HubShotMap {\n")
-    file.write("  private HubShotMap() {}\n\n")
-    file.write("  private static final ShotMap map = new ShotMap();\n\n")
-    file.write("  static {\n")
+    file.write(f"public final class {name} extends ShotMap " "{\n")
+    file.write(f"  public {name}() " "{\n")
 
     for i in range(distance_samples):
         distance = lerp(
@@ -411,13 +404,12 @@ if __name__ == "__main__":
             end_distance,
             (i / (distance_samples - 1)) ** distance_exponent,
         )
-        iterate_distance(distance)
+        iterate_distance(file, distance, target_height)
 
-    file.write("  }\n\n")
-    file.write(
-        "  public static ShotResult get(double distanceMeters, double "
-        "shotVelMetersPerSec) {\n"
-    )
-    file.write("    return map.get(distanceMeters, shotVelMetersPerSec);\n")
     file.write("  }\n")
     file.write("}")
+    file.close()
+
+if __name__ == "__main__":
+    write(open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w"), 72 * .0254, "HubShotMap")
+    write(open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"), 0, "GroundShotMap")

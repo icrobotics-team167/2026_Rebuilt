@@ -39,10 +39,6 @@ public class ShotMap {
   }
 
   public ShotResult get(double distanceMeters, double velocityMetersPerSecond) {
-    if (minimumVelsMap.get(distanceMeters) > velocityMetersPerSecond) {
-      return null;
-    }
-
     var val = resultsMap.get(distanceMeters);
     if (val == null) {
       var ceilingKey = resultsMap.ceilingKey(distanceMeters);
@@ -67,5 +63,9 @@ public class ShotMap {
     } else {
       return val.get(velocityMetersPerSecond);
     }
+  }
+
+  public boolean isPossible(double distanceMeters, double velocityMetersPerSecond) {
+    return minimumVelsMap.get(distanceMeters) < velocityMetersPerSecond;
   }
 }
