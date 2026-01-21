@@ -8,10 +8,13 @@
 package frc.cotc.shooter;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
+import frc.cotc.Robot;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -45,6 +48,8 @@ public class Shooter extends SubsystemBase {
           RED_BOTTOM_GROUND_TARGET.getX(),
           Constants.FIELD_WIDTH_METERS - RED_BOTTOM_GROUND_TARGET.getY());
 
+  private final InterpolatingDoubleTreeMap projectileVelMap = new InterpolatingDoubleTreeMap();
+
   public Shooter(
       HoodIO hoodIO,
       FlywheelIO flywheelIO,
@@ -55,6 +60,11 @@ public class Shooter extends SubsystemBase {
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
+
+    // TODO: Measure mapping for flywheel vel to projectile vel
+
+    // TODO: Do we have a turret? Cause how to handle the yaw offset for sotm changes wildly between
+    // yes turret and no turret
   }
 
   @Override
@@ -63,12 +73,6 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
-    // TODO: Actually do something with the IOs
-    runShooter(
-        robotPoseSupplier.get(),
-        fieldChassisSpeedsSupplier.get(),
-        ShotTarget.BLUE_BOTTOM_GROUND,
-        12);
   }
 
   public enum ShotTarget {
@@ -78,6 +82,36 @@ public class Shooter extends SubsystemBase {
     RED_HUB,
     RED_BOTTOM_GROUND,
     RED_TOP_GROUND;
+  }
+
+  public Command shootAtHub() {
+    return run(
+        () ->
+            runShooter(
+                robotPoseSupplier.get(),
+                fieldChassisSpeedsSupplier.get(),
+                Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
+                projectileVelMap.get(flywheelInputs.velRadPerSec)));
+  }
+
+  public Command passToAlliance() {
+    return run(
+        () -> {
+          var robotPose = robotPoseSupplier.get();
+
+          ShotTarget target;
+          if (robotPose.getY() > Constants.FIELD_WIDTH_METERS / 2) {
+            target = Robot.isOnRed() ? ShotTarget.RED_TOP_GROUND : ShotTarget.BLUE_TOP_GROUND;
+          } else {
+            target = Robot.isOnRed() ? ShotTarget.RED_BOTTOM_GROUND : ShotTarget.BLUE_BOTTOM_GROUND;
+          }
+
+          runShooter(
+              robotPose,
+              fieldChassisSpeedsSupplier.get(),
+              target,
+              projectileVelMap.get(flywheelInputs.velRadPerSec));
+        });
   }
 
   private void runShooter(
@@ -139,6 +173,8 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput(
         "Shooter/Lookahead target",
         new Pose2d(shooterPose.getTranslation().plus(shooterToTarget), Rotation2d.kZero));
+
+    hoodIO.runPitch(result.pitchRad());
   }
 
   private Translation2d getTargetLocation(ShotTarget shotTarget) {
