@@ -17,6 +17,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.Intake.Intake;
+import frc.cotc.Intake.IntakeIO;
+import frc.cotc.Intake.IntakeIOPhoenix;
 import frc.cotc.shooter.FlywheelIO;
 import frc.cotc.shooter.HoodIO;
 import frc.cotc.shooter.Shooter;
@@ -117,6 +120,13 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("FrontLeft"),
             new AprilTagPoseEstimator("FrontRight"));
     var controller = new CommandXboxController(0);
+
+    var intake =
+        new Intake(
+            switch (mode) {
+              case REAL -> new IntakeIOPhoenix();
+              case SIM, REPLAY -> new IntakeIO() {};
+            });
 
     swerve.setDefaultCommand(
         swerve.teleopDrive(
