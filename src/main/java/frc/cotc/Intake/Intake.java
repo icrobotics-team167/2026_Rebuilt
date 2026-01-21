@@ -14,19 +14,19 @@ import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
-  private IntakeIOInputsAutoLogged inputs;
+  private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
   private final DigitalInput beamBreakSensor;
   private final int BEAM_BREAK_SENSOR_ID = 0; // Placeholder ID for beamBreakSensor
+
+  public Intake(IntakeIO io) {
+    this.io = io;
+    beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
+  }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs); // 1, Get new data from hardware
     Logger.processInputs("Intake", inputs);
-  }
-
-  public Intake(IntakeIO io) {
-    this.io = io;
-    beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
   }
 
   public Command intake() {
