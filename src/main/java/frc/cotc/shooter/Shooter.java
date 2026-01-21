@@ -12,7 +12,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
-import java.util.ArrayList;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -28,8 +27,10 @@ public class Shooter extends SubsystemBase {
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier;
 
+  // The shooter will lag behind, so try to look a little further into the future to compensate
   private final double LOOK_AHEAD_SECONDS = 0;
 
+  // Location that the robot should shoot at for passing balls
   private final Translation2d BLUE_BOTTOM_GROUND_TARGET = new Translation2d(1, 1);
   private final Translation2d BLUE_TOP_GROUND_TARGET =
       new Translation2d(
@@ -62,6 +63,7 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
+    // TODO: Actually do something with the IOs
     runShooter(
         robotPoseSupplier.get(),
         fieldChassisSpeedsSupplier.get(),
@@ -83,13 +85,17 @@ public class Shooter extends SubsystemBase {
       ChassisSpeeds fieldChassisSpeeds,
       ShotTarget shotTarget,
       double shooterVelMetersPerSecond) {
+    // Calculate where the shooter is on the field
     var shooterPose = robotPose.plus(robotToShooterTransform);
+    // Rotate the robotToShooterTransform by the robot yaw
     var robotCenterToShooter =
         robotToShooterTransform.plus(new Transform2d(0, 0, robotPose.getRotation()));
 
+    // Get target location and delta pos from shooter to target
     var targetLocation = getTargetLocation(shotTarget);
     var shooterToTarget = targetLocation.minus(shooterPose.getTranslation());
 
+    // Rotation affects the velocity of the shooter, so account for that
     var shooterVx =
         fieldChassisSpeeds.vxMetersPerSecond
             - fieldChassisSpeeds.omegaRadiansPerSecond * robotCenterToShooter.getY();
@@ -97,10 +103,11 @@ public class Shooter extends SubsystemBase {
         fieldChassisSpeeds.vyMetersPerSecond
             + fieldChassisSpeeds.omegaRadiansPerSecond * robotCenterToShooter.getX();
 
+    // Get initial shot solution for a stationary shot
     var result = getShot(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
     int iterations = 5;
-    var iterationTargets = new ArrayList<Pose2d>();
     for (int i = 0; i < iterations; i++) {
+      // Offset the shooter's position by how far it will move during the time of flight
       shooterToTarget =
           targetLocation.minus(
               shooterPose
@@ -109,22 +116,26 @@ public class Shooter extends SubsystemBase {
                       new Translation2d(
                           shooterVx * (result.timeToFlightSeconds() + LOOK_AHEAD_SECONDS),
                           shooterVy * (result.timeToFlightSeconds() + LOOK_AHEAD_SECONDS))));
-      iterationTargets.add(
-          new Pose2d(shooterPose.getTranslation().plus(shooterToTarget), Rotation2d.kZero));
+      // Recalculate the shot solution
+      // This will create a new time of flight, which will change the offset above
+      // This converges to a stable lookahead point in 3-5 iterations
       result = getShot(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
     }
+    // A shot may not be possible due to the shooter velocity being too low. If so, exit
     if (!isPossible(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget)) {
       return;
     }
-    Logger.recordOutput("Shooter/Iteration targets", iterationTargets.toArray(new Pose2d[0]));
 
     Logger.recordOutput(
         "Shooter/Shooter pose",
         new Pose3d(
             new Translation3d(shooterPose.getX(), shooterPose.getY(), Units.inchesToMeters(20)),
             new Rotation3d(
+                // Rotation3d uses +pitch down, but the shooter pitch is done +pitch up
+                // 90 degree offset to make the "Axes" model in AScope look prettier
                 0, Math.PI / 2 - result.pitchRad(), shooterToTarget.getAngle().getRadians())));
-    Logger.recordOutput("Shooter/Shooter distance", shooterToTarget.getNorm());
+    Logger.recordOutput("Shooter/Shooter distance meters", shooterToTarget.getNorm());
+    Logger.recordOutput("Shooter/Shooter pitch rad", result.pitchRad());
     Logger.recordOutput(
         "Shooter/Lookahead target",
         new Pose2d(shooterPose.getTranslation().plus(shooterToTarget), Rotation2d.kZero));
