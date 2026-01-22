@@ -90,7 +90,7 @@ public class AprilTagPoseEstimator {
     Pose2d pose2d = pose3d.toPose2d();
 
     //floor and sky clip checking
-    if (pose3d.getZ() < -0.1 || pose3d.getZ() > 1.5) return false;
+    if (pose3d.getZ() < -0.3 || pose3d.getZ() > 1.5) return false;
 
     //out of bounds clip checking
     if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
@@ -119,16 +119,14 @@ public class AprilTagPoseEstimator {
                 return;
             }
 
-            Matrix<N3, N1> stdDevs = VecBuilder.fill(
-                0.9 / poseEstimate.targetsUsed.size(),
-                0.9 / poseEstimate.targetsUsed.size(),
-                0.9 / poseEstimate.targetsUsed.size()
-            );
-
             estimateConsumer.accept(
-                poseEstimate.estimatedPose.toPose2d(),
-                result.getTimestampSeconds(),
-                stdDevs
+              poseEstimate.estimatedPose.toPose2d(),
+              result.getTimestampSeconds(),
+              VecBuilder.fill(
+              0.9 / poseEstimate.targetsUsed.size(),
+              0.9 / poseEstimate.targetsUsed.size(),
+              0.9 / poseEstimate.targetsUsed.size()
+            );
             );
         } );
       }
