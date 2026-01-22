@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -131,5 +132,17 @@ public class Swerve extends SubsystemBase {
 
   public Command setToRed() {
     return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg));
+  }
+
+  public Pose2d getPose() {
+    return io.getPose();
+  }
+
+  public ChassisSpeeds getRobotSpeeds() {
+    return inputs.Speeds;
+  }
+
+  public ChassisSpeeds getFieldSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, getPose().getRotation());
   }
 }
