@@ -12,6 +12,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
@@ -22,6 +23,7 @@ import frc.cotc.Robot;
 import java.io.IOException;
 import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 
 public class AprilTagPoseEstimator {
@@ -43,17 +45,17 @@ public class AprilTagPoseEstimator {
     cameraTransforms.put(
         "FrontLeft",
         new Transform3d(
-            Units.inchesToMeters(22.75 / 2 - 1.5),
-            Units.inchesToMeters(22.75 / 2 + .125),
+            Units.inchesToMeters(22 / 2 - 1.5),
+            Units.inchesToMeters(32 / 2 + .125),
             Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-30))));
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-55.5))));
     cameraTransforms.put(
         "FrontRight",
         new Transform3d(
-            Units.inchesToMeters(22.75 / 2 - 1.5),
-            -Units.inchesToMeters(22.75 / 2 + .125),
+            Units.inchesToMeters(22 / 2 - 1.5),
+            -Units.inchesToMeters(32 / 2 + .125),
             Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(30))));
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(55.5))));
   }
 
   private final PhotonPoseEstimator poseEstimator;
@@ -82,21 +84,54 @@ public class AprilTagPoseEstimator {
             cameraTransforms.get(name));
   }
 
-  public void update(VisionEstimateConsumer estimateConsumer) {
+//data filtering system that Jaynou added
+  private boolean isValidPose(EstimatedRobotPose est) {
+    Pose3d pose3d = est.estimatedPose;
+    Pose2d pose2d = pose3d.toPose2d();
+
+    //floor and sky clip checking
+    if (pose3d.getZ() < -0.1 || pose3d.getZ() > 1.5) return false;
+
+    //out of bounds clip checking
+    if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
+    if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
+
+    //tag check
+    if (est.targetsUsed.size() < 2) return false;
+
+    //odometry check (inspired by 2025 vision) 
+    //problem is there isn't a way to get the current pose so...
+    //if (pose2d.getTranslation().getDistance(currentPose.getTranslation()) > 0.25 
+    //   || pose2d.getRotation().getDegrees(currentPose.getRotation()) > 2)
+    //return false;
+
+  return true;
+  }
+
+  public void update(Pose2d currentPose, VisionEstimateConsumer estimateConsumer) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
+
     for (var result : inputs.results) {
-      poseEstimator
-          .update(result)
-          .ifPresent(
-              poseEstimate ->
-                  estimateConsumer.accept(
-                      poseEstimate.estimatedPose.toPose2d(),
-                      result.getTimestampSeconds(),
-                      VecBuilder.fill(
-                          .9 / poseEstimate.targetsUsed.size(),
-                          .9 / poseEstimate.targetsUsed.size(),
-                          .9 / poseEstimate.targetsUsed.size())));
+        poseEstimator.update(result).ifPresent(poseEstimate -> {
+          //data filtering
+            if (!isValidPose(poseEstimate)) {
+                return;
+            }
+
+            Matrix<N3, N1> stdDevs = VecBuilder.fill(
+                0.9 / poseEstimate.targetsUsed.size(),
+                0.9 / poseEstimate.targetsUsed.size(),
+                0.9 / poseEstimate.targetsUsed.size()
+            );
+
+            estimateConsumer.accept(
+                poseEstimate.estimatedPose.toPose2d(),
+                result.getTimestampSeconds(),
+                stdDevs
+            );
+        } );
+      }
     }
-  }
+
 }
