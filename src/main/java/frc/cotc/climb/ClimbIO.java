@@ -13,6 +13,11 @@ public interface ClimbIO {
   @AutoLog
   class ClimbIOInputs {
     double posRad;
+    // implement later?
+    double statorCurrentAmps;
+    double supplyCurrentAmps;
+    boolean isAtTop; // implement a limit switch
+    boolean isAtBottom; // this too
   }
 
   default void updateInputs(ClimbIOInputs inputs) {}
@@ -20,6 +25,8 @@ public interface ClimbIO {
   default void stop() {}
 
   default void deploy() {}
+
+  default void retract() {}
 
   default void climb() {}
 }
