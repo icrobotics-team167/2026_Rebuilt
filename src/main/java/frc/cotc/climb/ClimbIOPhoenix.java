@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.util.Units;
+import frc.cotc.swerve.TunerConstants;
 
 public class ClimbIOPhoenix implements ClimbIO {
 
@@ -27,9 +28,10 @@ public class ClimbIOPhoenix implements ClimbIO {
   private final BaseStatusSignal positionSignal;
 
   public ClimbIOPhoenix() {
-    encoder = new CANcoder(CLIMB_ENCODER_ID);
-    motor = new TalonFX(CLIMB_MOTOR_ID);
-  
+    encoder = new CANcoder(CLIMB_ENCODER_ID, TunerConstants.kCANBus);
+    motor = new TalonFX(CLIMB_MOTOR_ID, TunerConstants.kCANBus);
+    encoder.optimizeBusUtilization();
+
     var encoderConfig = new CANcoderConfiguration();
     encoder.getConfigurator().apply(encoderConfig);
 
@@ -39,6 +41,7 @@ public class ClimbIOPhoenix implements ClimbIO {
     motor.getConfigurator().apply(motorConfig);
 
     positionSignal = encoder.getAbsolutePosition(false);
+    positionSignal.setUpdateFrequency(50);
   }
 
   @Override

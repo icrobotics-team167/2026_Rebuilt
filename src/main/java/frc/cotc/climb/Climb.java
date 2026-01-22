@@ -17,27 +17,15 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Climb extends SubsystemBase {
-  public enum robotStatus {
-    IDLE,
-    CLIMBING,
-    CLIMBED,
-    FAILED
-  }
-
-  public enum robotFailReason {
-    NONE,
-    NOT_IN_ZONE,
-    TIMEOUT,
-    NOT_MOVING
-  }
-
-  private robotStatus status = robotStatus.IDLE;
-  @SuppressWarnings("unused") // warnings trigger me
-  private robotFailReason failReason = robotFailReason.NONE;
 
   private final ClimbIO io;
   private final ClimbIOInputsAutoLogged inputs = new ClimbIOInputsAutoLogged();
+
   private final Supplier<Pose2d> robotPoseSupplier;
+
+  private String climberState = "IDLE";
+  private String climberFailReason = "NONE";
+
   private final double kClimbTimeoutSeconds = 3.0;
 
   Climb(ClimbIO io, Supplier<Pose2d> robotPoseSupplier) {
@@ -49,47 +37,56 @@ public class Climb extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Climb", inputs);
+    Logger.recordOutput("Climber/State", climberState);
+    Logger.recordOutput("Climber/FailReason", climberFailReason);
   }
 
   Command deploy() {
-    return run(io::deploy).finallyDo(io::stop).withName("Deploy");
+    return runOnce(()-> { climberState = "DEPLOYING";  })
+      .andThen(run(io::deploy))
+      .finallyDo(io::stop)
+      .withName("Deploy");
   }
 
   Command retract() {
-    return run(io::retract).finallyDo(io::stop).withName("Retract");
+    return runOnce(()-> { climberState = "RETRACTING";  })
+      .andThen(run(io::retract))
+      .finallyDo(io::stop)
+      .withName("Retract");
   }
 
   Command climb() {
-    return run(io::climb).finallyDo(io::stop).withName("Climb");
+    return runOnce(()-> { climberState = "CLIMBING";  })
+      .andThen(run(io::climb))
+      .finallyDo(io::stop)
+      .withName("Climb");
   }
 
   Command doClimb(Pose2d target, double xyTolMeters, double thetaTolRad) {
-    return runOnce(() -> { status = robotStatus.CLIMBING; failReason = robotFailReason.NONE; })
+    return runOnce(() -> { climberState = "CLIMBING"; })
       .andThen(
         run(() -> {
           if (!isPoseNear(robotPoseSupplier.get(), target, xyTolMeters, thetaTolRad)) {
-            status = robotStatus.FAILED;
-            failReason = robotFailReason.NOT_IN_ZONE;
+            climberState = "FAILED";
+            climberFailReason = "NOT_IN_ZONE";
           } else {
             io.climb();
           }
         })
-        .until(() -> (status == robotStatus.FAILED || inputs.isAtTop))
+        .until(() -> (climberState == "FAILED" || inputs.isAtTop))
         .withTimeout(kClimbTimeoutSeconds)
       )
       .finallyDo(() -> {
         io.stop();
-        if (status == robotStatus.CLIMBING) status = robotStatus.CLIMBED;
-        if (status == robotStatus.CLIMBING) { status = robotStatus.FAILED; failReason = robotFailReason.TIMEOUT; }
+        if (climberState == "CLIMBING") climberState = "CLIMBED";
+        if (climberState == "CLIMBING") { climberState = "FAILED"; climberFailReason = "TIMEOUT"; }
       });
   }
 
-  public static boolean isPoseNear(
-    Pose2d pose, Pose2d target, double xyTolMeters, double thetaTolRad 
-  ) {
+  public static boolean isPoseNear(Pose2d pose, Pose2d target, double xyToleranceMeters, double thetaToleranceRad) {
     Translation2d dTrans = pose.getTranslation().minus(target.getTranslation());
     double dTheta = pose.getRotation().minus(target.getRotation()).getRadians();
 
-    return dTrans.getNorm() <= xyTolMeters && Math.abs(dTheta) <= thetaTolRad;
+    return dTrans.getNorm() <= xyToleranceMeters && Math.abs(dTheta) <= thetaToleranceRad;
   }
 }
