@@ -73,13 +73,13 @@ public class Climb extends SubsystemBase {
             io.climb();
           }
         })
-        .until(() -> (climberState == "FAILED" || inputs.isAtTop))
+        .until(() -> (climberState.equals("FAILED") || inputs.isAtTop))
         .withTimeout(kClimbTimeoutSeconds)
       )
       .finallyDo(() -> {
         io.stop();
-        if (climberState == "CLIMBING") climberState = "CLIMBED";
-        if (climberState == "CLIMBING") { climberState = "FAILED"; climberFailReason = "TIMEOUT"; }
+        if (climberState.equals("CLIMBING")) climberState = "CLIMBED";
+        if (climberState.equals("CLIMBING")) { climberState = "FAILED"; climberFailReason = "TIMEOUT"; }
       });
   }
 
