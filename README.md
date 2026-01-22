@@ -11,13 +11,13 @@ The code for Team 167 Children of the Corn's 2026 Rebuilt robot.
   - Phoenix 6
     - [Docs](https://v6.docs.ctr-electronics.com/en/latest/)
 
-##Software Env and Tools
+## Software Env and Tools
 - Used Software
-    - [WPILib_2026](https://github.com/wpilibsuite/allwpilib/releases)
+    - [WPILib](https://github.com/wpilibsuite/allwpilib/releases)
     - [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope/releases/tag/v26.0.0)
     - [Choreo](https://github.com/SleipnirGroup/Choreo/releases)
-    - [Phoenix_Tuner_X](https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/index.html)
-    - [Rev_Hardware_Client](https://docs.revrobotics.com/rev-hardware-client)
+    - [Phoenix Tuner X](https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/index.html)
+    - [Rev Hardware Client](https://docs.revrobotics.com/rev-hardware-client)
 
 
 ## Useful Gradle commands:
