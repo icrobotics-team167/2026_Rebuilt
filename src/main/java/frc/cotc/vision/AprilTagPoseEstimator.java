@@ -22,6 +22,10 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.cotc.Robot;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.function.Supplier;
+
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -71,7 +75,9 @@ public class AprilTagPoseEstimator {
 
   private final String name;
 
-  public AprilTagPoseEstimator(String name) {
+  private final Supplier<Pose2d> currentPoseEstimateSupplier;
+
+  public AprilTagPoseEstimator(String name, Supplier<Pose2d> currentPoseEstimateSupplier) {
     io =
         Robot.mode == Robot.Mode.REPLAY
             ? new AprilTagPoseEstimatorIO() {}
@@ -82,15 +88,17 @@ public class AprilTagPoseEstimator {
             tagLayout,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             cameraTransforms.get(name));
+    this.currentPoseEstimateSupplier = currentPoseEstimateSupplier;
   }
 
-//data filtering system that Jaynou added
-  private boolean isValidPose(EstimatedRobotPose est) {
+
+  //data filtering system that Jaynou added
+    private boolean isValidPose(EstimatedRobotPose est) {
     Pose3d pose3d = est.estimatedPose;
     Pose2d pose2d = pose3d.toPose2d();
 
     //floor and sky clip checking
-    if (pose3d.getZ() < -0.3 || pose3d.getZ() > 1.5) return false;
+    if (pose3d.getZ() < -0.3 || pose3d.getZ() > 0.8) return false;
 
     //out of bounds clip checking
     if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
@@ -100,10 +108,9 @@ public class AprilTagPoseEstimator {
     if (est.targetsUsed.size() < 2) return false;
 
     //odometry check (inspired by 2025 vision) 
-    //problem is there isn't a way to get the current pose so...
-    //if (pose2d.getTranslation().getDistance(currentPose.getTranslation()) > 0.25 
-    //   || pose2d.getRotation().getDegrees(currentPose.getRotation()) > 2)
-    //return false;
+    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation()) > 0.25 
+       || pose2d.getRotation().getDegrees() - currentPoseEstimateSupplier.get().getRotation().getDegrees() > 2)
+    return false;
 
   return true;
   }
