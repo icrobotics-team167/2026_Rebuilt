@@ -33,9 +33,14 @@ public class Shooter extends SubsystemBase {
   private final Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier;
 
   // The shooter will lag behind, so try to look a little further into the future to compensate
+  // TODO: Tune
+  @SuppressWarnings("FieldCanBeLocal")
   private final double LOOK_AHEAD_SECONDS = 0;
+
   // The ball will slow down due to drag as it flies through the air when the robot was moving when
   // it was launched
+  // TODO: Tune
+  @SuppressWarnings("FieldCanBeLocal")
   private final double DRAG_COMPENSATION_INVERSE_SECONDS = 0.2;
 
   // Location that the robot should shoot at for passing balls
@@ -84,6 +89,17 @@ public class Shooter extends SubsystemBase {
     RED_HUB,
     RED_BOTTOM_GROUND,
     RED_TOP_GROUND;
+  }
+
+  private Translation2d getTargetLocation(ShotTarget shotTarget) {
+    return switch (shotTarget) {
+      case BLUE_HUB -> Constants.BLUE_HUB_LOCATION;
+      case RED_HUB -> Constants.RED_HUB_LOCATION;
+      case BLUE_BOTTOM_GROUND -> BLUE_BOTTOM_GROUND_TARGET;
+      case BLUE_TOP_GROUND -> BLUE_TOP_GROUND_TARGET;
+      case RED_BOTTOM_GROUND -> RED_BOTTOM_GROUND_TARGET;
+      case RED_TOP_GROUND -> RED_TOP_GROUND_TARGET;
+    };
   }
 
   public Command shootAtHub() {
@@ -206,17 +222,6 @@ public class Shooter extends SubsystemBase {
         (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
             - fieldChassisSpeeds.omegaRadiansPerSecond);
     lastYawRad = turretYawAbsolute.getRadians();
-  }
-
-  private Translation2d getTargetLocation(ShotTarget shotTarget) {
-    return switch (shotTarget) {
-      case BLUE_HUB -> Constants.BLUE_HUB_LOCATION;
-      case RED_HUB -> Constants.RED_HUB_LOCATION;
-      case BLUE_BOTTOM_GROUND -> BLUE_BOTTOM_GROUND_TARGET;
-      case BLUE_TOP_GROUND -> BLUE_TOP_GROUND_TARGET;
-      case RED_BOTTOM_GROUND -> RED_BOTTOM_GROUND_TARGET;
-      case RED_TOP_GROUND -> RED_TOP_GROUND_TARGET;
-    };
   }
 
   private final ShotMap hubShotMap = new HubShotMap();
