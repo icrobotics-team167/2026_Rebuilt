@@ -10,6 +10,7 @@ package frc.cotc.climb;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.function.Supplier;
@@ -23,9 +24,6 @@ public class Climb extends SubsystemBase {
 
   private final Supplier<Pose2d> robotPoseSupplier;
 
-  private String climberState = "IDLE";
-  private String climberFailReason = "NONE";
-
   private final double kClimbTimeoutSeconds = 3.0;
 
   Climb(ClimbIO io, Supplier<Pose2d> robotPoseSupplier) {
@@ -37,52 +35,44 @@ public class Climb extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Climb", inputs);
-    Logger.recordOutput("Climber/State", climberState);
-    Logger.recordOutput("Climber/FailReason", climberFailReason);
   }
 
   Command deploy() {
-    return runOnce(()-> { climberState = "DEPLOYING";  })
+    return runOnce(()-> Logger.recordOutput("Climber/State", "DEPLOYING"))
       .andThen(run(io::deploy))
       .finallyDo(io::stop)
       .withName("Deploy");
   }
 
-  Command retract() {
-    return runOnce(()-> { climberState = "RETRACTING";  })
+  Command retract() { 
+    return runOnce(()-> Logger.recordOutput("Climber/State", "RETRACTING"))
       .andThen(run(io::retract))
       .finallyDo(io::stop)
       .withName("Retract");
   }
 
   Command climb() {
-    return runOnce(()-> { climberState = "CLIMBING";  })
+    return runOnce(()-> Logger.recordOutput("Climber/State", "CLIMBING"))
       .andThen(run(io::climb))
       .finallyDo(io::stop)
       .withName("Climb");
   }
 
   Command doClimb(Pose2d target, double xyTolMeters, double thetaTolRad) {
-    return runOnce(() -> { climberState = "CLIMBING"; })
+    return runOnce(() -> Logger.recordOutput("Climber/State", "CLIMBING"))
       .andThen(
-        run(() -> {
-          if (!isPoseNear(robotPoseSupplier.get(), target, xyTolMeters, thetaTolRad)) {
-            climberState = "FAILED";
-            climberFailReason = "NOT_IN_ZONE";
-          } else {
-            io.climb();
-          }
-        })
-        .until(() -> (climberState.equals("FAILED") || inputs.isAtTop))
-        .withTimeout(kClimbTimeoutSeconds)
+        waitUntil(() -> isPoseNear(robotPoseSupplier.get(), target, xyTolMeters, thetaTolRad))
+          .andThen(run(io::climb))
+          .until(() -> inputs.isAtTop)
+          .withTimeout(kClimbTimeoutSeconds)
       )
       .finallyDo(interrupted -> {
         io.stop();
-        if (interrupted && climberState.equals("CLIMBING")) {
-          climberState = "FAILED";
-          climberFailReason = "TIMEOUT";
-        } else if (climberState.equals("CLIMBING")) {
-          climberState = "CLIMBED";
+        if (interrupted) {
+          Logger.recordOutput("Climber/State", "FAILED");
+          Logger.recordOutput("Climber/FailReason", "TIMEOUT");
+        } else {
+          Logger.recordOutput("Climber/State", "CLIMBED");
         }
       });
   }

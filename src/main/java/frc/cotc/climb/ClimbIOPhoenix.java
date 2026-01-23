@@ -36,8 +36,8 @@ public class ClimbIOPhoenix implements ClimbIO {
     encoder.getConfigurator().apply(encoderConfig);
 
     var motorConfig = new TalonFXConfiguration();
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 80; //Placeholder
-    motorConfig.CurrentLimits.StatorCurrentLimit = 60; //Placeholder
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 80; // Placeholder
+    motorConfig.CurrentLimits.StatorCurrentLimit = 60; // Placeholder
     motor.getConfigurator().apply(motorConfig);
 
     positionSignal = encoder.getAbsolutePosition(false);
