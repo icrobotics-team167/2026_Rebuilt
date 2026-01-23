@@ -24,6 +24,7 @@ import frc.cotc.intake.IntakeIOPhoenix;
 import frc.cotc.shooter.FlywheelIO;
 import frc.cotc.shooter.HoodIO;
 import frc.cotc.shooter.Shooter;
+import frc.cotc.shooter.TurretIO;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
@@ -147,7 +148,12 @@ public class Robot extends LoggedRobot {
         .onTrue(swerve.setToRed());
 
     var shooter =
-        new Shooter(new HoodIO() {}, new FlywheelIO() {}, swerve::getPose, swerve::getFieldSpeeds);
+        new Shooter(
+            new HoodIO() {},
+            new FlywheelIO() {},
+            new TurretIO() {},
+            swerve::getPose,
+            swerve::getFieldSpeeds);
     RobotModeTriggers.teleop().whileTrue(shooter.shootAtHub());
   }
 

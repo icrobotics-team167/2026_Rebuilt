@@ -7,8 +7,8 @@
 
 package frc.cotc.shooter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,9 +21,11 @@ import org.littletonrobotics.junction.Logger;
 public class Shooter extends SubsystemBase {
   private final HoodIO hoodIO;
   private final FlywheelIO flywheelIO;
+  private final TurretIO turretIO;
 
   private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private final FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
+  private final TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
 
   private final Transform2d robotToShooterTransform = new Transform2d(0.5, 0, Rotation2d.kZero);
 
@@ -51,24 +53,18 @@ public class Shooter extends SubsystemBase {
           RED_BOTTOM_GROUND_TARGET.getX(),
           Constants.FIELD_WIDTH_METERS - RED_BOTTOM_GROUND_TARGET.getY());
 
-  private final InterpolatingDoubleTreeMap projectileVelMap = new InterpolatingDoubleTreeMap();
-
   public Shooter(
       HoodIO hoodIO,
       FlywheelIO flywheelIO,
+      TurretIO turretIO,
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier) {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
+    this.turretIO = turretIO;
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
-
-    // TODO: Measure mapping for flywheel vel to projectile vel
-    projectileVelMap.put(0.0, 15.0);
-
-    // TODO: Do we have a turret? Cause how to handle the yaw offset for sotm changes wildly between
-    // yes turret and no turret
   }
 
   @Override
@@ -77,6 +73,8 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
+    turretIO.updateInputs(turretInputs);
+    Logger.processInputs("Shooter/Turret", turretInputs);
   }
 
   public enum ShotTarget {
@@ -90,12 +88,14 @@ public class Shooter extends SubsystemBase {
 
   public Command shootAtHub() {
     return run(
-        () ->
-            runShooter(
-                robotPoseSupplier.get(),
-                fieldChassisSpeedsSupplier.get(),
-                Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
-                projectileVelMap.get(flywheelInputs.velRadPerSec)));
+        () -> {
+          runShooter(
+              robotPoseSupplier.get(),
+              fieldChassisSpeedsSupplier.get(),
+              Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
+              flywheelInputs.projectileVelMetersPerSec);
+          flywheelIO.runVel(15);
+        });
   }
 
   public Command passToAlliance() {
@@ -114,9 +114,21 @@ public class Shooter extends SubsystemBase {
               robotPose,
               fieldChassisSpeedsSupplier.get(),
               target,
-              projectileVelMap.get(flywheelInputs.velRadPerSec));
+              flywheelInputs.projectileVelMetersPerSec);
+          flywheelIO.runVel(20);
         });
   }
+
+  public boolean canShoot() {
+    return shotValid
+        && MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
+        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1));
+  }
+
+  private double lastPitchRad;
+  private double lastYawRad;
+
+  private boolean shotValid = false;
 
   private void runShooter(
       Pose2d robotPose,
@@ -164,10 +176,10 @@ public class Shooter extends SubsystemBase {
           (1 - Math.exp(-result.timeToTargetSeconds() * DRAG_COMPENSATION_INVERSE_SECONDS))
               / DRAG_COMPENSATION_INVERSE_SECONDS;
     }
-    // A shot may not be possible due to the shooter velocity being too low. If so, exit
-    if (!isPossible(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget)) {
-      return;
-    }
+    // A shot may not be possible due to the shooter velocity being too low.
+    shotValid = isPossible(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
+
+    var turretYawAbsolute = shooterToTarget.getAngle();
 
     Logger.recordOutput(
         "Shooter/Shooter pose",
@@ -177,14 +189,23 @@ public class Shooter extends SubsystemBase {
             new Rotation3d(
                 // Rotation3d uses +pitch down, but the shooter pitch is done +pitch up
                 // 90 degree offset to make the "Axes" model in AScope look prettier
-                0, Math.PI / 2 - result.pitchRad(), shooterToTarget.getAngle().getRadians())));
+                0, Math.PI / 2 - result.pitchRad(), turretYawAbsolute.getRadians())));
     Logger.recordOutput("Shooter/Shooter distance meters", shooterToTarget.getNorm());
     Logger.recordOutput("Shooter/Shooter pitch rad", result.pitchRad());
     Logger.recordOutput(
         "Shooter/Lookahead target",
         new Pose2d(shooterTranslation.plus(shooterToTarget), Rotation2d.kZero));
 
-    hoodIO.runPitch(result.pitchRad());
+    hoodIO.runPitch(
+        result.pitchRad(), (result.pitchRad() - lastPitchRad) / Robot.defaultPeriodSecs);
+    lastPitchRad = result.pitchRad();
+    turretIO.runYaw(
+        // Convert from absolute yaw to robot-relative yaw
+        turretYawAbsolute.minus(robotPose.getRotation()).getRadians(),
+        // Feedforward component also includes the robot's motion
+        (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
+            - fieldChassisSpeeds.omegaRadiansPerSecond);
+    lastYawRad = turretYawAbsolute.getRadians();
   }
 
   private Translation2d getTargetLocation(ShotTarget shotTarget) {

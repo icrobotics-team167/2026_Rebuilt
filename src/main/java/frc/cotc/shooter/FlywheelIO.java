@@ -12,7 +12,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface FlywheelIO {
   @AutoLog
   class FlywheelIOInputs {
-    double velRadPerSec;
+    double projectileVelMetersPerSec;
     double motor0statorCurrentAmps;
     double motor1statorCurrentAmps;
     double motor0SupplyCurrentAmps;
@@ -21,5 +21,5 @@ public interface FlywheelIO {
 
   default void updateInputs(FlywheelIOInputs inputs) {}
 
-  default void runVel(double velRadPerSec) {}
+  default void runVel(double projectileVelMetersPerSec) {}
 }
