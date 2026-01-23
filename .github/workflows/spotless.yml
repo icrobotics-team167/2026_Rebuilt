@@ -1,9 +1,7 @@
 # This is a basic workflow to check Spotless formatting.
 name: Spotless Check
-# Controls when the action will run. Triggers the workflow on push or pull request events, except
-# for pushes to main.
+# Controls when the action will run. Triggers the workflow on push events except for main
 on:
-  pull_request:
   push:
     branches-ignore:
       - main
