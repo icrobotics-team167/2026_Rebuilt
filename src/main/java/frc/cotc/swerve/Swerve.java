@@ -145,4 +145,14 @@ public class Swerve extends SubsystemBase {
   public ChassisSpeeds getFieldSpeeds() {
     return ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, getPose().getRotation());
   }
+
+  private void resetPose(Pose2d pose) {
+    if (io instanceof SwerveIOSim simImpl) {
+      simImpl.resetPose(pose);
+    }
+    if (Robot.mode == Robot.Mode.SIM) {
+      AprilTagPoseEstimatorIOPhoton.resetSim();
+    }
+    io.resetPose(pose);
+  }
 }
