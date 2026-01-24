@@ -9,16 +9,16 @@ package frc.cotc.shooter;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface HoodIO {
+public interface TurretIO {
   @AutoLog
-  class HoodIOInputs {
+  class TurretIOInputs {
     double thetaRad;
     double omegaRadPerSec;
-    double motorStatorCurrentAmps;
-    double motorSupplyCurrentAmps;
+    double statorCurrentAmps;
+    double supplyCurrentAmps;
   }
 
-  default void updateInputs(HoodIOInputs inputs) {}
+  default void updateInputs(TurretIOInputs inputs) {}
 
-  default void runPitch(double thetaRad, double omegaRadPerSec) {}
+  default void runYaw(double thetaRad, double omegaRadPerSec) {}
 }

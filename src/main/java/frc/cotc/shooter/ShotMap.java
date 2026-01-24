@@ -30,11 +30,11 @@ public class ShotMap {
     resultsMap.put(distanceMeters, shotVelToResultsMap);
   }
 
-  public record ShotResult(double pitchRad, double timeToFlightSeconds) {
+  public record ShotResult(double pitchRad, double timeToTargetSeconds) {
     public ShotResult interpolate(ShotResult endValue, double t) {
       return new ShotResult(
           MathUtil.interpolate(pitchRad, endValue.pitchRad, t),
-          MathUtil.interpolate(timeToFlightSeconds, endValue.timeToFlightSeconds, t));
+          MathUtil.interpolate(timeToTargetSeconds, endValue.timeToTargetSeconds, t));
     }
   }
 
