@@ -49,6 +49,11 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
     sim.update(Robot.groundTruthPoseSupplier.get());
   }
 
+  public static void resetSim() {
+    sim.resetRobotPose(Robot.groundTruthPoseSupplier.get());
+    sim.resetCameraTransforms();
+  }
+
   @Override
   public void updateInputs(AprilTagPoseEstimatorIOInputs inputs) {
     inputs.results = camera.getAllUnreadResults().toArray(new PhotonPipelineResult[0]);
