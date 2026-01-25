@@ -166,4 +166,12 @@ public class SwerveIOSim extends SwerveIOReal {
         // Adjust steer motor PID gains for simulation
         .withSteerMotorGains(moduleConstants.SteerMotorGains.withKP(70).withKD(.5));
   }
+
+  @Override
+  public void resetPose(Pose2d pose) {
+    simulation.setSimulationWorldPose(pose);
+    // The reset of the MapleSim pose will also reset the gyro, so resetting the pose estimator yaw
+    // will overshoot.
+    super.resetTranslation(pose.getTranslation());
+  }
 }
