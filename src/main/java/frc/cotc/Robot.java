@@ -17,6 +17,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.intake.Intake;
+import frc.cotc.intake.IntakeIO;
+import frc.cotc.intake.IntakeIOPhoenix;
+import frc.cotc.shooter.FlywheelIO;
+import frc.cotc.shooter.HoodIO;
+import frc.cotc.shooter.Shooter;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
@@ -115,6 +121,13 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("FrontRight"));
     var controller = new CommandXboxController(0);
 
+    var intake =
+        new Intake(
+            switch (mode) {
+              case REAL -> new IntakeIOPhoenix();
+              case SIM, REPLAY -> new IntakeIO() {};
+            });
+
     swerve.setDefaultCommand(
         swerve.teleopDrive(
             () -> -controller.getLeftY(),
@@ -131,6 +144,9 @@ public class Robot extends LoggedRobot {
                 DriverStation.getAlliance().isPresent()
                     && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
         .onTrue(swerve.setToRed());
+
+    var shooter =
+        new Shooter(new HoodIO() {}, new FlywheelIO() {}, swerve::getPose, swerve::getFieldSpeeds);
   }
 
   @Override

@@ -28,6 +28,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 
 /**
  * Implementation that extends the real implementation to add MapleSim-based drivetrain simulation.
@@ -127,6 +128,7 @@ public class SwerveIOSim extends SwerveIOReal {
 
     // Run the simulation at a higher frequency than the default
     SimulatedArena.overrideSimulationTimings(Seconds.of(1.0 / SIM_FREQUENCY_HZ), 1);
+    SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
     SimulatedArena.getInstance().addDriveTrainSimulation(simulation);
     var simThread = new Notifier(this::update);
     simThread.startPeriodic(1.0 / SIM_FREQUENCY_HZ);
