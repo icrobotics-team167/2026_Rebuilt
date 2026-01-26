@@ -171,7 +171,7 @@ public class Swerve extends SubsystemBase {
     return ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, getPose().getRotation());
   }
 
-  private void resetPose(Pose2d pose) {
+  public void resetPose(Pose2d pose) {
     if (io instanceof SwerveIOSim simImpl) {
       simImpl.resetPose(pose);
     }
