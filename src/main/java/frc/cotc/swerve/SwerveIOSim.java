@@ -56,9 +56,8 @@ public class SwerveIOSim extends SwerveIOReal {
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                //for bumper thickness of 2.5in
-                Inches.of(27), // Bumper width
-                Inches.of(37), // Bumper length
+                Inches.of(25), // Bumper width
+                Inches.of(25), // Bumper length
                 // Track width
                 getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
                 // Track length
@@ -166,5 +165,13 @@ public class SwerveIOSim extends SwerveIOReal {
         .withCouplingGearRatio(0)
         // Adjust steer motor PID gains for simulation
         .withSteerMotorGains(moduleConstants.SteerMotorGains.withKP(70).withKD(.5));
+  }
+
+  @Override
+  public void resetPose(Pose2d pose) {
+    simulation.setSimulationWorldPose(pose);
+    // The reset of the MapleSim pose will also reset the gyro, so resetting the pose estimator yaw
+    // will overshoot.
+    super.resetTranslation(pose.getTranslation());
   }
 }
