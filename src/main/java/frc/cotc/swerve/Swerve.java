@@ -9,9 +9,8 @@ package frc.cotc.swerve;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import choreo.trajectory.SwerveSample;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,7 +34,8 @@ public class Swerve extends SubsystemBase {
   private final SwerveIO io;
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
-  private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds();
+  private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds =
+      new SwerveRequest.ApplyFieldSpeeds();
   private final PIDController pathXController = new PIDController(10, 0, 0);
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
@@ -143,6 +143,22 @@ public class Swerve extends SubsystemBase {
     return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg));
   }
 
+  public void followPath(SwerveSample sample) {
+    var pose = getPose();
+
+    var targetSpeeds = sample.getChassisSpeeds();
+    targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);
+    targetSpeeds.vyMetersPerSecond += pathYController.calculate(pose.getY(), sample.y);
+    targetSpeeds.omegaRadiansPerSecond +=
+        pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading);
+
+    io.setControl(
+        m_pathApplyFieldSpeeds
+            .withSpeeds(targetSpeeds)
+            .withWheelForceFeedforwardsX(sample.moduleForcesX())
+            .withWheelForceFeedforwardsY(sample.moduleForcesY()));
+  }
+
   public Pose2d getPose() {
     return io.getPose();
   }
@@ -164,25 +180,4 @@ public class Swerve extends SubsystemBase {
     }
     io.resetPose(pose);
   }
-
-  public void followPath(SwerveSample sample) {
-      var pose = getPose();
-
-      var targetSpeeds = sample.getChassisSpeeds();
-      targetSpeeds.vxMetersPerSecond += pathXController.calculate(
-          pose.getX(), sample.x
-      );
-      targetSpeeds.vyMetersPerSecond += pathYController.calculate(
-          pose.getY(), sample.y
-      );
-      targetSpeeds.omegaRadiansPerSecond += pathThetaController.calculate(
-          pose.getRotation().getRadians(), sample.heading
-      );
-
-      io.setControl(
-          m_pathApplyFieldSpeeds.withSpeeds(targetSpeeds)
-              .withWheelForceFeedforwardsX(sample.moduleForcesX())
-              .withWheelForceFeedforwardsY(sample.moduleForcesY())
-      );
-    }
 }
