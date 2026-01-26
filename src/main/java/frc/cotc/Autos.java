@@ -16,8 +16,4 @@ public class Autos {
                                     swerve);
     }
 
-    public Command pickupAndScoreAuto() {
-        //placeholder
-        return Commands.sequence();
-    }
 }
