@@ -16,7 +16,261 @@ public class Autos {
                                     true, 
                                     swerve);
     }
+    
     //Nonclimb Autos
+    //Depot
+    public AutoRoutine centerDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterDepot");
+        AutoTrajectory centerDepot = routine.trajectory("CenterDepot");
+
+        routine.active().onTrue(Commands.sequence(centerDepot.resetOdometry(),centerDepot.cmd()));
+
+        return routine;
+    }
+
+    public AutoRoutine leftDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftOutpost");
+        AutoTrajectory leftDepot = routine.trajectory("LeftOutpost");
+
+        routine.active().onTrue(Commands.sequence(leftDepot.resetOdometry(),leftDepot.cmd()));
+
+        return routine;
+    }
+
+    public AutoRoutine rightDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("RightOutpost");
+        AutoTrajectory rightDepot = routine.trajectory("RightOutpost");
+
+        routine.active().onTrue(Commands.sequence(rightDepot.resetOdometry(),rightDepot.cmd()));
+
+        return routine;
+    }
+
+    //DepotOutpost
+    public AutoRoutine centerDepotOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterDepotOutpost");
+        AutoTrajectory centerDepotOutpost = routine.trajectory("CenterDepotOutpost");
+
+        routine.active().onTrue(Commands.sequence(centerDepotOutpost.resetOdometry(),centerDepotOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftDepotOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftDepotOutpost");
+        AutoTrajectory leftDepotOutpost = routine.trajectory("LeftDepotOutpost");
+
+        routine.active().onTrue(Commands.sequence(leftDepotOutpost.resetOdometry(),leftDepotOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightDepotOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("RightDepotOutpost");
+        AutoTrajectory rightDepotOutpost = routine.trajectory("RightDepotOutpost");
+
+        routine.active().onTrue(Commands.sequence(rightDepotOutpost.resetOdometry(),rightDepotOutpost.cmd()));
+        
+        return routine;
+    }
+
+    //Fuel
+    public AutoRoutine centerFuel() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterFuel");
+        AutoTrajectory centerFuel = routine.trajectory("CenterFuel");
+        
+        routine.active().onTrue(Commands.sequence(centerFuel.resetOdometry(),centerFuel.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftFuel() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftFuel");
+        AutoTrajectory leftFuel = routine.trajectory("LeftFuel");
+        
+        routine.active().onTrue(Commands.sequence(leftFuel.resetOdometry(),leftFuel.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightFuel() {
+        AutoRoutine routine = autoFactory.newRoutine("RightFuel");
+        AutoTrajectory rightFuel = routine.trajectory("RightFuel");
+        
+        routine.active().onTrue(Commands.sequence(rightFuel.resetOdometry(),rightFuel.cmd()));
+        
+        return routine;
+    }
+
+    //FuelDepot
+    public AutoRoutine centerFuelDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterFuelDepot");
+        AutoTrajectory centerFuelDepot = routine.trajectory("CenterFuelDepot");
+        
+        routine.active().onTrue(Commands.sequence(centerFuelDepot.resetOdometry(),centerFuelDepot.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftFuelDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftFuelDepot");
+        AutoTrajectory leftFuelDepot = routine.trajectory("LeftFuelDepot");
+        
+        routine.active().onTrue(Commands.sequence(leftFuelDepot.resetOdometry(),leftFuelDepot.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightFuelDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("RightFuelDepot");
+        AutoTrajectory rightFuelDepot = routine.trajectory("RightFuelDepot");
+        
+        routine.active().onTrue(Commands.sequence(rightFuelDepot.resetOdometry(),rightFuelDepot.cmd()));
+        
+        return routine;
+    }
+
+    //FuelDepotOutpost
+    public AutoRoutine centerFuelDepotOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterFuelDepotOutpost");
+        AutoTrajectory centerFuelDepotOutpost = routine.trajectory("CenterFuelDepotOutpost");
+        
+        routine.active().onTrue(Commands.sequence(centerFuelDepotOutpost.resetOdometry(),centerFuelDepotOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftFuelDepotOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftFuelDepotOutpost");
+        AutoTrajectory leftFuelDepotOutpost = routine.trajectory("LeftFuelDepotOutpost");
+        
+        routine.active().onTrue(Commands.sequence(leftFuelDepotOutpost.resetOdometry(),leftFuelDepotOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightFuelDepotOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("RightFuelDepotOutpost");
+        AutoTrajectory rightFuelDepotOutpost = routine.trajectory("RightFuelDepotOutpost");
+        
+        routine.active().onTrue(Commands.sequence(rightFuelDepotOutpost.resetOdometry(),rightFuelDepotOutpost.cmd()));
+        
+        return routine;
+    }
+
+    //FuelOutpost
+    public AutoRoutine centerFuelOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterFuelOutpost");
+        AutoTrajectory centerFuelOutpost = routine.trajectory("CenterFuelOutpost");
+        
+        routine.active().onTrue(Commands.sequence(centerFuelOutpost.resetOdometry(),centerFuelOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftFuelOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftFuelOutpost");
+        AutoTrajectory leftFuelOutpost = routine.trajectory("LeftFuelOutpost");
+        
+        routine.active().onTrue(Commands.sequence(leftFuelOutpost.resetOdometry(),leftFuelOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightFuelOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("RightFuelOutpost");
+        AutoTrajectory rightFuelOutpost = routine.trajectory("RightFuelOutpost");
+        
+        routine.active().onTrue(Commands.sequence(rightFuelOutpost.resetOdometry(),rightFuelOutpost.cmd()));
+        
+        return routine;
+    }
+
+    //FuelOutpostDepot
+    public AutoRoutine centerFuelOutpostDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterFuelOutpostDepot");
+        AutoTrajectory centerFuelOutpostDepot = routine.trajectory("CenterFuelOutpostDepot");
+        
+        routine.active().onTrue(Commands.sequence(centerFuelOutpostDepot.resetOdometry(),centerFuelOutpostDepot.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftFuelOutpostDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftFuelOutpostDepot");
+        AutoTrajectory leftFuelOutpostDepot = routine.trajectory("LeftFuelOutpostDepot");
+        
+        routine.active().onTrue(Commands.sequence(leftFuelOutpostDepot.resetOdometry(),leftFuelOutpostDepot.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightFuelOutpostDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("RightFuelOutpostDepot");
+        AutoTrajectory rightFuelOutpostDepot = routine.trajectory("RightFuelOutpostDepot");
+        
+        routine.active().onTrue(Commands.sequence(rightFuelOutpostDepot.resetOdometry(),rightFuelOutpostDepot.cmd()));
+        
+        return routine;
+    }
+    
+    //Outpost
+    public AutoRoutine centerOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterOutpost");
+        AutoTrajectory centerOutpost = routine.trajectory("CenterOutpost");
+        
+        routine.active().onTrue(Commands.sequence(centerOutpost.resetOdometry(),centerOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftOutpost");
+        AutoTrajectory leftOutpost = routine.trajectory("LeftOutpost");
+        
+        routine.active().onTrue(Commands.sequence(leftOutpost.resetOdometry(),leftOutpost.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightOutpost() {
+        AutoRoutine routine = autoFactory.newRoutine("RightOutpost");
+        AutoTrajectory rightOutpost = routine.trajectory("RightOutpost");
+        
+        routine.active().onTrue(Commands.sequence(rightOutpost.resetOdometry(),rightOutpost.cmd()));
+        
+        return routine;
+    }
+
+    //OutpostDepot
+    public AutoRoutine centerOutpostDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("CenterOutpostDepot");
+        AutoTrajectory centerOutpostDepot = routine.trajectory("CenterOutpostDepot");
+        
+        routine.active().onTrue(Commands.sequence(centerOutpostDepot.resetOdometry(),centerOutpostDepot.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine leftOutpostDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("LeftOutpostDepot");
+        AutoTrajectory leftOutpostDepot = routine.trajectory("LeftOutpostDepot");
+        
+        routine.active().onTrue(Commands.sequence(leftOutpostDepot.resetOdometry(),leftOutpostDepot.cmd()));
+        
+        return routine;
+    }
+
+    public AutoRoutine rightOutpostDepot() {
+        AutoRoutine routine = autoFactory.newRoutine("RightOutpostDepot");
+        AutoTrajectory rightOutpostDepot = routine.trajectory("RightOutpostDepot");
+        
+        routine.active().onTrue(Commands.sequence(rightOutpostDepot.resetOdometry(),rightOutpostDepot.cmd()));
+        
+        return routine;
+    }
+    
+
 
     //Climb Autos
     //Climb Only
