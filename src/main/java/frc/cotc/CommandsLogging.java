@@ -22,11 +22,12 @@ import org.littletonrobotics.junction.Logger;
  */
 public class CommandsLogging {
   private static final Set<Command> runningNonInterrupters = new HashSet<>();
-  public static final Map<Command, Command> runningInterrupters = new HashMap<>();
+  private static final Set<Command> runningInterrupters = new HashSet<>();
+  private static final Map<Command, Command> interrupted = new HashMap<>();
   private static final Map<Subsystem, Command> requiredSubsystems = new HashMap<>();
 
   public static void commandStarted(final Command command) {
-    if (!runningInterrupters.containsKey(command)) {
+    if (!runningInterrupters.contains(command)) {
       runningNonInterrupters.add(command);
     }
 
@@ -309,17 +310,39 @@ public class CommandsLogging {
     Logger.recordOutput(
         "CommandScheduler/Running/infos", runningDefaultCommands.toArray(new String[0]));
 
-    final String[] interrupters = new String[runningInterrupters.size()];
-    int j = 0;
-    for (final Map.Entry<Command, Command> entry : runningInterrupters.entrySet()) {
-      final Command interrupter = entry.getKey();
-      final Command interrupted = entry.getValue();
+    final var interrupters = new ArrayList<String>();
+    for (final var interrupter : runningInterrupters) {
+      for (final var interruptEntry : interrupted.entrySet()) {
+        if (interruptEntry.getValue() != interrupter) {
+          continue;
+        }
 
-      interrupters[j] = getCommandName(interrupter) + " interrupted " + getCommandName(interrupted);
-      j++;
+        final var interrupted = interruptEntry.getKey();
+        final Set<Subsystem> commonRequirements = new HashSet<>(interrupter.getRequirements());
+        commonRequirements.retainAll(interrupted.getRequirements());
+
+        final StringBuilder requirements = new StringBuilder();
+        int i = 1;
+        for (final Subsystem subsystem : commonRequirements) {
+          requirements.append(subsystem.getName());
+          if (i < commonRequirements.size()) {
+            requirements.append(",");
+          }
+
+          i++;
+        }
+
+        interrupters.add(
+            interrupter.getName()
+                + " interrupted "
+                + interrupted.getName()
+                + " ("
+                + requirements
+                + ")");
+      }
     }
 
-    Logger.recordOutput("CommandScheduler/Running/errors", interrupters);
+    Logger.recordOutput("CommandScheduler/Running/errors", interrupters.toArray(new String[0]));
   }
 
   private static void addCommand(
