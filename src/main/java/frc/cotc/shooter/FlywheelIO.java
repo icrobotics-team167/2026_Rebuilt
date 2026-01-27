@@ -12,14 +12,30 @@ import org.littletonrobotics.junction.AutoLog;
 public interface FlywheelIO {
   @AutoLog
   class FlywheelIOInputs {
-    double projectileVelMetersPerSec;
-    double motor0statorCurrentAmps;
-    double motor1statorCurrentAmps;
-    double motor0SupplyCurrentAmps;
-    double motor1SupplyCurrentAmps;
+    public double projectileVelMetersPerSec;
+    public double appliedVolts;
+
+    // Left Side
+    public double motor0StatorCurrentAmps;
+    public double motor1StatorCurrentAmps;
+    public double motor0SupplyCurrentAmps;
+    public double motor1SupplyCurrentAmps;
+
+    // Right Side
+    public double motor2StatorCurrentAmps;
+    public double motor3StatorCurrentAmps;
+    public double motor2SupplyCurrentAmps;
+    public double motor3SupplyCurrentAmps;
   }
 
   default void updateInputs(FlywheelIOInputs inputs) {}
 
+  // Run the shooter at a target Projectile Velocity.
   default void runVel(double projectileVelMetersPerSec) {}
+
+  default void stop() {}
+
+  default void setGains(double kP, double kV) {}
+
+  default void addCalibrationPoint(double mps, double rps) {}
 }

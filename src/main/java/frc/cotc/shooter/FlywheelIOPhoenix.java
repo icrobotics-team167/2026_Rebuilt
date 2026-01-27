@@ -1,0 +1,162 @@
+// Copyright (c) 2026 FRC 167
+// https://github.com/icrobotics-team167
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
+package frc.cotc.shooter;
+
+import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.units.measure.*;
+
+public class FlywheelIOPhoenix implements FlywheelIO {
+  private final TalonFX motor0;
+  private final TalonFX motor1;
+  private final TalonFX motor2;
+  private final TalonFX motor3;
+
+  private final StatusSignal<AngularVelocity> vel0, vel2;
+  private final StatusSignal<Voltage> volts;
+  private final StatusSignal<Current> stat0, stat1, stat2, stat3;
+  private final StatusSignal<Current> sup0, sup1, sup2, sup3;
+
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
+  private final VoltageOut stopRequest = new VoltageOut(0);
+
+  private final InterpolatingDoubleTreeMap mpsToRpsMap = new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap rpsToMpsMap = new InterpolatingDoubleTreeMap();
+  private boolean isCalibrated = false;
+
+  /**
+   * Constructor
+   *
+   * @param id0 Left Leader ID
+   * @param id1 Left Follower ID
+   * @param id2 Right Leader ID
+   * @param id3 Right Follower ID
+   */
+  public FlywheelIOPhoenix(int id0, int id1, int id2, int id3) {
+    motor0 = new TalonFX(id0);
+    motor1 = new TalonFX(id1);
+    motor2 = new TalonFX(id2);
+    motor3 = new TalonFX(id3);
+
+    // Configure Settings
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    // PID Gains
+    config.Slot0.kP = 0.0;
+    config.Slot0.kV = 0.0;
+
+    // Left Side
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    motor0.getConfigurator().apply(config);
+    motor1.getConfigurator().apply(config);
+
+    // Right Side
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motor2.getConfigurator().apply(config);
+    motor3.getConfigurator().apply(config);
+
+    // Followers
+    motor1.setControl(new StrictFollower(id0));
+    motor3.setControl(new StrictFollower(id2));
+
+    // Signal Setup
+    vel0 = motor0.getVelocity();
+    vel2 = motor2.getVelocity();
+    volts = motor0.getMotorVoltage();
+
+    stat0 = motor0.getStatorCurrent();
+    stat1 = motor1.getStatorCurrent();
+    stat2 = motor2.getStatorCurrent();
+    stat3 = motor3.getStatorCurrent();
+
+    sup0 = motor0.getSupplyCurrent();
+    sup1 = motor1.getSupplyCurrent();
+    sup2 = motor2.getSupplyCurrent();
+    sup3 = motor3.getSupplyCurrent();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, vel0, vel2, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+    motor0.optimizeBusUtilization();
+  }
+
+  @Override
+  public void updateInputs(FlywheelIOInputs inputs) {
+    BaseStatusSignal.refreshAll(
+        vel0, vel2, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+
+    double vel0Val = vel0.getValue().in(RotationsPerSecond);
+    double vel2Val = vel2.getValue().in(RotationsPerSecond);
+    double currentRps = (vel0Val + vel2Val) / 2.0;
+
+    if (isCalibrated) {
+      inputs.projectileVelMetersPerSec = rpsToMpsMap.get(currentRps);
+    } else {
+      inputs.projectileVelMetersPerSec = 0.0;
+    }
+
+    inputs.appliedVolts = volts.getValue().in(Volts);
+
+    inputs.motor0StatorCurrentAmps = stat0.getValue().in(Amps);
+    inputs.motor1StatorCurrentAmps = stat1.getValue().in(Amps);
+    inputs.motor2StatorCurrentAmps = stat2.getValue().in(Amps);
+    inputs.motor3StatorCurrentAmps = stat3.getValue().in(Amps);
+
+    inputs.motor0SupplyCurrentAmps = sup0.getValue().in(Amps);
+    inputs.motor1SupplyCurrentAmps = sup1.getValue().in(Amps);
+    inputs.motor2SupplyCurrentAmps = sup2.getValue().in(Amps);
+    inputs.motor3SupplyCurrentAmps = sup3.getValue().in(Amps);
+  }
+
+  @Override
+  public void runVel(double projectileVelMetersPerSec) {
+    if (!isCalibrated) {
+      stop();
+      return;
+    }
+
+    double targetRps = mpsToRpsMap.get(projectileVelMetersPerSec);
+
+    motor0.setControl(velocityRequest.withVelocity(targetRps));
+    motor2.setControl(velocityRequest.withVelocity(targetRps));
+  }
+
+  @Override
+  public void stop() {
+    motor0.setControl(stopRequest);
+    motor2.setControl(stopRequest);
+  }
+
+  @Override
+  public void setGains(double kP, double kV) {
+    config.Slot0.kP = kP;
+    config.Slot0.kV = kV;
+    motor0.getConfigurator().apply(config);
+    motor2.getConfigurator().apply(config);
+  }
+
+  @Override
+  public void addCalibrationPoint(double mps, double rps) {
+    mpsToRpsMap.put(mps, rps);
+    rpsToMpsMap.put(rps, mps);
+    isCalibrated = true; // Mark as calibrated so we can run
+  }
+}
