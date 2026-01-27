@@ -10,27 +10,25 @@ package frc.cotc.shooter;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface FlywheelIO {
-    @AutoLog
-    public static class FlywheelIOInputs {
-        public double projectileVelMetersPerSec = 0.0;
-        public double appliedVolts = 0.0;
-        
-        public double motor0StatorCurrentAmps = 0.0;
-        public double motor1StatorCurrentAmps = 0.0;
-        public double motor2StatorCurrentAmps = 0.0;
-        public double motor3StatorCurrentAmps = 0.0;
-        
-        public double motor0SupplyCurrentAmps = 0.0;
-        public double motor1SupplyCurrentAmps = 0.0;
-        public double motor2SupplyCurrentAmps = 0.0;
-        public double motor3SupplyCurrentAmps = 0.0;
-    }
+  @AutoLog
+  public static class FlywheelIOInputs {
+    public double projectileVelMetersPerSec = 0.0;
+    public double appliedVolts = 0.0;
 
-    public default void updateInputs(FlywheelIOInputs inputs) {}
+    public double motor0StatorCurrentAmps = 0.0;
+    public double motor1StatorCurrentAmps = 0.0;
+    public double motor2StatorCurrentAmps = 0.0;
+    public double motor3StatorCurrentAmps = 0.0;
 
-    public default void runVel(double projectileVelMetersPerSec) {}
-
-    public default void stop() {
-
-    }
+    public double motor0SupplyCurrentAmps = 0.0;
+    public double motor1SupplyCurrentAmps = 0.0;
+    public double motor2SupplyCurrentAmps = 0.0;
+    public double motor3SupplyCurrentAmps = 0.0;
   }
+
+  public default void updateInputs(FlywheelIOInputs inputs) {}
+
+  public default void runVel(double projectileVelMetersPerSec) {}
+
+  public default void stop() {}
+}
