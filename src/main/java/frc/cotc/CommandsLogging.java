@@ -23,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 public class CommandsLogging {
   private static final Set<Command> runningNonInterrupters = new HashSet<>();
   private static final Set<Command> runningInterrupters = new HashSet<>();
-  private static final Map<Command, Command> interrupted = new HashMap<>();
+  private static final Map<Command, Command> interruptedCommands = new HashMap<>();
   private static final Map<Subsystem, Command> requiredSubsystems = new HashMap<>();
 
   public static void commandStarted(final Command command) {
@@ -312,7 +312,7 @@ public class CommandsLogging {
 
     final var interrupters = new ArrayList<String>();
     for (final var interrupter : runningInterrupters) {
-      for (final var interruptEntry : interrupted.entrySet()) {
+      for (final var interruptEntry : interruptedCommands.entrySet()) {
         if (interruptEntry.getValue() != interrupter) {
           continue;
         }
@@ -343,6 +343,14 @@ public class CommandsLogging {
     }
 
     Logger.recordOutput("CommandScheduler/Running/errors", interrupters.toArray(new String[0]));
+  }
+
+  public static void logInterrupts(Command interrupted, Optional<Command> interrupting) {
+    interrupting.ifPresent(
+        interrupter -> {
+          runningInterrupters.add(interrupter);
+          interruptedCommands.put(interrupted, interrupter);
+        });
   }
 
   private static void addCommand(

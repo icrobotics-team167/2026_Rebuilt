@@ -103,13 +103,7 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().onCommandInitialize(CommandsLogging::commandStarted);
     CommandScheduler.getInstance().onCommandFinish(CommandsLogging::commandEnded);
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            (interrupted, interrupting) -> {
-              interrupting.ifPresent(
-                  interrupter -> CommandsLogging.runningInterrupters.put(interrupter, interrupted));
-              CommandsLogging.commandEnded(interrupted);
-            });
+    CommandScheduler.getInstance().onCommandInterrupt(CommandsLogging::logInterrupts);
 
     var swerve =
         new Swerve(
