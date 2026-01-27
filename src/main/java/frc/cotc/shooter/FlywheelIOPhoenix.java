@@ -7,8 +7,7 @@
 
 package frc.cotc.shooter;
 
-import static edu.wpi.first.units.Units.*;
-
+// --- CTRE Imports ---
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -18,8 +17,9 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 public class FlywheelIOPhoenix implements FlywheelIO {
   private final TalonFX motor0;
@@ -27,7 +27,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private final TalonFX motor2;
   private final TalonFX motor3;
 
-  private final StatusSignal<AngularVelocity> vel0, vel2;
+  private final StatusSignal<AngularVelocity> vel0;
   private final StatusSignal<Voltage> volts;
   private final StatusSignal<Current> stat0, stat1, stat2, stat3;
   private final StatusSignal<Current> sup0, sup1, sup2, sup3;
@@ -36,18 +36,9 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private final VoltageOut stopRequest = new VoltageOut(0);
 
-  private final InterpolatingDoubleTreeMap mpsToRpsMap = new InterpolatingDoubleTreeMap();
-  private final InterpolatingDoubleTreeMap rpsToMpsMap = new InterpolatingDoubleTreeMap();
-  private boolean isCalibrated = false;
+  // Placeholder for conversion
+  private static final double MPS_TO_RPS = 1.0;
 
-  /**
-   * Constructor
-   *
-   * @param id0 Left Leader ID
-   * @param id1 Left Follower ID
-   * @param id2 Right Leader ID
-   * @param id3 Right Follower ID
-   */
   public FlywheelIOPhoenix(int id0, int id1, int id2, int id3) {
     motor0 = new TalonFX(id0);
     motor1 = new TalonFX(id1);
@@ -56,13 +47,8 @@ public class FlywheelIOPhoenix implements FlywheelIO {
 
     // Configure Settings
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.CurrentLimits.StatorCurrentLimit = 120;
     config.CurrentLimits.SupplyCurrentLimit = 60;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-    // PID Gains
-    config.Slot0.kP = 0.0;
-    config.Slot0.kV = 0.0;
 
     // Left Side
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -78,9 +64,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     motor1.setControl(new StrictFollower(id0));
     motor3.setControl(new StrictFollower(id2));
 
-    // Signal Setup
     vel0 = motor0.getVelocity();
-    vel2 = motor2.getVelocity();
     volts = motor0.getMotorVoltage();
 
     stat0 = motor0.getStatorCurrent();
@@ -94,46 +78,37 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     sup3 = motor3.getSupplyCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, vel0, vel2, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+        50.0, vel0, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+
     motor0.optimizeBusUtilization();
+    motor1.optimizeBusUtilization();
+    motor2.optimizeBusUtilization();
+    motor3.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        vel0, vel2, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
 
-    double vel0Val = vel0.getValue().in(RotationsPerSecond);
-    double vel2Val = vel2.getValue().in(RotationsPerSecond);
-    double currentRps = (vel0Val + vel2Val) / 2.0;
+    double currentRps = vel0.getValueAsDouble();
 
-    if (isCalibrated) {
-      inputs.projectileVelMetersPerSec = rpsToMpsMap.get(currentRps);
-    } else {
-      inputs.projectileVelMetersPerSec = 0.0;
-    }
+    inputs.projectileVelMetersPerSec = currentRps / MPS_TO_RPS;
 
-    inputs.appliedVolts = volts.getValue().in(Volts);
+    inputs.appliedVolts = volts.getValueAsDouble();
 
-    inputs.motor0StatorCurrentAmps = stat0.getValue().in(Amps);
-    inputs.motor1StatorCurrentAmps = stat1.getValue().in(Amps);
-    inputs.motor2StatorCurrentAmps = stat2.getValue().in(Amps);
-    inputs.motor3StatorCurrentAmps = stat3.getValue().in(Amps);
+    inputs.motor0StatorCurrentAmps = stat0.getValueAsDouble();
+    inputs.motor1StatorCurrentAmps = stat1.getValueAsDouble();
+    inputs.motor2StatorCurrentAmps = stat2.getValueAsDouble();
+    inputs.motor3StatorCurrentAmps = stat3.getValueAsDouble();
 
-    inputs.motor0SupplyCurrentAmps = sup0.getValue().in(Amps);
-    inputs.motor1SupplyCurrentAmps = sup1.getValue().in(Amps);
-    inputs.motor2SupplyCurrentAmps = sup2.getValue().in(Amps);
-    inputs.motor3SupplyCurrentAmps = sup3.getValue().in(Amps);
+    inputs.motor0SupplyCurrentAmps = sup0.getValueAsDouble();
+    inputs.motor1SupplyCurrentAmps = sup1.getValueAsDouble();
+    inputs.motor2SupplyCurrentAmps = sup2.getValueAsDouble();
+    inputs.motor3SupplyCurrentAmps = sup3.getValueAsDouble();
   }
 
   @Override
   public void runVel(double projectileVelMetersPerSec) {
-    if (!isCalibrated) {
-      stop();
-      return;
-    }
-
-    double targetRps = mpsToRpsMap.get(projectileVelMetersPerSec);
+    double targetRps = projectileVelMetersPerSec * MPS_TO_RPS;
 
     motor0.setControl(velocityRequest.withVelocity(targetRps));
     motor2.setControl(velocityRequest.withVelocity(targetRps));
@@ -143,20 +118,5 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   public void stop() {
     motor0.setControl(stopRequest);
     motor2.setControl(stopRequest);
-  }
-
-  @Override
-  public void setGains(double kP, double kV) {
-    config.Slot0.kP = kP;
-    config.Slot0.kV = kV;
-    motor0.getConfigurator().apply(config);
-    motor2.getConfigurator().apply(config);
-  }
-
-  @Override
-  public void addCalibrationPoint(double mps, double rps) {
-    mpsToRpsMap.put(mps, rps);
-    rpsToMpsMap.put(rps, mps);
-    isCalibrated = true; // Mark as calibrated so we can run
   }
 }
