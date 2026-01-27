@@ -7,18 +7,82 @@
 
 package frc.cotc;
 
+import static edu.wpi.first.wpilibj2.command.Commands.*;
+import java.util.HashMap;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.cotc.swerve.Swerve;
 
 public class Autos {
   private final AutoFactory autoFactory;
+  private final LoggedDashboardChooser<String> chooser;
+  private final HashMap<String, Supplier<Command>> routines = new HashMap<>();
+  private final String NONE_NAME = "Do Nothing";
 
   public Autos(Swerve swerve) {
+    chooser = new LoggedDashboardChooser<>("Auto Chooser");
+    chooser.addDefaultOption(NONE_NAME, NONE_NAME);
+    routines.put(NONE_NAME, Commands::none);
+
     autoFactory =
         new AutoFactory(swerve::getPose, swerve::resetPose, swerve::followPath, true, swerve);
+  }
+
+  private String selectedCommandName = NONE_NAME;
+  private Command selectedCommand = none();
+  private boolean selectedOnRed = false;
+
+  private final Alert selectedNonexistentAuto =
+      new Alert("Selected an auto that isn't an option!", Alert.AlertType.kError);
+  private final Alert loadedAutoAlert = new Alert("", Alert.AlertType.kInfo);
+
+  public void update() {
+    if (DriverStation.isDSAttached() && DriverStation.getAlliance().isPresent()) {
+      var selected = chooser.get();
+      if (selected.equals(selectedCommandName) && selectedOnRed == Robot.isOnRed()) {
+        return;
+      }
+      if (!routines.containsKey(selected)) {
+        selected = NONE_NAME;
+        selectedNonexistentAuto.set(true);
+      } else {
+        selectedNonexistentAuto.set(false);
+      }
+      selectedCommandName = selected;
+      selectedCommand = routines.get(selected).get().withName(selectedCommandName);
+      selectedOnRed = Robot.isOnRed();
+      loadedAutoAlert.setText("Loaded Auto: " + selectedCommandName);
+      loadedAutoAlert.set(true);
+    }
+  }
+
+  public void clear() {
+    selectedCommandName = NONE_NAME;
+    selectedCommand = none();
+    selectedOnRed = false;
+  }
+
+  public Command getSelectedCommand() {
+    return selectedCommand;
+  }
+
+  private void addRoutine(String name, Supplier<Command> generator) {
+    chooser.addOption(name, name);
+    routines.put(name, generator);
+  }
+
+  private enum Source {
+    L,
+    R
   }
 
   // Nonclimb Autos
