@@ -13,7 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.cotc.Constants;
+import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -48,15 +48,15 @@ public class Shooter extends SubsystemBase {
   private final Translation2d BLUE_TOP_GROUND_TARGET =
       new Translation2d(
           BLUE_BOTTOM_GROUND_TARGET.getX(),
-          Constants.FIELD_WIDTH_METERS - BLUE_BOTTOM_GROUND_TARGET.getY());
+          FieldConstants.fieldWidth - BLUE_BOTTOM_GROUND_TARGET.getY());
   private final Translation2d RED_BOTTOM_GROUND_TARGET =
       new Translation2d(
-          Constants.FIELD_LENGTH_METERS - BLUE_BOTTOM_GROUND_TARGET.getX(),
+          FieldConstants.fieldLength - BLUE_BOTTOM_GROUND_TARGET.getX(),
           BLUE_BOTTOM_GROUND_TARGET.getY());
   private final Translation2d RED_TOP_GROUND_TARGET =
       new Translation2d(
           RED_BOTTOM_GROUND_TARGET.getX(),
-          Constants.FIELD_WIDTH_METERS - RED_BOTTOM_GROUND_TARGET.getY());
+          FieldConstants.fieldWidth - RED_BOTTOM_GROUND_TARGET.getY());
 
   public Shooter(
       HoodIO hoodIO,
@@ -93,8 +93,8 @@ public class Shooter extends SubsystemBase {
 
   private Translation2d getTargetLocation(ShotTarget shotTarget) {
     return switch (shotTarget) {
-      case BLUE_HUB -> Constants.BLUE_HUB_LOCATION;
-      case RED_HUB -> Constants.RED_HUB_LOCATION;
+      case BLUE_HUB -> FieldConstants.Hub.topCenterPoint.toTranslation2d();
+      case RED_HUB -> FieldConstants.Hub.oppTopCenterPoint.toTranslation2d();
       case BLUE_BOTTOM_GROUND -> BLUE_BOTTOM_GROUND_TARGET;
       case BLUE_TOP_GROUND -> BLUE_TOP_GROUND_TARGET;
       case RED_BOTTOM_GROUND -> RED_BOTTOM_GROUND_TARGET;
@@ -120,7 +120,7 @@ public class Shooter extends SubsystemBase {
           var robotPose = robotPoseSupplier.get();
 
           ShotTarget target;
-          if (robotPose.getY() > Constants.FIELD_WIDTH_METERS / 2) {
+          if (robotPose.getY() > FieldConstants.fieldWidth / 2) {
             target = Robot.isOnRed() ? ShotTarget.RED_TOP_GROUND : ShotTarget.BLUE_TOP_GROUND;
           } else {
             target = Robot.isOnRed() ? ShotTarget.RED_BOTTOM_GROUND : ShotTarget.BLUE_BOTTOM_GROUND;
