@@ -12,7 +12,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-
 import frc.cotc.Robot;
 
 public class IntakeIOPhoenix implements IntakeIO {
@@ -25,7 +24,13 @@ public class IntakeIOPhoenix implements IntakeIO {
   private final double INTAKE_DEFAULT_VOLTAGE = 12.0;
   private final double OUTAKE_DEFAULT_VOLTAGE = -12.0;
 
-  private final BaseStatusSignal posSignal, velSignal1, statorSignal1, supplySignal1, velSignal2, statorSignal2, supplySignal2;
+  private final BaseStatusSignal posSignal,
+      velSignal1,
+      statorSignal1,
+      supplySignal1,
+      velSignal2,
+      statorSignal2,
+      supplySignal2;
 
   public IntakeIOPhoenix() {
     encoder = new CANcoder(ENCODER_ID);
@@ -48,9 +53,22 @@ public class IntakeIOPhoenix implements IntakeIO {
     supplySignal1 = intakeMotor2.getSupplyCurrent(false);
     supplySignal2 = intakeMotor2.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(
-      50, posSignal, velSignal1, velSignal2, statorSignal1, statorSignal2, supplySignal1, supplySignal2);  
+        50,
+        posSignal,
+        velSignal1,
+        velSignal2,
+        statorSignal1,
+        statorSignal2,
+        supplySignal1,
+        supplySignal2);
     Robot.canivoreSignals.addSignals(
-      posSignal, velSignal1, velSignal2, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
+        posSignal,
+        velSignal1,
+        velSignal2,
+        statorSignal1,
+        statorSignal2,
+        supplySignal1,
+        supplySignal2);
   }
 
   @Override
