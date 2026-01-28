@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -43,6 +44,7 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
+  private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -148,6 +150,22 @@ public class Robot extends LoggedRobot {
             swerve::getPose,
             swerve::getFieldSpeeds);
     shooter.setDefaultCommand(shooter.shootAtHub());
+
+    autos = new Autos(swerve);
+  }
+
+  private Command autoCommand;
+
+  @Override
+  public void autonomousInit() {
+    autoCommand = autos.getSelectedCommand();
+    autoCommand.schedule();
+  }
+
+  @Override
+  public void autonomousExit() {
+    autoCommand.cancel();
+    autos.clear();
   }
 
   @Override
