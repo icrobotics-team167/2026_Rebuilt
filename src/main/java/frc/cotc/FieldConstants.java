@@ -23,7 +23,6 @@ import frc.cotc.vision.AprilTagPoseEstimator;
  */
 @SuppressWarnings({"OptionalGetWithoutIsPresent", "SuspiciousNameCombination"})
 public class FieldConstants {
-
   // AprilTag related constants
   public static final int aprilTagCount = AprilTagPoseEstimator.tagLayout.getTags().size();
   public static final double aprilTagWidth = Units.inchesToMeters(6.5);
@@ -57,7 +56,6 @@ public class FieldConstants {
    * alliance station
    */
   public static class LinesHorizontal {
-
     public static final double center = fieldWidth / 2.0;
 
     // Right of hub
@@ -75,7 +73,6 @@ public class FieldConstants {
 
   /** Hub related constants */
   public static class Hub {
-
     // Dimensions
     public static final double width = Units.inchesToMeters(47.0);
     public static final double height =
@@ -137,7 +134,6 @@ public class FieldConstants {
 
   /** Left Bump related constants */
   public static class LeftBump {
-
     // Dimensions
     public static final double width = Units.inchesToMeters(73.0);
     public static final double height = Units.inchesToMeters(6.513);
@@ -207,7 +203,6 @@ public class FieldConstants {
   }
 
   public static class RightTrench {
-
     // Dimensions
     public static final double width = Units.inchesToMeters(65.65);
     public static final double depth = Units.inchesToMeters(47.0);

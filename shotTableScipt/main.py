@@ -16,18 +16,16 @@ Required packages:
 """
 
 import math
-from io import TextIOWrapper
 
 import numpy as np
 from numpy.linalg import norm
 from sleipnir.autodiff import VariableMatrix, atan2, hypot
 from sleipnir.optimization import ExitStatus, Problem
 
-# Field dimensions
-field_width = 8.043  # m
-field_length = 16.518  # m
 # Physical characteristics
 shooter_height = 20 * 0.0254  # m
+min_pitch = np.deg2rad(40)  # rad
+max_pitch = np.deg2rad(80)  # rad
 g = 9.81  # m/s²
 max_shooter_velocity = 20  # m/s
 ball_mass = 0.5 / 2.205  # kg
@@ -35,10 +33,10 @@ ball_diameter = 5.91 * 0.0254  # m
 
 
 # Solve settings
-delta_pitch = np.deg2rad(2.5)
-start_distance = 0.5
-end_distance = 22.5
-distance_samples = 20
+delta_pitch = np.deg2rad(2)
+start_distance = (47 / 2) * 0.0254
+end_distance = math.sqrt((8.062 / 2) ** 2 + (16.541 - ((158.1 + 47 / 2) * 0.0254)) ** 2)
+distance_samples = 21
 distance_exponent = 2
 printResults = False
 
@@ -147,6 +145,11 @@ def setup_problem(distance, target_height):
     # Max horizontal velocity is 2.5 times the downwards velocity (~21 degrees from horizontal)
     problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -5)
 
+    problem.subject_to(
+        atan2(v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0])))
+        >= min_pitch
+    )
+
     return problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X
 
 
@@ -155,7 +158,9 @@ def min_velocity(distance, target_height):
     Solve for minimum velocity.
     :returns: A tuple of [True, velocity, pitch, yaw, X] if it succeeds at a solve, and a tuple of[False, 0] if it fails.
     """
-    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance, target_height)
+    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(
+        distance, target_height
+    )
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -182,10 +187,7 @@ def min_velocity(distance, target_height):
     #   √(v_x² + v_y² + v_z²) ≤ v
     #   v_x² + v_y² + v_z² ≤ v²
     #   vᵀv ≤ v²
-    problem.subject_to(
-        v0_wrt_shooter.T @ v0_wrt_shooter
-        <= max_shooter_velocity**2
-    )
+    problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter <= max_shooter_velocity**2)
 
     # Minimize initial velocity
     problem.minimize(v0_wrt_shooter.T @ v0_wrt_shooter)
@@ -215,7 +217,9 @@ def fixed_pitch(distance, target_height, pitch, prev_X):
     Solve for minimum velocity.
     :returns: A tuple of [True, velocity, pitch, yaw, X] if it succeeds at a solve, and a tuple of[False, 0] if it fails.
     """
-    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(distance, target_height)
+    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(
+        distance, target_height
+    )
 
     prev_p_x = prev_X[0, :]
     prev_p_y = prev_X[1, :]
@@ -359,27 +363,49 @@ def iterate_distance(file, distance, target_height):
         max_vel_solve = max_velocity(distance, target_height, min_vel_solve)
         if not max_vel_solve[0]:
             raise Exception("Max vel solve failed")
+        stage_one_solve = fixed_pitch(
+            distance,
+            target_height,
+            (max_pitch + min_vel_solve[2]) / 2,
+            min_vel_solve[4],
+        )
+        max_pitch_solve = fixed_pitch(
+            distance, target_height, max_pitch, stage_one_solve[4]
+        )
+        if not max_pitch_solve[0]:
+            raise Exception("Max pitch solve failed")
 
-        min_max_pitch_delta = max_vel_solve[2] - min_vel_solve[2]
+        if max_pitch_solve[2] < max_vel_solve[2]:
+            max_solve = max_pitch_solve
+        else:
+            max_solve = max_vel_solve
+
+        min_max_pitch_delta = max_solve[2] - min_vel_solve[2]
         pitch_samples = math.ceil(min_max_pitch_delta / delta_pitch)
 
         file.write("    put(\n")
         file.write(f"        {distance},\n")
-        file.write(f"        entry({min_vel_solve[1]}, new ShotResult({min_vel_solve[2]},"
-                   f" {min_vel_solve[3]})),\n")
+        file.write(
+            f"        entry({min_vel_solve[1]}, new ShotResult({min_vel_solve[2]},"
+            f" {min_vel_solve[3]})),\n"
+        )
         prev_solve = min_vel_solve
         for i in range(1, pitch_samples - 1):
-            pitch = lerp(min_vel_solve[2], max_vel_solve[2], i / (pitch_samples - 1))
+            pitch = lerp(min_vel_solve[2], max_solve[2], i / (pitch_samples - 1))
             solve = fixed_pitch(distance, target_height, pitch, prev_solve[4])
             if solve[0]:
-                file.write(f"        entry({solve[1]}, new ShotResult({solve[2]}, {solve[3]})),\n")
+                file.write(
+                    f"        entry({solve[1]}, new ShotResult({solve[2]}, {solve[3]})),\n"
+                )
                 prev_solve = solve
             else:
                 break
-            if pitch + delta_pitch > max_vel_solve[2]:
+            if pitch + delta_pitch > max_solve[2]:
                 break
-        file.write(f"        entry({max_vel_solve[1]}, new ShotResult({max_vel_solve[2]}, "
-                   f"{max_vel_solve[3]})));\n")
+        file.write(
+            f"        entry({max_solve[1]}, new ShotResult({max_solve[2]}, "
+            f"{max_solve[3]})));\n"
+        )
         return min_vel_solve[2]
 
 
@@ -410,6 +436,15 @@ def write(file, target_height, name):
     file.write("}")
     file.close()
 
+
 if __name__ == "__main__":
-    write(open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w"), 72 * .0254, "HubShotMap")
-    write(open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"), 0, "GroundShotMap")
+    write(
+        open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w"),
+        72 * 0.0254,
+        "HubShotMap",
+    )
+    write(
+        open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"),
+        0,
+        "GroundShotMap",
+    )
