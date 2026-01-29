@@ -25,10 +25,8 @@ public class IntakeIOPhoenix implements IntakeIO {
   private final double OUTAKE_DEFAULT_VOLTAGE = -12.0;
 
   private final BaseStatusSignal posSignal,
-      velSignal1,
       statorSignal1,
       supplySignal1,
-      velSignal2,
       statorSignal2,
       supplySignal2;
 
@@ -46,29 +44,14 @@ public class IntakeIOPhoenix implements IntakeIO {
     intakeMotor2.getConfigurator().apply(config);
 
     posSignal = encoder.getAbsolutePosition(false);
-    velSignal1 = intakeMotor1.getVelocity(false);
-    velSignal2 = intakeMotor2.getVelocity(false);
     statorSignal1 = intakeMotor2.getStatorCurrent(false);
     statorSignal2 = intakeMotor2.getStatorCurrent(false);
     supplySignal1 = intakeMotor2.getSupplyCurrent(false);
     supplySignal2 = intakeMotor2.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50,
-        posSignal,
-        velSignal1,
-        velSignal2,
-        statorSignal1,
-        statorSignal2,
-        supplySignal1,
-        supplySignal2);
+        50, posSignal, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
     Robot.canivoreSignals.addSignals(
-        posSignal,
-        velSignal1,
-        velSignal2,
-        statorSignal1,
-        statorSignal2,
-        supplySignal1,
-        supplySignal2);
+        posSignal, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
   }
 
   @Override
@@ -85,10 +68,10 @@ public class IntakeIOPhoenix implements IntakeIO {
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.statorCurrentAmps1 = intakeMotor1.getStatorCurrent().getValueAsDouble();
-    inputs.supplyCurrentAmps1 = intakeMotor1.getSupplyCurrent().getValueAsDouble();
-    inputs.statorCurrentAmps2 = intakeMotor2.getStatorCurrent().getValueAsDouble();
-    inputs.supplyCurrentAmps2 = intakeMotor2.getSupplyCurrent().getValueAsDouble();
+    inputs.statorCurrentAmps1 = statorSignal1.getValueAsDouble();
+    inputs.statorCurrentAmps2 = statorSignal2.getValueAsDouble();
+    inputs.supplyCurrentAmps1 = supplySignal1.getValueAsDouble();
+    inputs.supplyCurrentAmps2 = supplySignal2.getValueAsDouble();
   }
 
   @Override
