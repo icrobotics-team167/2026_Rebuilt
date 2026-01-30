@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -88,16 +89,10 @@ public class FlywheelIOPhoenix implements FlywheelIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, vel0, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
-        
-        BaseStatusSignal.setUpdateFrequencyForAll(
-        100.0, volts);
-        
-      
 
-    motor0.optimizeBusUtilization();
-    motor1.optimizeBusUtilization();
-    motor2.optimizeBusUtilization();
-    motor3.optimizeBusUtilization();
+    BaseStatusSignal.setUpdateFrequencyForAll(100.0, volts);
+
+    ParentDevice.optimizeBusUtilizationForAll();
   }
 
   @Override
