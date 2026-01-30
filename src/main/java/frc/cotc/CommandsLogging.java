@@ -27,6 +27,9 @@ public class CommandsLogging {
   private static final Map<Subsystem, Command> requiredSubsystems = new HashMap<>();
 
   public static void commandStarted(final Command command) {
+    if (!command.isScheduled()) {
+      throw new RuntimeException("Command is not scheduled!");
+    }
     if (!runningInterrupters.contains(command)) {
       runningNonInterrupters.add(command);
     }
@@ -346,6 +349,7 @@ public class CommandsLogging {
   }
 
   public static void logInterrupts(Command interrupted, Optional<Command> interrupting) {
+    commandEnded(interrupted);
     interrupting.ifPresent(
         interrupter -> {
           runningInterrupters.add(interrupter);
@@ -376,6 +380,10 @@ public class CommandsLogging {
         //noinspection unchecked
         var subCommands = (List<Command>) sequenceSubCommandsField.get(sequence);
         var index = (Integer) sequenceCommandIndexField.get(sequence);
+
+        if (index == -1) {
+          throw new RuntimeException("The sequential command is empty!");
+        }
 
         var subCommand = subCommands.get(index);
         addCommand(subCommand, parentCommandName + ": " + getCommandName(subCommand), commandsList);

@@ -103,20 +103,19 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command shootAtHub() {
-    return run(
-        () -> {
+    return run(() -> {
           runShooter(
               robotPoseSupplier.get(),
               fieldChassisSpeedsSupplier.get(),
               Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
               flywheelInputs.projectileVelMetersPerSec);
           flywheelIO.runVel(15);
-        });
+        })
+        .withName("Shoot at hub");
   }
 
   public Command passToAlliance() {
-    return run(
-        () -> {
+    return run(() -> {
           var robotPose = robotPoseSupplier.get();
 
           ShotTarget target;
@@ -132,7 +131,8 @@ public class Shooter extends SubsystemBase {
               target,
               flywheelInputs.projectileVelMetersPerSec);
           flywheelIO.runVel(20);
-        });
+        })
+        .withName("Pass to alliance");
   }
 
   public boolean canShoot() {
