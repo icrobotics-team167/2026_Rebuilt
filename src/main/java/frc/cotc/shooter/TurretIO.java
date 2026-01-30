@@ -22,7 +22,5 @@ public interface TurretIO {
 
   default void runYaw(double thetaRad, double omegaRadPerSec) {}
 
-  public default void run() {}
-
   public default void stop() {}
 }

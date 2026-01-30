@@ -23,7 +23,6 @@ public class TurretIOPhoenix implements TurretIO {
   private final TalonFX motor;
   private final int TURRET_ID = 0; // placeholder
   private final int TURRET_ENCODER_ID = 1; // placeHolder
-  private final int TURRET_DEFAULT_VOLTAGE = 12;
   private final BaseStatusSignal posSignal, velSignal, statorSignal, supplySignal;
 
   public TurretIOPhoenix() {
@@ -46,11 +45,6 @@ public class TurretIOPhoenix implements TurretIO {
     supplySignal = motor.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, velSignal, statorSignal, supplySignal);
     Robot.canivoreSignals.addSignals(posSignal, velSignal, statorSignal, supplySignal);
-  }
-
-  @Override
-  public void run() {
-    motor.setVoltage(TURRET_DEFAULT_VOLTAGE);
   }
 
   @Override
