@@ -73,7 +73,7 @@ public class SwerveIOSim extends SwerveIOReal {
                     TunerConstants.kSteerFrictionVoltage,
                     TunerConstants.kWheelRadius,
                     TunerConstants.kSteerInertia,
-                    1.5)),
+                    2)),
             INIT_POSE);
     // Set up motor controller sims for each module
     for (int i = 0; i < 4; i++) {
