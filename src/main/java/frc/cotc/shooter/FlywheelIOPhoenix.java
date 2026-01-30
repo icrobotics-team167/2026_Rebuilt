@@ -4,10 +4,8 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file at
 // the root directory of this project.
-
 package frc.cotc.shooter;
 
-// --- CTRE Imports ---
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -17,6 +15,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
@@ -36,31 +35,40 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private final VoltageOut stopRequest = new VoltageOut(0);
 
-  // Placeholder for conversion
-  private static final double MPS_TO_RPS = 1.0;
+  private final InterpolatingDoubleTreeMap mpsToRpsMap = new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap rpsToMpsMap = new InterpolatingDoubleTreeMap();
 
   public FlywheelIOPhoenix(int id0, int id1, int id2, int id3) {
-    motor0 = new TalonFX(id0);
+    motor0 = new TalonFX(id0);  // TODO: Change these to actual IDs
     motor1 = new TalonFX(id1);
     motor2 = new TalonFX(id2);
     motor3 = new TalonFX(id3);
 
-    // Configure Settings
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.CurrentLimits.StatorCurrentLimit = 120;
+    config.CurrentLimits.StatorCurrentLimit = 240;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    // Left Side
+    config.Slot0.kV = 0.12; 
+    config.Slot0.kP = 0.10;
+
+    mpsToRpsMap.put(0.0, 0.0);  //TODO: Get Real Values
+    mpsToRpsMap.put(10.0, 15.0);
+    mpsToRpsMap.put(30.0, 45.0);
+
+    rpsToMpsMap.put(0.0, 0.0);  //TODO: Get Real Values
+    rpsToMpsMap.put(15.0, 10.0);
+    rpsToMpsMap.put(45.0, 30.0);
+
+    // Left Side 
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor0.getConfigurator().apply(config);
     motor1.getConfigurator().apply(config);
 
-    // Right Side
+    // Right Side 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motor2.getConfigurator().apply(config);
     motor3.getConfigurator().apply(config);
 
-    // Followers
     motor1.setControl(new StrictFollower(id0));
     motor3.setControl(new StrictFollower(id2));
 
@@ -88,11 +96,11 @@ public class FlywheelIOPhoenix implements FlywheelIO {
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
+    BaseStatusSignal.refreshAll(vel0, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
 
     double currentRps = vel0.getValueAsDouble();
 
-    inputs.projectileVelMetersPerSec = currentRps / MPS_TO_RPS;
-
+    inputs.projectileVelMetersPerSec = rpsToMpsMap.get(currentRps);
     inputs.appliedVolts = volts.getValueAsDouble();
 
     inputs.motor0StatorCurrentAmps = stat0.getValueAsDouble();
@@ -108,7 +116,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
 
   @Override
   public void runVel(double projectileVelMetersPerSec) {
-    double targetRps = projectileVelMetersPerSec * MPS_TO_RPS;
+    double targetRps = mpsToRpsMap.get(projectileVelMetersPerSec);
 
     motor0.setControl(velocityRequest.withVelocity(targetRps));
     motor2.setControl(velocityRequest.withVelocity(targetRps));
