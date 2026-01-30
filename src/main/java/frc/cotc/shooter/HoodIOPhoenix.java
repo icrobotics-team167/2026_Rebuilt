@@ -2,11 +2,17 @@ package frc.cotc.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.util.Units;
+import frc.cotc.Robot;
 import frc.cotc.swerve.TunerConstants;
 
 public class HoodIOPhoenix implements HoodIO {
@@ -20,9 +26,16 @@ public class HoodIOPhoenix implements HoodIO {
 
     public HoodIOPhoenix() {
         motor = new TalonFX(HOOD_MOTOR_ID); 
-        CANcoder encoder = new CANcoder(HOOD_ENCODER_ID); 
+        var encoder = new CANcoder(HOOD_ENCODER_ID); 
 
-
+        var motorConfig = new TalonFXConfiguration();
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        motor.getConfigurator().apply(motorConfig);
 
         var encoderConfig = new CANcoderConfiguration();
         encoder.getConfigurator().apply(encoderConfig);
@@ -31,6 +44,10 @@ public class HoodIOPhoenix implements HoodIO {
         velSignal = motor.getVelocity(false);
         statorSignal = motor.getStatorCurrent(false);
         supplySignal = motor.getSupplyCurrent(false);
+
+        BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, velSignal, statorSignal, supplySignal);
+        Robot.canivoreSignals.addSignals(posSignal, velSignal, statorSignal, supplySignal);
+        ParentDevice.optimizeBusUtilizationForAll(5, motor, encoder);
     }
 
     @Override
@@ -41,12 +58,11 @@ public class HoodIOPhoenix implements HoodIO {
         hoodIOInputs.motorSupplyCurrentAmps = supplySignal.getValueAsDouble();
     }
 
-
-    private final PositionVoltage positionControlSignal = new PositionVoltage(0);
+    private final PositionVoltage controlSignal = new PositionVoltage(0);
 
     @Override
     public void runPitch(double thetaRad, double omegaRadPerSec) {
-        motor.setControl(positionControlSignal
+        motor.setControl(controlSignal
             .withPosition(Units.radiansToRotations(thetaRad))
             .withVelocity(Units.radiansToRotations(omegaRadPerSec))
         );
