@@ -56,8 +56,8 @@ public class SwerveIOSim extends SwerveIOReal {
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                Inches.of(25), // Bumper width
-                Inches.of(25), // Bumper length
+                Inches.of(27), // Bumper width
+                Inches.of(37), // Bumper length
                 // Track width
                 getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
                 // Track length
@@ -73,7 +73,7 @@ public class SwerveIOSim extends SwerveIOReal {
                     TunerConstants.kSteerFrictionVoltage,
                     TunerConstants.kWheelRadius,
                     TunerConstants.kSteerInertia,
-                    1.5)),
+                    2)),
             INIT_POSE);
     // Set up motor controller sims for each module
     for (int i = 0; i < 4; i++) {
