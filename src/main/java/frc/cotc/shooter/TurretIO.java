@@ -7,6 +7,7 @@
 
 package frc.cotc.shooter;
 
+import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface TurretIO {
@@ -20,5 +21,12 @@ public interface TurretIO {
 
   default void updateInputs(TurretIOInputs inputs) {}
 
-  default void runYaw(double thetaRad, double omegaRadPerSec) {}
+  default void runYaw(double thetaRad, double omegaRadPerSec) {
+    Units.radiansToRotations(thetaRad);
+    Units.radiansToRotations(omegaRadPerSec);
+  }
+
+  public default void run() {}
+
+  public default void stop() {}
 }
