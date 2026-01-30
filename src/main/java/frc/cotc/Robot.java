@@ -156,7 +156,7 @@ public class Robot extends LoggedRobot {
     autos = new Autos(swerve);
 
     RobotModeTriggers.autonomous()
-        .whileTrue(deferredProxy(autos::getSelectedCommand))
+        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
         .onFalse(runOnce(autos::clear));
   }
 
