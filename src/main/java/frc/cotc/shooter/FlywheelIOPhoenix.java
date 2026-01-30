@@ -4,6 +4,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file at
 // the root directory of this project.
+
 package frc.cotc.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -39,7 +40,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private final InterpolatingDoubleTreeMap rpsToMpsMap = new InterpolatingDoubleTreeMap();
 
   public FlywheelIOPhoenix(int id0, int id1, int id2, int id3) {
-    motor0 = new TalonFX(id0);  // TODO: Change these to actual IDs
+    motor0 = new TalonFX(id0); // TODO: Change these to actual IDs
     motor1 = new TalonFX(id1);
     motor2 = new TalonFX(id2);
     motor3 = new TalonFX(id3);
@@ -48,23 +49,23 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.CurrentLimits.StatorCurrentLimit = 240;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.Slot0.kV = 0.12; 
+    config.Slot0.kV = 0.12;
     config.Slot0.kP = 0.10;
 
-    mpsToRpsMap.put(0.0, 0.0);  //TODO: Get Real Values
+    mpsToRpsMap.put(0.0, 0.0); // TODO: Get Real Values
     mpsToRpsMap.put(10.0, 15.0);
     mpsToRpsMap.put(30.0, 45.0);
 
-    rpsToMpsMap.put(0.0, 0.0);  //TODO: Get Real Values
+    rpsToMpsMap.put(0.0, 0.0); // TODO: Get Real Values
     rpsToMpsMap.put(15.0, 10.0);
     rpsToMpsMap.put(45.0, 30.0);
 
-    // Left Side 
+    // Left Side
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor0.getConfigurator().apply(config);
     motor1.getConfigurator().apply(config);
 
-    // Right Side 
+    // Right Side
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motor2.getConfigurator().apply(config);
     motor3.getConfigurator().apply(config);
