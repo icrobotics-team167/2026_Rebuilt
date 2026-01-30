@@ -56,8 +56,8 @@ public class SwerveIOSim extends SwerveIOReal {
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                Inches.of(25), // Bumper width
-                Inches.of(25), // Bumper length
+                Inches.of(27), // Bumper width
+                Inches.of(37), // Bumper length
                 // Track width
                 getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
                 // Track length
