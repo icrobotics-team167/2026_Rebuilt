@@ -14,8 +14,8 @@ public interface TurretIO {
   class TurretIOInputs {
     public double thetaRad;
     public double omegaRadPerSec;
-    public double statorCurrentAmps = 0.0;
-    public double supplyCurrentAmps = 0.0;
+    public double statorCurrentAmps;
+    public double supplyCurrentAmps;
   }
 
   default void updateInputs(TurretIOInputs inputs) {}
