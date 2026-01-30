@@ -294,7 +294,6 @@ public class Autos {
     return routine;
   }
 
-  // TODO: ts cursed, it instant cancels itself and doesn't run
   private AutoRoutine rightFuel() {
     AutoRoutine routine = autoFactory.newRoutine("RightFuel");
     AutoTrajectory rightFuel = routine.trajectory("RightFuel");
