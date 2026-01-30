@@ -87,7 +87,12 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     sup3 = motor3.getSupplyCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, vel0, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+        50.0, vel0, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+        
+        BaseStatusSignal.setUpdateFrequencyForAll(
+        100.0, volts);
+        
+      
 
     motor0.optimizeBusUtilization();
     motor1.optimizeBusUtilization();
