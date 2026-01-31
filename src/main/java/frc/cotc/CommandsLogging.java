@@ -27,6 +27,9 @@ public class CommandsLogging {
   private static final Map<Subsystem, Command> requiredSubsystems = new HashMap<>();
 
   public static void commandStarted(final Command command) {
+    if (!command.isScheduled()) {
+      return;
+    }
     if (!runningInterrupters.contains(command)) {
       runningNonInterrupters.add(command);
     }
@@ -346,6 +349,7 @@ public class CommandsLogging {
   }
 
   public static void logInterrupts(Command interrupted, Optional<Command> interrupting) {
+    commandEnded(interrupted);
     interrupting.ifPresent(
         interrupter -> {
           runningInterrupters.add(interrupter);

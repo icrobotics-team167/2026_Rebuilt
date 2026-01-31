@@ -126,21 +126,23 @@ public class Swerve extends SubsystemBase {
   private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric();
 
   public Command teleopDrive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier omega) {
-    return run(
-        () ->
+    return run(() ->
             io.setControl(
                 fieldCentricDrive
                     .withVelocityX(vx.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
-                    .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)));
+                    .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)))
+        .withName("Teleop Drive");
   }
 
   public Command setToBlue() {
-    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.kZero));
+    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.kZero))
+        .withName("Set to blue");
   }
 
   public Command setToRed() {
-    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg));
+    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg))
+        .withName("Set to red");
   }
 
   public void followPath(SwerveSample sample) {
