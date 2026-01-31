@@ -12,15 +12,15 @@ import org.littletonrobotics.junction.AutoLog;
 public interface TurretIO {
   @AutoLog
   class TurretIOInputs {
-    public double thetaRad;
-    public double omegaRadPerSec;
-    public double statorCurrentAmps;
-    public double supplyCurrentAmps;
+    double thetaRad;
+    double omegaRadPerSec;
+    double statorCurrentAmps;
+    double supplyCurrentAmps;
   }
 
   default void updateInputs(TurretIOInputs inputs) {}
 
   default void runYaw(double thetaRad, double omegaRadPerSec) {}
 
-  public default void stop() {}
+  default void stop() {}
 }
