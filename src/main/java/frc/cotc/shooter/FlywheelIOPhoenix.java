@@ -23,6 +23,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 public class FlywheelIOPhoenix implements FlywheelIO {
+  private static final int MOTOR_0_ID = 0; // TODO: Update Can IDs
+  private static final int MOTOR_1_ID = 1;
+  private static final int MOTOR_2_ID = 2;
+  private static final int MOTOR_3_ID = 3;
+
   private final TalonFX motor0;
   private final TalonFX motor1;
   private final TalonFX motor2;
@@ -40,11 +45,11 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private final InterpolatingDoubleTreeMap mpsToRpsMap = new InterpolatingDoubleTreeMap();
   private final InterpolatingDoubleTreeMap rpsToMpsMap = new InterpolatingDoubleTreeMap();
 
-  public FlywheelIOPhoenix(int id0, int id1, int id2, int id3) {
-    motor0 = new TalonFX(id0); // TODO: Change these to actual IDs
-    motor1 = new TalonFX(id1);
-    motor2 = new TalonFX(id2);
-    motor3 = new TalonFX(id3);
+  public FlywheelIOPhoenix() {
+    motor0 = new TalonFX(MOTOR_0_ID);
+    motor1 = new TalonFX(MOTOR_1_ID);
+    motor2 = new TalonFX(MOTOR_2_ID);
+    motor3 = new TalonFX(MOTOR_3_ID);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.CurrentLimits.StatorCurrentLimit = 240;
@@ -61,18 +66,20 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     rpsToMpsMap.put(15.0, 10.0);
     rpsToMpsMap.put(45.0, 30.0);
 
-    // Left Side
+    //  Left Side
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor0.getConfigurator().apply(config);
     motor1.getConfigurator().apply(config);
 
-    // Right Side
+    //  Right Side
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motor2.getConfigurator().apply(config);
     motor3.getConfigurator().apply(config);
 
-    motor1.setControl(new StrictFollower(id0));
-    motor3.setControl(new StrictFollower(id2));
+    //  All motors follow motor 0
+    motor1.setControl(new StrictFollower(MOTOR_0_ID));
+    motor2.setControl(new StrictFollower(MOTOR_0_ID));
+    motor3.setControl(new StrictFollower(MOTOR_0_ID));
 
     vel0 = motor0.getVelocity();
     volts = motor0.getMotorVoltage();
@@ -118,14 +125,11 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   @Override
   public void runVel(double projectileVelMetersPerSec) {
     double targetRps = mpsToRpsMap.get(projectileVelMetersPerSec);
-
     motor0.setControl(velocityRequest.withVelocity(targetRps));
-    motor2.setControl(velocityRequest.withVelocity(targetRps));
   }
 
   @Override
   public void stop() {
     motor0.setControl(stopRequest);
-    motor2.setControl(stopRequest);
   }
 }
