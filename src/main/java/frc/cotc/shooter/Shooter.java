@@ -109,7 +109,6 @@ public class Shooter extends SubsystemBase {
               fieldChassisSpeedsSupplier.get(),
               Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
               flywheelInputs.projectileVelMetersPerSec);
-          flywheelIO.runVel(15);
         })
         .withName("Shoot at hub");
   }
@@ -130,7 +129,6 @@ public class Shooter extends SubsystemBase {
               fieldChassisSpeedsSupplier.get(),
               target,
               flywheelInputs.projectileVelMetersPerSec);
-          flywheelIO.runVel(20);
         })
         .withName("Pass to alliance");
   }
@@ -192,7 +190,7 @@ public class Shooter extends SubsystemBase {
           (1 - Math.exp(-result.timeToTargetSeconds() * DRAG_COMPENSATION_INVERSE_SECONDS))
               / DRAG_COMPENSATION_INVERSE_SECONDS;
     }
-    // A shot may not be possible due to the shooter velocity being too low.
+    // A shot may not be possible due to the shooter velocity being too low or too high.
     shotValid = isPossible(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
 
     var turretYawAbsolute = shooterToTarget.getAngle();
@@ -222,6 +220,7 @@ public class Shooter extends SubsystemBase {
         (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
             - fieldChassisSpeeds.omegaRadiansPerSecond);
     lastYawRad = turretYawAbsolute.getRadians();
+    flywheelIO.runVel(getMaxVelocity(shooterToTarget.getNorm(), shotTarget));
   }
 
   private final ShotMap hubShotMap = new HubShotMap();
@@ -235,11 +234,28 @@ public class Shooter extends SubsystemBase {
     };
   }
 
+  private final double TOLERANCE_METERS_PER_SEC = 0.01;
+
   private boolean isPossible(
       double distanceMeters, double velocityMetersPerSecond, ShotTarget shotTarget) {
     return switch (shotTarget) {
-      case BLUE_HUB, RED_HUB -> hubShotMap.isPossible(distanceMeters, velocityMetersPerSecond);
-      default -> groundShotMap.isPossible(distanceMeters, velocityMetersPerSecond);
+      case BLUE_HUB, RED_HUB ->
+          hubShotMap.getMinimumVelocity(distanceMeters) - TOLERANCE_METERS_PER_SEC
+                  <= velocityMetersPerSecond
+              && velocityMetersPerSecond
+                  <= hubShotMap.getMaximumVelocity(distanceMeters) + TOLERANCE_METERS_PER_SEC;
+      default ->
+          groundShotMap.getMinimumVelocity(distanceMeters) - TOLERANCE_METERS_PER_SEC
+                  <= velocityMetersPerSecond
+              && velocityMetersPerSecond
+                  <= groundShotMap.getMaximumVelocity(distanceMeters) + TOLERANCE_METERS_PER_SEC;
+    };
+  }
+
+  private double getMaxVelocity(double distanceMeters, ShotTarget shotTarget) {
+    return switch (shotTarget) {
+      case BLUE_HUB, RED_HUB -> hubShotMap.getMaximumVelocity(distanceMeters);
+      default -> groundShotMap.getMaximumVelocity(distanceMeters);
     };
   }
 }
