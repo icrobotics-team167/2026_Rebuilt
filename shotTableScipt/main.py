@@ -24,8 +24,8 @@ from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
 shooter_height = 20 * 0.0254  # m
-min_pitch = np.deg2rad(40)  # rad
-max_pitch = np.deg2rad(80)  # rad
+min_pitch = np.deg2rad(45)  # rad
+max_pitch = np.deg2rad(85)  # rad
 g = 9.81  # m/s²
 max_shooter_velocity = 20  # m/s
 ball_mass = 0.5 / 2.205  # kg
@@ -452,7 +452,7 @@ if __name__ == "__main__":
     write(
         open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"),
         0,
-        0.35,
+        0.36,
         math.sqrt(8.062**2 + 16.541**2) + 6,
         15,
         2,
