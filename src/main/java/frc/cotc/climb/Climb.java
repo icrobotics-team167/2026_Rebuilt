@@ -59,9 +59,7 @@ public class Climb extends SubsystemBase {
 
   Command doClimb(Pose2d target, double xyTolMeters, double thetaTolRad) {
     return waitUntil(() -> isPoseNear(robotPoseSupplier.get(), target, xyTolMeters, thetaTolRad))
-            .andThen(climb()
-                .until(() -> inputs.isAtTop)
-                .withTimeout(kClimbTimeoutSeconds))
+        .andThen(climb().until(() -> inputs.isAtTop).withTimeout(kClimbTimeoutSeconds))
         .finallyDo(
             interrupted -> {
               io.stop();
