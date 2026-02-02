@@ -9,10 +9,13 @@ package frc.cotc.swerve;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -30,6 +33,12 @@ import org.littletonrobotics.junction.Logger;
 public class Swerve extends SubsystemBase {
   private final SwerveIO io;
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
+
+  private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds =
+      new SwerveRequest.ApplyFieldSpeeds();
+  private final PIDController pathXController = new PIDController(10, 0, 0);
+  private final PIDController pathYController = new PIDController(10, 0, 0);
+  private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
@@ -64,6 +73,7 @@ public class Swerve extends SubsystemBase {
               names[i] + " Disconnected",
               Alert.AlertType.kError);
     }
+    pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -116,20 +126,60 @@ public class Swerve extends SubsystemBase {
   private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric();
 
   public Command teleopDrive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier omega) {
-    return run(
-        () ->
+    return run(() ->
             io.setControl(
                 fieldCentricDrive
                     .withVelocityX(vx.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
-                    .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)));
+                    .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)))
+        .withName("Teleop Drive");
   }
 
   public Command setToBlue() {
-    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.kZero));
+    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.kZero))
+        .withName("Set to blue");
   }
 
   public Command setToRed() {
-    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg));
+    return Commands.runOnce(() -> io.setOperatorPerspectiveForward(Rotation2d.k180deg))
+        .withName("Set to red");
+  }
+
+  public void followPath(SwerveSample sample) {
+    var pose = getPose();
+
+    var targetSpeeds = sample.getChassisSpeeds();
+    targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);
+    targetSpeeds.vyMetersPerSecond += pathYController.calculate(pose.getY(), sample.y);
+    targetSpeeds.omegaRadiansPerSecond +=
+        pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading);
+
+    io.setControl(
+        m_pathApplyFieldSpeeds
+            .withSpeeds(targetSpeeds)
+            .withWheelForceFeedforwardsX(sample.moduleForcesX())
+            .withWheelForceFeedforwardsY(sample.moduleForcesY()));
+  }
+
+  public Pose2d getPose() {
+    return io.getPose();
+  }
+
+  public ChassisSpeeds getRobotSpeeds() {
+    return inputs.Speeds;
+  }
+
+  public ChassisSpeeds getFieldSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, getPose().getRotation());
+  }
+
+  public void resetPose(Pose2d pose) {
+    if (io instanceof SwerveIOSim simImpl) {
+      simImpl.resetPose(pose);
+    }
+    if (Robot.mode == Robot.Mode.SIM) {
+      AprilTagPoseEstimatorIOPhoton.resetSim();
+    }
+    io.resetPose(pose);
   }
 }
