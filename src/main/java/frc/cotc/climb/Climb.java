@@ -10,7 +10,6 @@ package frc.cotc.climb;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
@@ -71,11 +70,11 @@ public class Climb extends SubsystemBase {
             });
   }
 
-  public static boolean isPoseNear(
+  private boolean isPoseNear(
       Pose2d pose, Pose2d target, double xyToleranceMeters, double thetaToleranceRad) {
-    Translation2d dTrans = pose.getTranslation().minus(target.getTranslation());
-    double dTheta = pose.getRotation().minus(target.getRotation()).getRadians();
 
-    return dTrans.getNorm() <= xyToleranceMeters && Math.abs(dTheta) <= thetaToleranceRad;
+    return pose.getTranslation().getDistance(target.getTranslation()) <= xyToleranceMeters
+        && Math.abs(pose.getRotation().minus(target.getRotation()).getRadians())
+            <= thetaToleranceRad;
   }
 }
