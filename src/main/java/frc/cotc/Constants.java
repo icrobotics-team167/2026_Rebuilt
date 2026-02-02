@@ -19,8 +19,10 @@ public class Constants {
 
   public static final double offset = Units.inchesToMeters(2.625);
   public static final double bumperThickness = Units.inchesToMeters(2.5);
-  public static final double trackWidth = TunerConstants.kFrontLeftYPos.minus(TunerConstants.kBackLeftYPos).in(Meters);
-  public static final double trackLength = TunerConstants.kFrontLeftYPos.minus(TunerConstants.kFrontRightYPos).in(Meters);
+  public static final double trackWidth =
+      TunerConstants.kFrontLeftYPos.minus(TunerConstants.kBackLeftYPos).in(Meters);
+  public static final double trackLength =
+      TunerConstants.kFrontLeftYPos.minus(TunerConstants.kFrontRightYPos).in(Meters);
   public static final double frameWidth = trackWidth + offset * 2;
   public static final double frameLength = trackLength + offset * 2;
   public static final double bumperWidth = frameWidth + bumperThickness * 2;
