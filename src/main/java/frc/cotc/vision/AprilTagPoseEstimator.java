@@ -21,9 +21,6 @@ import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 import java.util.HashMap;
 import java.util.function.Supplier;
-
-import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -81,52 +78,53 @@ public class AprilTagPoseEstimator {
     this.currentPoseEstimateSupplier = currentPoseEstimateSupplier;
   }
 
-
-  //data filtering system that Jaynou added
-    private boolean isValidPose(EstimatedRobotPose est) {
+  // data filtering system that Jaynou added
+  private boolean isValidPose(EstimatedRobotPose est) {
     Pose3d pose3d = est.estimatedPose;
     Pose2d pose2d = pose3d.toPose2d();
 
-    //floor and sky clip checking
+    // floor and sky clip checking
     if (pose3d.getZ() < -0.3 || pose3d.getZ() > 0.8) return false;
 
-    //out of bounds clip checking
+    // out of bounds clip checking
     if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
     if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
 
-    //tag check
+    // tag check
     if (est.targetsUsed.size() < 2) return false;
 
-    //odometry check (inspired by 2025 vision)
-    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation()) > 0.25
-       || pose2d.getRotation().getDegrees() - currentPoseEstimateSupplier.get().getRotation().getDegrees() > 2)
-    return false;
+    // odometry check (inspired by 2025 vision)
+    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation())
+            > 0.25
+        || pose2d.getRotation().getDegrees()
+                - currentPoseEstimateSupplier.get().getRotation().getDegrees()
+            > 2) return false;
 
-  return true;
+    return true;
   }
 
-  public void update(Pose2d currentPose, VisionEstimateConsumer estimateConsumer) {
+  public void update(VisionEstimateConsumer estimateConsumer) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
     for (var result : inputs.results) {
-        poseEstimator.update(result).ifPresent(poseEstimate -> {
-          //data filtering
-            if (!isValidPose(poseEstimate)) {
-                return;
-            }
+      poseEstimator
+          .update(result)
+          .ifPresent(
+              poseEstimate -> {
+                // data filtering
+                if (!isValidPose(poseEstimate)) {
+                  return;
+                }
 
-            estimateConsumer.accept(
-              poseEstimate.estimatedPose.toPose2d(),
-              result.getTimestampSeconds(),
-              VecBuilder.fill(
-              0.9 / poseEstimate.targetsUsed.size(),
-              0.9 / poseEstimate.targetsUsed.size(),
-              0.9 / poseEstimate.targetsUsed.size()
-            );
-            );
-        } );
-      }
+                estimateConsumer.accept(
+                    poseEstimate.estimatedPose.toPose2d(),
+                    result.getTimestampSeconds(),
+                    VecBuilder.fill(
+                        0.9 / poseEstimate.targetsUsed.size(),
+                        0.9 / poseEstimate.targetsUsed.size(),
+                        0.9 / poseEstimate.targetsUsed.size()));
+              });
     }
-
+  }
 }
