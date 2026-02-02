@@ -7,16 +7,22 @@
 
 package frc.cotc;
 
+import static edu.wpi.first.units.Units.Meters;
+
+import edu.wpi.first.math.util.Units;
+import frc.cotc.swerve.TunerConstants;
+
 public class Constants {
   private Constants() {}
 
   public static final String MOTOR_DISCONNECT_ALERT_GROUP = "Motor Disconnects";
 
-  public static final double frameWidth = 32.0;
-  public static final double frameLength = 22.0;
-  public static final double offset = 2.625;
-  
-  public static final double trackWidth = kFrontLeftYPos - kBackLeftYPos;
-  public static final double trackLength =  kFrontLeftYPos - kFrontRightYPos;
-
+  public static final double offset = Units.inchesToMeters(2.625);
+  public static final double bumperThickness = Units.inchesToMeters(2.5);
+  public static final double trackWidth = TunerConstants.kFrontLeftYPos.minus(TunerConstants.kBackLeftYPos).in(Meters);
+  public static final double trackLength = TunerConstants.kFrontLeftYPos.minus(TunerConstants.kFrontRightYPos).in(Meters);
+  public static final double frameWidth = trackWidth + offset * 2;
+  public static final double frameLength = trackLength + offset * 2;
+  public static final double bumperWidth = frameWidth + bumperThickness * 2;
+  public static final double bumperLength = frameLength + bumperThickness * 2;
 }

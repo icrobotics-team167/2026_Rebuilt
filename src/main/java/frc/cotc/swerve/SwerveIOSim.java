@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Notifier;
+import frc.cotc.Constants;
 import frc.cotc.Robot;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -56,8 +57,8 @@ public class SwerveIOSim extends SwerveIOReal {
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                Inches.of(27), // Bumper width
-                Inches.of(37), // Bumper length
+                Inches.of(Constants.bumperWidth), // Bumper width
+                Inches.of(Constants.bumperLength), // Bumper length
                 // Track width
                 getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
                 // Track length
