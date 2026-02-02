@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.util.Units;
+import frc.cotc.Robot;
 import frc.cotc.swerve.TunerConstants;
 
 public class ClimbIOPhoenix implements ClimbIO {
@@ -42,6 +43,8 @@ public class ClimbIOPhoenix implements ClimbIO {
 
     positionSignal = encoder.getAbsolutePosition(false);
     positionSignal.setUpdateFrequency(50);
+
+    Robot.canivoreSignals.addSignals(positionSignal);
   }
 
   @Override
