@@ -27,7 +27,7 @@ shooter_height = 20 * 0.0254  # m
 min_pitch = np.deg2rad(45)  # rad
 max_pitch = np.deg2rad(85)  # rad
 g = 9.81  # m/s²
-max_shooter_velocity = 20  # m/s
+max_shooter_velocity = 14.5  # m/s
 ball_mass = 0.5 / 2.205  # kg
 ball_diameter = 5.91 * 0.0254  # m
 
@@ -453,7 +453,7 @@ if __name__ == "__main__":
         open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"),
         0,
         0.36,
-        math.sqrt(8.062**2 + 16.541**2) + 6,
+        math.sqrt(8.062**2 + 16.541**2) - 1,
         15,
         2,
         "GroundShotMap",
