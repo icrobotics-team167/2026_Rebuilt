@@ -11,15 +11,24 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface FlywheelIO {
   @AutoLog
-  class FlywheelIOInputs {
-    double projectileVelMetersPerSec;
-    double motor0statorCurrentAmps;
-    double motor1statorCurrentAmps;
-    double motor0SupplyCurrentAmps;
-    double motor1SupplyCurrentAmps;
+  static class FlywheelIOInputs {
+    double projectileVelMetersPerSec = 0.0;
+    double appliedVolts = 0.0;
+
+    double motor0StatorCurrentAmps = 0.0;
+    double motor1StatorCurrentAmps = 0.0;
+    double motor2StatorCurrentAmps = 0.0;
+    double motor3StatorCurrentAmps = 0.0;
+
+    double motor0SupplyCurrentAmps = 0.0;
+    double motor1SupplyCurrentAmps = 0.0;
+    double motor2SupplyCurrentAmps = 0.0;
+    double motor3SupplyCurrentAmps = 0.0;
   }
 
   default void updateInputs(FlywheelIOInputs inputs) {}
 
   default void runVel(double projectileVelMetersPerSec) {}
+
+  default void stop() {}
 }
