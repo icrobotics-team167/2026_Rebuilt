@@ -28,6 +28,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 
 /**
  * Implementation that extends the real implementation to add MapleSim-based drivetrain simulation.
@@ -55,8 +56,8 @@ public class SwerveIOSim extends SwerveIOReal {
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                Inches.of(25), // Bumper width
-                Inches.of(25), // Bumper length
+                Inches.of(27), // Bumper width
+                Inches.of(37), // Bumper length
                 // Track width
                 getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
                 // Track length
@@ -72,7 +73,7 @@ public class SwerveIOSim extends SwerveIOReal {
                     TunerConstants.kSteerFrictionVoltage,
                     TunerConstants.kWheelRadius,
                     TunerConstants.kSteerInertia,
-                    1.5)),
+                    2)),
             INIT_POSE);
     // Set up motor controller sims for each module
     for (int i = 0; i < 4; i++) {
@@ -126,6 +127,7 @@ public class SwerveIOSim extends SwerveIOReal {
 
     // Run the simulation at a higher frequency than the default
     SimulatedArena.overrideSimulationTimings(Seconds.of(1.0 / SIM_FREQUENCY_HZ), 1);
+    SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
     SimulatedArena.getInstance().addDriveTrainSimulation(simulation);
     var simThread = new Notifier(this::update);
     simThread.startPeriodic(1.0 / SIM_FREQUENCY_HZ);
@@ -163,5 +165,13 @@ public class SwerveIOSim extends SwerveIOReal {
         .withCouplingGearRatio(0)
         // Adjust steer motor PID gains for simulation
         .withSteerMotorGains(moduleConstants.SteerMotorGains.withKP(70).withKD(.5));
+  }
+
+  @Override
+  public void resetPose(Pose2d pose) {
+    simulation.setSimulationWorldPose(pose);
+    // The reset of the MapleSim pose will also reset the gyro, so resetting the pose estimator yaw
+    // will overshoot.
+    super.resetTranslation(pose.getTranslation());
   }
 }

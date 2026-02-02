@@ -7,6 +7,8 @@
 
 package frc.cotc;
 
+import static edu.wpi.first.wpilibj2.command.Commands.*;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,7 +18,15 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.intake.Intake;
+import frc.cotc.intake.IntakeIO;
+import frc.cotc.intake.IntakeIOPhoenix;
+import frc.cotc.shooter.FlywheelIO;
+import frc.cotc.shooter.HoodIO;
+import frc.cotc.shooter.Shooter;
+import frc.cotc.shooter.TurretIO;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
@@ -36,6 +46,7 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
+  private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -96,13 +107,7 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().onCommandInitialize(CommandsLogging::commandStarted);
     CommandScheduler.getInstance().onCommandFinish(CommandsLogging::commandEnded);
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            (interrupted, interrupting) -> {
-              interrupting.ifPresent(
-                  interrupter -> CommandsLogging.runningInterrupters.put(interrupter, interrupted));
-              CommandsLogging.commandEnded(interrupted);
-            });
+    CommandScheduler.getInstance().onCommandInterrupt(CommandsLogging::logInterrupts);
 
     var swerve =
         new Swerve(
@@ -114,6 +119,13 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("FrontLeft"),
             new AprilTagPoseEstimator("FrontRight"));
     var controller = new CommandXboxController(0);
+
+    var intake =
+        new Intake(
+            switch (mode) {
+              case REAL -> new IntakeIOPhoenix();
+              case SIM, REPLAY -> new IntakeIO() {};
+            });
 
     swerve.setDefaultCommand(
         swerve.teleopDrive(
@@ -131,6 +143,26 @@ public class Robot extends LoggedRobot {
                 DriverStation.getAlliance().isPresent()
                     && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
         .onTrue(swerve.setToRed());
+
+    var shooter =
+        new Shooter(
+            new HoodIO() {},
+            new FlywheelIO() {},
+            new TurretIO() {},
+            swerve::getPose,
+            swerve::getFieldSpeeds);
+    shooter.setDefaultCommand(shooter.shootAtHub());
+
+    autos = new Autos(swerve);
+
+    RobotModeTriggers.autonomous()
+        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+        .onFalse(runOnce(autos::clear));
+  }
+
+  @Override
+  public void disabledPeriodic() {
+    autos.update();
   }
 
   @Override

@@ -18,9 +18,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Filesystem;
 import frc.cotc.Robot;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
@@ -36,15 +34,7 @@ public class AprilTagPoseEstimator {
   protected static final HashMap<String, Transform3d> cameraTransforms = new HashMap<>();
 
   static {
-    AprilTagFieldLayout fieldLayout;
-    try {
-      fieldLayout =
-          new AprilTagFieldLayout(
-              Filesystem.getDeployDirectory() + "/2025-reefscape-welded-reefonly.json");
-    } catch (IOException e) {
-      fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-    }
-    tagLayout = fieldLayout;
+    tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     cameraTransforms.put(
         "FrontLeft",
