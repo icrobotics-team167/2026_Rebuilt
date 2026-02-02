@@ -97,8 +97,8 @@ public class AprilTagPoseEstimator {
     //tag check
     if (est.targetsUsed.size() < 2) return false;
 
-    //odometry check (inspired by 2025 vision) 
-    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation()) > 0.25 
+    //odometry check (inspired by 2025 vision)
+    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation()) > 0.25
        || pose2d.getRotation().getDegrees() - currentPoseEstimateSupplier.get().getRotation().getDegrees() > 2)
     return false;
 
