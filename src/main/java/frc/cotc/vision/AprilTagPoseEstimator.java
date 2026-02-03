@@ -20,7 +20,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 import java.util.HashMap;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -91,8 +90,7 @@ public class AprilTagPoseEstimator {
     if (est.targetsUsed.size() < 2) return false;
 
     // odometry check (inspired by 2025 vision)
-    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.getTranslation())
-            > 0.25
+    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.getTranslation()) > 0.25
         || pose2d.getRotation().getDegrees()
                 - currentPoseEstimateSupplier.getRotation().getDegrees()
             > 2) return false;
