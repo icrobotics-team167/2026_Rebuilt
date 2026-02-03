@@ -75,7 +75,7 @@ public class AprilTagPoseEstimator {
   }
 
   // data filtering system that Jaynou added
-  private boolean isValidPose(EstimatedRobotPose est, Pose2d currentPoseEstimateSupplier) {
+  private boolean isValidPose(EstimatedRobotPose est, Pose2d currentPoseEstimate) {
     Pose3d pose3d = est.estimatedPose;
     Pose2d pose2d = pose3d.toPose2d();
 
@@ -90,12 +90,10 @@ public class AprilTagPoseEstimator {
     if (est.targetsUsed.size() < 2) return false;
 
     // odometry check (inspired by 2025 vision)
-    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.getTranslation()) > 0.25
-        || pose2d.getRotation().getDegrees()
-                - currentPoseEstimateSupplier.getRotation().getDegrees()
-            > 2) return false;
-
-    return true;
+    return currentPoseEstimate != null
+        && !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
+            || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
+                > 2);
   }
 
   public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimateSupplier) {
