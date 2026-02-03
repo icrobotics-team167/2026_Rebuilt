@@ -62,9 +62,7 @@ public class AprilTagPoseEstimator {
 
   private final String name;
 
-  private final Supplier<Pose2d> currentPoseEstimateSupplier;
-
-  public AprilTagPoseEstimator(String name, Supplier<Pose2d> currentPoseEstimateSupplier) {
+  public AprilTagPoseEstimator(String name) {
     io =
         Robot.mode == Robot.Mode.REPLAY
             ? new AprilTagPoseEstimatorIO() {}
@@ -75,11 +73,10 @@ public class AprilTagPoseEstimator {
             tagLayout,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             cameraTransforms.get(name));
-    this.currentPoseEstimateSupplier = currentPoseEstimateSupplier;
   }
 
   // data filtering system that Jaynou added
-  private boolean isValidPose(EstimatedRobotPose est) {
+  private boolean isValidPose(EstimatedRobotPose est, Pose2d currentPoseEstimateSupplier) {
     Pose3d pose3d = est.estimatedPose;
     Pose2d pose2d = pose3d.toPose2d();
 
@@ -94,16 +91,16 @@ public class AprilTagPoseEstimator {
     if (est.targetsUsed.size() < 2) return false;
 
     // odometry check (inspired by 2025 vision)
-    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation())
+    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.getTranslation())
             > 0.25
         || pose2d.getRotation().getDegrees()
-                - currentPoseEstimateSupplier.get().getRotation().getDegrees()
+                - currentPoseEstimateSupplier.getRotation().getDegrees()
             > 2) return false;
 
     return true;
   }
 
-  public void update(VisionEstimateConsumer estimateConsumer) {
+  public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimateSupplier) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
@@ -113,7 +110,7 @@ public class AprilTagPoseEstimator {
           .ifPresent(
               poseEstimate -> {
                 // data filtering
-                if (!isValidPose(poseEstimate)) {
+                if (!isValidPose(poseEstimate, currentPoseEstimateSupplier)) {
                   return;
                 }
 
