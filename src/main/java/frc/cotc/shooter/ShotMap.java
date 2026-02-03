@@ -17,11 +17,14 @@ public class ShotMap {
   private final TreeMap<Double, InterpolatingTreeMap<Double, ShotResult>> resultsMap =
       new TreeMap<>();
   private final InterpolatingDoubleTreeMap minimumVelsMap = new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap maximumVelsMap = new InterpolatingDoubleTreeMap();
 
   @SafeVarargs
   public final void put(
       double distanceMeters, Map.Entry<Double, ShotResult>... shotVelToPitchEntries) {
     minimumVelsMap.put(distanceMeters, shotVelToPitchEntries[0].getKey());
+    maximumVelsMap.put(
+        distanceMeters, shotVelToPitchEntries[shotVelToPitchEntries.length - 1].getKey());
     var shotVelToResultsMap =
         new InterpolatingTreeMap<>(MathUtil::inverseInterpolate, ShotResult::interpolate);
     for (var entry : shotVelToPitchEntries) {
@@ -65,7 +68,11 @@ public class ShotMap {
     }
   }
 
-  public boolean isPossible(double distanceMeters, double velocityMetersPerSecond) {
-    return minimumVelsMap.get(distanceMeters) < velocityMetersPerSecond;
+  public double getMinimumVelocity(double distanceMeters) {
+    return minimumVelsMap.get(distanceMeters);
+  }
+
+  public double getMaximumVelocity(double distanceMeters) {
+    return maximumVelsMap.get(distanceMeters);
   }
 }

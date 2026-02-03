@@ -21,7 +21,6 @@ import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 
 public class HoodIOPhoenix implements HoodIO {
-
   private final TalonFX motor;
 
   private final int HOOD_MOTOR_ID = 0; // TODO: Get the actual ID
