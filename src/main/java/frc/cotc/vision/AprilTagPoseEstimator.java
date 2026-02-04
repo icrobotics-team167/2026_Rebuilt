@@ -84,6 +84,7 @@ public class AprilTagPoseEstimator {
 
     // out of bounds clip checking
     if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
+    if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
 
     // odometry check (inspired by 2025 vision)
     return currentPoseEstimate != null
