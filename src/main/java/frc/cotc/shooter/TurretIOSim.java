@@ -21,6 +21,8 @@ public class TurretIOSim implements TurretIO {
     
     @Override
     public void updateInputs(TurretIOInputs inputs) {
-        
+        sim.setInputVoltage(
+          pid.calculate(sim.getAngularPositionRad())  
+        );
     }
 }
