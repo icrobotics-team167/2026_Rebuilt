@@ -93,7 +93,7 @@ public class AprilTagPoseEstimator {
                 > 2);
   }
 
-  public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimateSupplier) {
+  public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimate) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
@@ -103,7 +103,7 @@ public class AprilTagPoseEstimator {
           .ifPresent(
               poseEstimate -> {
                 // data filtering
-                if (!isValidPose(poseEstimate, currentPoseEstimateSupplier)) {
+                if (!isValidPose(poseEstimate, currentPoseEstimate)) {
                   return;
                 }
 
