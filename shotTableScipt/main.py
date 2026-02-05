@@ -19,14 +19,14 @@ import math
 
 import numpy as np
 from numpy.linalg import norm
-from sleipnir.autodiff import VariableMatrix, atan2, hypot
+from sleipnir.autodiff import VariableMatrix, atan2, block, hypot, sqrt, cos, sin
 from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
 shooter_height = 20 * 0.0254  # m
 min_pitch = np.deg2rad(40)  # rad
 max_pitch = np.deg2rad(85)  # rad
-g = 9.81  # m/s²
+g = np.array([[0], [0], [9.81]])  # m/s²
 max_shooter_velocity = 14.5  # m/s
 ball_mass = 0.5 / 2.205  # kg
 ball_diameter = 5.91 * 0.0254  # m
@@ -41,31 +41,47 @@ def lerp(a, b, t):
     return a + t * (b - a)
 
 
-def f(x):
-    """
-    Apply the drag equation to a velocity.
-    """
+def cross(u, v):
+    return VariableMatrix(
+        [
+            [u[1, 0] * v[2, 0] - u[2, 0] * v[1, 0]],
+            [-u[0, 0] * v[2, 0] + u[2, 0] * v[0, 0]],
+            [u[0, 0] * v[1, 0] - u[1, 0] * v[0, 0]],
+        ]
+    )
+
+
+def f(x, omega):
     # x' = x'
     # y' = y'
     # z' = z'
-    # x" = −a_D(v_x)
-    # y" = −a_D(v_y)
-    # z" = −g − a_D(v_z)
+    # x" = −F_D(v)/m v̂_x
+    # y" = −F_D(v)/m v̂_y
+    # z" = −g − F_D(v)/m v̂_z
     #
-    # where a_D(v) = ½ρv² C_D A / m
-    # (see https://en.wikipedia.org/wiki/Drag_(physics)#The_drag_equation)
+    # Per https://en.wikipedia.org/wiki/Drag_(physics)#The_drag_equation:
+    #   F_D(v) = ½ρv²C_D A
+    #   ρ is the fluid density in kg/m³
+    #   v is the velocity magnitude in m/s
+    #   C_D is the drag coefficient (dimensionless)
+    #   A is the cross-sectional area of a circle in m²
+    #   m is the mass in kg
+    #   v̂ is the velocity direction unit vector
     rho = 1.204  # kg/m³
+    v = x[3:6, :]  # m/s
+    v2 = (v.T @ v)[0, 0]
     C_D = 0.4
+    r = ball_diameter / 2
+    A = math.pi * r**2  # m²
     m = ball_mass
-    A = math.pi * ((ball_diameter / 2) ** 2)
-    a_D = lambda v: 0.5 * rho * v**2 * C_D * A / m
+    F_D = 0.5 * rho * v2 * C_D * A
 
-    v_x = x[3, 0]
-    v_y = x[4, 0]
-    v_z = x[5, 0]
-    return VariableMatrix(
-        [[v_x], [v_y], [v_z], [-a_D(v_x)], [-a_D(v_y)], [-g - a_D(v_z)]]
-    )
+    C_L = 0.5
+
+    v_hat = v / sqrt(v2)
+    omega_hat = omega / sqrt((omega.T @ omega)[0, 0])
+    F_M = 0.5 * rho * v2 * C_L * A * cross(omega_hat, v_hat)
+    return block([[v], [-g - F_D / m * v_hat + F_M / m]])
 
 
 N = 40
@@ -118,16 +134,30 @@ def setup_problem(distance, target_height):
     # Shooter initial position
     problem.subject_to(p[:, :1] == shooter_wrt_field[:3, :])
 
+    omega_magnitude = v0_wrt_shooter.T @ v0_wrt_shooter / (ball_diameter / 2)
+
+    omega = problem.decision_variable(3, 1)
+    problem.subject_to(
+        omega[0, 0]
+        == omega_magnitude * cos(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
+    )
+    problem.subject_to(
+        omega[1, 0]
+        == omega_magnitude * sin(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
+    )
+    problem.subject_to(omega[2, 0] == 0)
+    omega[0, 0].set_value(max_shooter_velocity / -(ball_diameter / 2))
+
     # Dynamics constraints - RK4 integration
     h = dt
     for k in range(N - 1):
         x_k = X[:, k]
         x_k1 = X[:, k + 1]
 
-        k1 = f(x_k)
-        k2 = f(x_k + h / 2 * k1)
-        k3 = f(x_k + h / 2 * k2)
-        k4 = f(x_k + h * k3)
+        k1 = f(x_k, omega)
+        k2 = f(x_k + h / 2 * k1, omega)
+        k3 = f(x_k + h / 2 * k2, omega)
+        k4 = f(x_k + h * k3, omega)
         problem.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
     # Require final position is in center of target circle
@@ -305,9 +335,6 @@ def max_velocity(distance, target_height, min_vel_solve):
     p_z = X[2, :]
 
     v = X[3:, :]
-    v_x = X[3, :]
-    v_y = X[4, :]
-    v_z = X[5, :]
 
     # Position initial guess is the fixed pitch solve's position
     for k in range(N):
@@ -453,7 +480,7 @@ if __name__ == "__main__":
         open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"),
         0,
         0.25,
-        math.sqrt(8.062 ** 2 + 16.54 ** 2) - 1,
+        math.sqrt(8.062**2 + 16.54**2) - 1,
         25,
         1.5,
         "GroundShotMap",
