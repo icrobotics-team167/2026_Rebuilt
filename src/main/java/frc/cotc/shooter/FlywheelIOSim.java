@@ -17,7 +17,7 @@ public class FlywheelIOSim implements FlywheelIO {
   private final FlywheelSim sim =
       new FlywheelSim(
           LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX44(2), .25, 30),
-          DCMotor.getKrakenX44(2));
+          DCMotor.getKrakenX44(2).withReduction(30));
 
   private final PIDController pid = new PIDController(1, 0, 1); // Placeholders
 
