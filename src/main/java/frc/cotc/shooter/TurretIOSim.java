@@ -10,36 +10,34 @@ package frc.cotc.shooter;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.cotc.Robot;
 
 public class TurretIOSim implements TurretIO {
-    private final DCMotorSim sim = 
-        new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), .25, 30),
-            DCMotor.getKrakenX44(1));
-    
-    private final PIDController pid = new PIDController(1, 0, 1); // Placeholder values
-    
-    private double targetPos = Units.degreesToRadians(60); // Placeholder
+  private final DCMotorSim sim =
+      new DCMotorSim(
+          LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), .25, 30),
+          DCMotor.getKrakenX44(1));
 
-    @Override
-    public void updateInputs(TurretIOInputs inputs) {
-        sim.setInputVoltage(
-            pid.calculate(sim.getAngularPositionRad(), targetPos) + .1 * Math.cos(sim.getAngularPositionRad()));
-        sim.update(Robot.defaultPeriodSecs);
+  private final PIDController pid = new PIDController(1, 0, 1); // Placeholder values
 
-        inputs.thetaRad = sim.getAngularPositionRad();
-        inputs.omegaRadPerSec = sim.getAngularVelocityRadPerSec();
-    }
+  @Override
+  public void updateInputs(TurretIOInputs inputs) {
+    sim.update(Robot.defaultPeriodSecs);
 
-    @Override
-    public void stop() {
-        sim.setInputVoltage(0);
-    }
+    inputs.thetaRad = sim.getAngularPositionRad();
+    inputs.omegaRadPerSec = sim.getAngularVelocityRadPerSec();
+  }
 
-    @Override
-    public void runYaw(double thetaRad, double omegaRadPerSec) {
-        
-    }
+  @Override
+  public void stop() {
+    sim.setInputVoltage(0);
+  }
+
+  @Override
+  public void runYaw(double thetaRad, double omegaRadPerSec) {
+    sim.setInputVoltage(
+        pid.calculate(sim.getAngularPositionRad(), thetaRad)
+            + omegaRadPerSec / sim.getGearbox().KvRadPerSecPerVolt);
+  }
 }
