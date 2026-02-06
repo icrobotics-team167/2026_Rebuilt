@@ -17,7 +17,7 @@ public class TurretIOSim implements TurretIO {
   private final DCMotorSim sim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), .25, 30),
-          DCMotor.getKrakenX44(1));
+          DCMotor.getKrakenX44(1).withReduction(30));
 
   private final PIDController pid = new PIDController(1, 0, 1); // Placeholder values
 
