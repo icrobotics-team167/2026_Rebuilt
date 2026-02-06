@@ -19,7 +19,7 @@ import math
 
 import numpy as np
 from numpy.linalg import norm
-from sleipnir.autodiff import VariableMatrix, atan2, block, hypot, sqrt, cos, sin
+from sleipnir.autodiff import VariableMatrix, atan2, block, cos, hypot, sin, sqrt
 from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
@@ -34,7 +34,7 @@ ball_diameter = 5.91 * 0.0254  # m
 
 # Solve settings
 delta_pitch = np.deg2rad(2.5)
-printResults = False
+printResults = True
 
 
 def lerp(a, b, t):
@@ -76,11 +76,12 @@ def f(x, omega):
     m = ball_mass
     F_D = 0.5 * rho * v2 * C_D * A
 
-    C_L = 0.5
+    v_mag = sqrt(v2)
 
-    v_hat = v / sqrt(v2)
-    omega_hat = omega / sqrt((omega.T @ omega)[0, 0])
-    F_M = 0.5 * rho * v2 * C_L * A * cross(omega_hat, v_hat)
+    C_L = 0.00025
+
+    v_hat = v / v_mag
+    F_M = 0.5 * rho * C_L * A * v_mag * cross(omega, v)
     return block([[v], [-g - F_D / m * v_hat + F_M / m]])
 
 
@@ -134,19 +135,21 @@ def setup_problem(distance, target_height):
     # Shooter initial position
     problem.subject_to(p[:, :1] == shooter_wrt_field[:3, :])
 
-    omega_magnitude = v0_wrt_shooter.T @ v0_wrt_shooter / (ball_diameter / 2)
+    omega_magnitude = v0_wrt_shooter.T @ v0_wrt_shooter / ball_diameter
 
     omega = problem.decision_variable(3, 1)
     problem.subject_to(
         omega[0, 0]
-        == omega_magnitude * cos(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
+        == omega_magnitude
+        * cos(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
     )
     problem.subject_to(
         omega[1, 0]
-        == omega_magnitude * sin(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
+        == omega_magnitude
+        * sin(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
     )
     problem.subject_to(omega[2, 0] == 0)
-    omega[0, 0].set_value(max_shooter_velocity / -(ball_diameter / 2))
+    omega[0, 0].set_value(-max_shooter_velocity / ball_diameter)
 
     # Dynamics constraints - RK4 integration
     h = dt
@@ -169,10 +172,12 @@ def setup_problem(distance, target_height):
     # Max horizontal velocity is 2.5 times the downwards velocity (~21 degrees from horizontal)
     problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -5)
 
+    pitch = atan2(v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0])))
     problem.subject_to(
-        atan2(v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0])))
+        pitch
         >= min_pitch
     )
+    problem.subject_to(pitch <= max_pitch)
 
     return problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X
 
@@ -222,138 +227,40 @@ def min_velocity(distance, target_height):
         v0 = v0_wrt_shooter.value()
         velocity = norm(v0)
         pitch = math.atan2(v0[2, 0], math.hypot(v0[0, 0], v0[1, 0]))
-        time = T.value()
+        yaw = math.atan2(v0[1, 0], v0[0, 0])
 
         if printResults:
             print(f"Min velocity solve:")
             print(f"Distance = {distance:.03f} m")
             print(f"Velocity = {velocity:.03f} m/s")
             print(f"Pitch = {np.rad2deg(pitch):.03f}°")
-            print(f"Time = {time:.03f}s")
+            print(f"Yaw = {np.rad2deg(yaw):.03f}°")
 
-        return True, velocity, pitch, time, X
+        return True, velocity, pitch, yaw, X.value()
     print(f"Infeasible at distance {distance:.03f} m with status {status.name}")
     return False, 0
 
 
-def fixed_pitch(distance, target_height, pitch, prev_X):
-    """
-    Solve for minimum velocity.
-    :returns: A tuple of [True, velocity, pitch, yaw, X] if it succeeds at a solve, and a tuple of[False, 0] if it fails.
-    """
+def fixed_velocity(distance, target_height, velocity, prev_X):
     problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(
         distance, target_height
     )
 
-    prev_p_x = prev_X[0, :]
-    prev_p_y = prev_X[1, :]
-    prev_p_z = prev_X[2, :]
-
-    prev_v = prev_X[3:, :]
-
-    p_x = X[0, :]
-    p_y = X[1, :]
-    p_z = X[2, :]
-
-    v = X[3:, :]
-
-    # Position initial guess is last solve's position
     for k in range(N):
-        p_x[k].set_value(prev_p_x[k].value())
-        p_y[k].set_value(prev_p_y[k].value())
-        p_z[k].set_value(prev_p_z[k].value())
-
-    # Velocity initial guess is last solve's velocity
-    for k in range(N):
-        v[:, k].set_value(prev_v[:, k].value())
-
-    problem.subject_to(
-        atan2(v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0])))
-        == pitch
-    )
-
-    problem.minimize(T)
-
-    status = problem.solve()
-    if status == ExitStatus.SUCCESS:
-        # Initial velocity vector with respect to shooter
-        v0 = v0_wrt_shooter.value()
-        velocity = norm(v0)
-        pitch = math.atan2(v0[2, 0], math.hypot(v0[0, 0], v0[1, 0]))
-        time = T.value()
-
-        if printResults:
-            print(f"Fixed pitch solve:")
-            print(f"Distance = {distance:.03f} m")
-            print(f"Velocity = {velocity:.03f} m/s")
-            print(f"Pitch = {np.rad2deg(pitch):.03f}°")
-            print(f"Time = {time:.03f}s")
-
-        return True, velocity, pitch, time, X
-    print(
-        f"Infeasible at distance {distance:.03f} m and pitch {np.rad2deg(pitch)} with status {status.name}"
-    )
-    return False, 0
-
-
-def max_velocity(distance, target_height, min_vel_solve):
-    # Three stage solve: solve for the average of 90 degrees and the min vel solve's pitch,
-    # then the average of that angle and 90 degrees, then do the max vel solve
-    # The solver likes the fixed pitch solve more than it likes the max vel solve,
-    # so use the fixed pitch solve to give the max vel solve a better initial guess.
-    stage_1_solve = fixed_pitch(
-        distance,
-        target_height,
-        (min_vel_solve[2] + np.deg2rad(90)) / 2,
-        min_vel_solve[4],
-    )
-    if not stage_1_solve[0]:
-        raise Exception("Fixed pitch solve stage 1 failed")
-    stage_2_solve = fixed_pitch(
-        distance,
-        target_height,
-        (stage_1_solve[2] + np.deg2rad(90)) / 2,
-        stage_1_solve[4],
-    )
-    if not stage_2_solve[0]:
-        raise Exception("Fixed pitch solve stage 2 failed")
-
-    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(
-        distance, target_height
-    )
-
-    fixed_pitch_X = stage_2_solve[4]
-
-    fixed_pitch_p_x = fixed_pitch_X[0, :]
-    fixed_pitch_p_y = fixed_pitch_X[1, :]
-    fixed_pitch_p_z = fixed_pitch_X[2, :]
-
-    fixed_pitch_v = fixed_pitch_X[3:, :]
-
-    p_x = X[0, :]
-    p_y = X[1, :]
-    p_z = X[2, :]
-
-    v = X[3:, :]
-
-    # Position initial guess is the fixed pitch solve's position
-    for k in range(N):
-        p_x[k].set_value(fixed_pitch_p_x[k].value())
-        p_y[k].set_value(fixed_pitch_p_y[k].value())
-        p_z[k].set_value(fixed_pitch_p_z[k].value())
-
-    # Velocity initial guess is the fixed pitch solve's velocity
-    for k in range(N):
-        v[:, k].set_value(fixed_pitch_v[:, k].value())
+        for j in range(6):
+            X[j, k].set_value(prev_X[j, k])
 
     # Require initial velocity is equal to max shooter velocity
     #
     #   √(v_x² + v_y² + v_z²) = v
     #   v_x² + v_y² + v_z² = v²
     #   vᵀv = v²
-    problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter == max_shooter_velocity**2)
+    problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter == velocity**2)
 
-    problem.minimize(T)
+    problem.subject_to(
+        atan2(X[5, 0], hypot(X[3, 0], X[4, 0]))
+        >= atan2(prev_X[5, 0], hypot(prev_X[3, 0], prev_X[4, 0]))
+    )
 
     status = problem.solve()
     if status == ExitStatus.SUCCESS:
@@ -361,73 +268,64 @@ def max_velocity(distance, target_height, min_vel_solve):
         v0 = v0_wrt_shooter.value()
         velocity = norm(v0)
         pitch = math.atan2(v0[2, 0], math.hypot(v0[0, 0], v0[1, 0]))
-        time = T.value()
+        yaw = math.atan2(v0[1, 0], v0[0, 0])
+
+        if printResults:
+            print(f"Fixed velocity solve:")
+            print(f"Distance = {distance:.03f} m")
+            print(f"Velocity = {velocity:.03f} m/s")
+            print(f"Pitch = {np.rad2deg(pitch):.03f}°")
+            print(f"Yaw = {np.rad2deg(yaw):.03f}°")
+
+        return True, velocity, pitch, yaw, X.value()
+    print(f"Infeasible at distance {distance:.03f} m with status {status.name}")
+    return False, 0
+
+
+def max_velocity(distance, target_height, min_vel_X):
+    problem, shooter_wrt_field, target_wrt_field, v0_wrt_shooter, T, X = setup_problem(
+        distance, target_height
+    )
+
+    # Position initial guess is the fixed pitch solve's position
+    for k in range(N):
+        for j in range(6):
+            X[j, k].set_value(min_vel_X[j, k])
+
+    problem.maximize(v0_wrt_shooter.T @ v0_wrt_shooter)
+
+    problem.solve(max_iterations=100)
+
+    # Require initial velocity is less than max shooter velocity
+    #
+    #   √(v_x² + v_y² + v_z²) = v
+    #   v_x² + v_y² + v_z² = v²
+    #   vᵀv ≤ v²
+    problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter <= max_shooter_velocity**2)
+
+    problem.subject_to(
+        atan2(X[5, 0], hypot(X[3, 0], X[4, 0]))
+        >= atan2(min_vel_X[5, 0], hypot(min_vel_X[3, 0], min_vel_X[4, 0]))
+    )
+
+    status = problem.solve()
+    if status == ExitStatus.SUCCESS:
+        # Initial velocity vector with respect to shooter
+        v0 = v0_wrt_shooter.value()
+        velocity = norm(v0)
+        pitch = math.atan2(v0[2, 0], math.hypot(v0[0, 0], v0[1, 0]))
+        yaw = math.atan2(v0[1, 0], v0[0, 0])
 
         if printResults:
             print(f"Max velocity solve:")
             print(f"Distance = {distance:.03f} m")
             print(f"Velocity = {velocity:.03f} m/s")
             print(f"Pitch = {np.rad2deg(pitch):.03f}°")
-            print(f"Time = {time:.03f}s")
+            print(f"Yaw = {np.rad2deg(yaw):.03f}°")
 
-        return True, velocity, pitch, time, X
+        return True, velocity, pitch, yaw, X.value()
     print(f"Infeasible at distance {distance:.03f} m with status {status.name}")
     return False, 0
-
-
-def iterate_distance(file, distance, target_height):
-    # Solve for minimum velocity
-    min_vel_solve = min_velocity(distance, target_height)
-    # If the position is possible, lerp between min velocity and max velocity
-    # to search the in between velocities
-    if min_vel_solve[0]:
-        max_vel_solve = max_velocity(distance, target_height, min_vel_solve)
-        if not max_vel_solve[0]:
-            raise Exception("Max vel solve failed")
-        stage_one_solve = fixed_pitch(
-            distance,
-            target_height,
-            (max_pitch + min_vel_solve[2]) / 2,
-            min_vel_solve[4],
-        )
-        max_pitch_solve = fixed_pitch(
-            distance, target_height, max_pitch, stage_one_solve[4]
-        )
-        if not max_pitch_solve[0]:
-            raise Exception("Max pitch solve failed")
-
-        if max_pitch_solve[2] < max_vel_solve[2]:
-            max_solve = max_pitch_solve
-        else:
-            max_solve = max_vel_solve
-
-        min_max_pitch_delta = max_solve[2] - min_vel_solve[2]
-        pitch_samples = math.ceil(min_max_pitch_delta / delta_pitch)
-
-        file.write("    put(\n")
-        file.write(f"        {distance},\n")
-        file.write(
-            f"        entry({min_vel_solve[1]}, new ShotResult({min_vel_solve[2]},"
-            f" {min_vel_solve[3]})),\n"
-        )
-        prev_solve = min_vel_solve
-        for i in range(1, pitch_samples - 1):
-            pitch = lerp(min_vel_solve[2], max_solve[2], i / (pitch_samples - 1))
-            solve = fixed_pitch(distance, target_height, pitch, prev_solve[4])
-            if solve[0]:
-                file.write(
-                    f"        entry({solve[1]}, new ShotResult({solve[2]}, {solve[3]})),\n"
-                )
-                prev_solve = solve
-            else:
-                break
-            if pitch + delta_pitch > max_solve[2]:
-                break
-        file.write(
-            f"        entry({max_solve[1]}, new ShotResult({max_solve[2]}, "
-            f"{max_solve[3]})));\n"
-        )
-        return min_vel_solve[2]
 
 
 def write(
@@ -459,7 +357,7 @@ def write(
             max_distance,
             (i / (distance_samples - 1)) ** distance_exponent,
         )
-        iterate_distance(file, distance, target_height)
+        # iterate_distance(file, distance, target_height)
 
     file.write("  }\n")
     file.write("}\n")
@@ -467,21 +365,28 @@ def write(
 
 
 if __name__ == "__main__":
-    write(
-        open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w"),
-        72 * 0.0254,
-        0.29,
-        math.sqrt((8.062 / 2) ** 2 + ((158.1 + 47 / 2) * 0.0254) ** 2) + 8,
-        25,
-        2,
-        "HubShotMap",
-    )
-    write(
-        open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"),
-        0,
-        0.25,
-        math.sqrt(8.062**2 + 16.54**2) - 1,
-        25,
-        1.5,
-        "GroundShotMap",
-    )
+    min_vel_solve = min_velocity(1, 72 * 0.0254)
+    max_vel_solve = max_velocity(1, 72 * 0.0254, min_vel_solve[4])
+    min_vel = norm(min_vel_solve[4][3:, :])
+    max_vel = norm(max_vel_solve[4][3:, :])
+    prev_solve = min_vel_solve
+    for i in range(1, 9):
+        prev_solve = fixed_velocity(1, 72 * 0.0254, lerp(min_vel, max_vel, i / 9), prev_solve[4])
+    # write(
+    #     open("../src/main/java/frc/cotc/shooter/HubShotMap.java", "w"),
+    #     72 * 0.0254,
+    #     0.29,
+    #     math.sqrt((8.062 / 2) ** 2 + ((158.1 + 47 / 2) * 0.0254) ** 2) + 8,
+    #     25,
+    #     2,
+    #     "HubShotMap",
+    # )
+    # write(
+    #     open("../src/main/java/frc/cotc/shooter/GroundShotMap.java", "w"),
+    #     0,
+    #     0.25,
+    #     math.sqrt(8.062**2 + 16.54**2) - 1,
+    #     25,
+    #     1.5,
+    #     "GroundShotMap",
+    # )
