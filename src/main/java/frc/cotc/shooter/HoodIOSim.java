@@ -29,6 +29,7 @@ public class HoodIOSim implements HoodIO {
   private final PIDController pid = new PIDController(1, 0, 1);
   private final double kvRadPerSecPerVolt =
       DCMotor.getKrakenX44(1).withReduction(30).KvRadPerSecPerVolt;
+  private final double kG = 1.0; // placeholder
 
   @Override
   public void updateInputs(HoodIOInputs inputs) {
@@ -41,6 +42,8 @@ public class HoodIOSim implements HoodIO {
   @Override
   public void runPitch(double thetaRad, double omegaRadPerSec) {
     sim.setInputVoltage(
-        pid.calculate(sim.getAngleRads(), thetaRad) + omegaRadPerSec / kvRadPerSecPerVolt);
+        pid.calculate(sim.getAngleRads(), thetaRad)
+            + omegaRadPerSec / kvRadPerSecPerVolt
+            + kG * Math.cos(sim.getAngleRads()));
   }
 }
