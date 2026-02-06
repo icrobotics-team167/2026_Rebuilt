@@ -8,71 +8,155 @@
 package frc.cotc.shooter;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class ShotMap {
-  private final TreeMap<Double, InterpolatingTreeMap<Double, ShotResult>> resultsMap =
-      new TreeMap<>();
-  private final InterpolatingDoubleTreeMap minimumVelsMap = new InterpolatingDoubleTreeMap();
-  private final InterpolatingDoubleTreeMap maximumVelsMap = new InterpolatingDoubleTreeMap();
+  private final TreeMap<Double, AngleEntry> map = new TreeMap<>();
 
-  @SafeVarargs
-  public final void put(
-      double distanceMeters, Map.Entry<Double, ShotResult>... shotVelToPitchEntries) {
-    minimumVelsMap.put(distanceMeters, shotVelToPitchEntries[0].getKey());
-    maximumVelsMap.put(
-        distanceMeters, shotVelToPitchEntries[shotVelToPitchEntries.length - 1].getKey());
-    var shotVelToResultsMap =
-        new InterpolatingTreeMap<>(MathUtil::inverseInterpolate, ShotResult::interpolate);
-    for (var entry : shotVelToPitchEntries) {
-      shotVelToResultsMap.put(entry.getKey(), entry.getValue());
-    }
-    resultsMap.put(distanceMeters, shotVelToResultsMap);
+  final void put(double distanceMeters, AngleEntry entry) {
+    map.put(distanceMeters, entry);
   }
 
-  public record ShotResult(double pitchRad, double timeToTargetSeconds) {
-    public ShotResult interpolate(ShotResult endValue, double t) {
+  public ShotResult get(double distanceMeters, double vxMetersPerSec, double vyMetersPerSec) {
+    if (vyMetersPerSec < 0) {
+      var flippedResult = get(distanceMeters, vxMetersPerSec, -vyMetersPerSec);
       return new ShotResult(
-          MathUtil.interpolate(pitchRad, endValue.pitchRad, t),
-          MathUtil.interpolate(timeToTargetSeconds, endValue.timeToTargetSeconds, t));
+          flippedResult.pitchRad,
+          flippedResult.yawRad.unaryMinus(),
+          flippedResult.velocityMetersPerSecond);
     }
-  }
+    var velMetersPerSec =
+        Math.sqrt(vxMetersPerSec * vxMetersPerSec + vyMetersPerSec * vyMetersPerSec);
+    var angleRad = Math.atan2(vyMetersPerSec, vxMetersPerSec);
 
-  public ShotResult get(double distanceMeters, double velocityMetersPerSecond) {
-    var val = resultsMap.get(distanceMeters);
+    var val = map.get(distanceMeters);
     if (val == null) {
-      var ceilingKey = resultsMap.ceilingKey(distanceMeters);
-      var floorKey = resultsMap.floorKey(distanceMeters);
-
+      var ceilingKey = map.ceilingKey(distanceMeters);
+      var floorKey = map.floorKey(distanceMeters);
       if (ceilingKey == null && floorKey == null) {
         return null;
       }
       if (ceilingKey == null) {
-        return resultsMap.get(floorKey).get(velocityMetersPerSecond);
+        return map.get(floorKey).get(angleRad, velMetersPerSec);
       }
       if (floorKey == null) {
-        return resultsMap.get(ceilingKey).get(velocityMetersPerSecond);
+        return map.get(ceilingKey).get(angleRad, velMetersPerSec);
       }
-      var floor = resultsMap.get(floorKey);
-      var ceiling = resultsMap.get(ceilingKey);
-      return floor
-          .get(velocityMetersPerSecond)
-          .interpolate(
-              ceiling.get(velocityMetersPerSecond),
-              MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters));
-    } else {
+      var floor = map.get(floorKey).get(angleRad, velMetersPerSec);
+      var ceiling = map.get(ceilingKey).get(angleRad, velMetersPerSec);
+      var t = MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters);
+      if (ShotResult.isInvalid(floor) && t >= 0.5) {
+        return ShotResult.isInvalid(ceiling) ? null : ceiling;
+      }
+      if (ShotResult.isInvalid(ceiling) && t <= 0.5) {
+        return ShotResult.isInvalid(floor) ? null : floor;
+      }
+      if (ShotResult.isInvalid(ceiling) || ShotResult.isInvalid(floor)) {
+        return null;
+      }
+      return floor.interpolate(ceiling, t);
+    }
+    return val.get(angleRad, velMetersPerSec);
+  }
+
+  public record ShotResult(double pitchRad, Rotation2d yawRad, double velocityMetersPerSecond) {
+    public ShotResult interpolate(ShotResult endValue, double t) {
+      return new ShotResult(
+          MathUtil.interpolate(pitchRad, endValue.pitchRad, t),
+          yawRad.interpolate(endValue.yawRad, t),
+          MathUtil.interpolate(velocityMetersPerSecond, endValue.velocityMetersPerSecond, t));
+    }
+
+    static boolean isInvalid(ShotResult result) {
+      return result.pitchRad < 0;
+    }
+
+    static final ShotResult invalid = new ShotResult(-1, null, -1);
+  }
+
+  static class AngleEntry {
+    private final TreeMap<Double, VelocityEntry> map = new TreeMap<>();
+
+    @SafeVarargs
+    AngleEntry(Map.Entry<Double, VelocityEntry>... entries) {
+      for (var entry : entries) {
+        map.put(entry.getKey(), entry.getValue());
+      }
+    }
+
+    ShotResult get(double angleRad, double velocityMetersPerSecond) {
+      var val = map.get(angleRad);
+      if (val == null) {
+        var ceilingKey = map.ceilingKey(angleRad);
+        var floorKey = map.floorKey(angleRad);
+        if (ceilingKey == null && floorKey == null) {
+          return null;
+        }
+        if (ceilingKey == null) {
+          return map.get(floorKey).get(velocityMetersPerSecond);
+        }
+        if (floorKey == null) {
+          return map.get(ceilingKey).get(velocityMetersPerSecond);
+        }
+        var floor = map.get(floorKey).get(velocityMetersPerSecond);
+        var ceiling = map.get(ceilingKey).get(velocityMetersPerSecond);
+        var t = MathUtil.inverseInterpolate(floorKey, ceilingKey, angleRad);
+        if (ShotResult.isInvalid(floor) && t >= 0.5) {
+          return ShotResult.isInvalid(ceiling) ? null : ceiling;
+        }
+        if (ShotResult.isInvalid(ceiling) && t <= 0.5) {
+          return ShotResult.isInvalid(floor) ? null : floor;
+        }
+        if (ShotResult.isInvalid(ceiling) || ShotResult.isInvalid(floor)) {
+          return null;
+        }
+        return floor.interpolate(ceiling, t);
+      }
       return val.get(velocityMetersPerSecond);
     }
   }
 
-  public double getMinimumVelocity(double distanceMeters) {
-    return minimumVelsMap.get(distanceMeters);
-  }
+  static class VelocityEntry {
+    private final TreeMap<Double, ShotResult> map = new TreeMap<>();
 
-  public double getMaximumVelocity(double distanceMeters) {
-    return maximumVelsMap.get(distanceMeters);
+    @SafeVarargs
+    public VelocityEntry(Map.Entry<Double, ShotResult>... entries) {
+      for (var entry : entries) {
+        map.put(entry.getKey(), entry.getValue());
+      }
+    }
+
+    ShotResult get(double velocityMetersPerSecond) {
+      var val = map.get(velocityMetersPerSecond);
+      if (val == null) {
+        var ceilingKey = map.ceilingKey(velocityMetersPerSecond);
+        var floorKey = map.floorKey(velocityMetersPerSecond);
+        if (ceilingKey == null && floorKey == null) {
+          return null;
+        }
+        if (ceilingKey == null) {
+          return map.get(floorKey);
+        }
+        if (floorKey == null) {
+          return map.get(ceilingKey);
+        }
+        var floor = map.get(floorKey);
+        var ceiling = map.get(ceilingKey);
+        var t = MathUtil.inverseInterpolate(floorKey, ceilingKey, velocityMetersPerSecond);
+        if (ShotResult.isInvalid(floor) && t >= 0.5) {
+          return ShotResult.isInvalid(ceiling) ? null : ceiling;
+        }
+        if (ShotResult.isInvalid(ceiling) && t <= 0.5) {
+          return ShotResult.isInvalid(floor) ? null : floor;
+        }
+        if (ShotResult.isInvalid(ceiling) || ShotResult.isInvalid(floor)) {
+          return null;
+        }
+        return floor.interpolate(ceiling, t);
+      }
+      return val;
+    }
   }
 }

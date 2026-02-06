@@ -9,268 +9,594 @@ package frc.cotc.shooter;
 
 import static java.util.Map.entry;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public final class HubShotMap extends ShotMap {
   public HubShotMap() {
     put(
-        0.29,
-        entry(5.275715430912794, new ShotResult(1.4829744059115146, 0.6445425065161575)),
-        entry(5.281070445954704, new ShotResult(1.4835298641948371, 0.6479768372696204)));
+        0.5,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.396374, new Rotation2d(0.000000), 5.253808)),
+                    entry(1.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 9.261271)),
+                    entry(2.000000, new ShotResult(1.360690, new Rotation2d(3.141593), 5.294359)),
+                    entry(3.000000, new ShotResult(1.184663, new Rotation2d(3.141593), 5.589707)),
+                    entry(4.000000, new ShotResult(1.030443, new Rotation2d(-3.141593), 6.038884)),
+                    entry(5.000000, new ShotResult(0.900129, new Rotation2d(-3.141593), 6.610869)),
+                    entry(6.000000, ShotResult.invalid))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.396374, new Rotation2d(0.000000), 5.253808)),
+                    entry(1.000000, new ShotResult(1.428441, new Rotation2d(-1.299441), 5.228377)),
+                    entry(2.000000, new ShotResult(1.286656, new Rotation2d(-1.917152), 5.392916)),
+                    entry(3.000000, new ShotResult(1.127958, new Rotation2d(-2.091833), 5.729825)),
+                    entry(4.000000, new ShotResult(0.985405, new Rotation2d(-2.168285), 6.211774)),
+                    entry(5.000000, new ShotResult(0.864116, new Rotation2d(-2.210683), 6.808348)),
+                    entry(6.000000, ShotResult.invalid))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.396374, new Rotation2d(0.000000), 5.253808)),
+                    entry(1.000000, new ShotResult(1.314492, new Rotation2d(-0.835858), 5.349419)),
+                    entry(2.000000, new ShotResult(1.168210, new Rotation2d(-1.146346), 5.624794)),
+                    entry(3.000000, new ShotResult(1.024922, new Rotation2d(-1.278166), 6.055248)),
+                    entry(4.000000, new ShotResult(0.899236, new Rotation2d(-1.348569), 6.610860)),
+                    entry(5.000000, new ShotResult(0.793111, new Rotation2d(-1.391960), 7.263224)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.477876), 8.571639)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.396374, new Rotation2d(0.000000), 5.253808)),
+                    entry(1.000000, new ShotResult(1.241557, new Rotation2d(-0.413613), 5.467789)),
+                    entry(2.000000, new ShotResult(1.086010, new Rotation2d(-0.547799), 5.847793)),
+                    entry(3.000000, new ShotResult(0.949154, new Rotation2d(-0.611544), 6.364321)),
+                    entry(4.000000, new ShotResult(0.833627, new Rotation2d(-0.648490), 6.987410)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.697751), 7.813345)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.728978), 9.073166)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.396374, new Rotation2d(0.000000), 5.253808)),
+                    entry(1.000000, new ShotResult(1.216720, new Rotation2d(-0.000000), 5.516073)),
+                    entry(2.000000, new ShotResult(1.057847, new Rotation2d(-0.000000), 5.937741)),
+                    entry(3.000000, new ShotResult(0.922846, new Rotation2d(-0.000000), 6.488072)),
+                    entry(4.000000, new ShotResult(0.810567, new Rotation2d(-0.000000), 7.137608)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.011539)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 9.254184))))));
     put(
-        0.31402048372049335,
-        entry(5.279225902114574, new ShotResult(1.4757209114820828, 0.6445425065172545)),
-        entry(5.361717907594001, new ShotResult(1.4835298641951469, 0.6912507023349047)));
+        1.0751434584179567,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, ShotResult.invalid),
+                    entry(1.000000, new ShotResult(1.418486, new Rotation2d(0.000000), 5.294738)),
+                    entry(2.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 5.473441)),
+                    entry(3.000000, new ShotResult(1.343174, new Rotation2d(3.141593), 5.380921)),
+                    entry(4.000000, new ShotResult(1.170995, new Rotation2d(3.141593), 5.691487)),
+                    entry(5.000000, new ShotResult(1.020490, new Rotation2d(3.141593), 6.151682)),
+                    entry(6.000000, new ShotResult(0.893314, new Rotation2d(3.141593), 6.731164)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, ShotResult.invalid),
+                    entry(1.000000, new ShotResult(1.326203, new Rotation2d(-0.576664), 5.394560)),
+                    entry(2.000000, new ShotResult(1.296397, new Rotation2d(-1.308074), 5.440063)),
+                    entry(3.000000, new ShotResult(1.180232, new Rotation2d(-1.723540), 5.665065)),
+                    entry(4.000000, new ShotResult(1.047462, new Rotation2d(-1.921135), 6.049271)),
+                    entry(5.000000, new ShotResult(0.924332, new Rotation2d(-2.028265), 6.565374)),
+                    entry(
+                        6.000000, new ShotResult(0.817566, new Rotation2d(-2.094050), 7.185398)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, ShotResult.invalid),
+                    entry(1.000000, new ShotResult(1.195082, new Rotation2d(-0.508465), 5.625933)),
+                    entry(2.000000, new ShotResult(1.094831, new Rotation2d(-0.839559), 5.888706)),
+                    entry(3.000000, new ShotResult(0.980306, new Rotation2d(-1.031765), 6.301676)),
+                    entry(4.000000, new ShotResult(0.871911, new Rotation2d(-1.149115), 6.837852)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-1.244514), 7.491661)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.377611), 8.700985)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, ShotResult.invalid),
+                    entry(1.000000, new ShotResult(1.108061, new Rotation2d(-0.275513), 5.847669)),
+                    entry(2.000000, new ShotResult(0.978707, new Rotation2d(-0.415176), 6.305510)),
+                    entry(3.000000, new ShotResult(0.863890, new Rotation2d(-0.496527), 6.879975)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.562759), 7.524733)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.637700), 8.446133)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.680262), 9.628133)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, ShotResult.invalid),
+                    entry(1.000000, ShotResult.invalid),
+                    entry(2.000000, new ShotResult(0.941626, new Rotation2d(-0.000000), 6.470283)),
+                    entry(3.000000, new ShotResult(0.827181, new Rotation2d(-0.000000), 7.105738)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 7.784537)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.763378)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 9.942739))))));
     put(
-        0.3860819348819735,
-        entry(5.2914313033528835, new ShotResult(1.4540039420782493, 0.6445425065211997)),
-        entry(5.650436015013571, new ShotResult(1.4835298641951673, 0.8069999419474234)));
+        1.650286916835913,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.117411, new Rotation2d(0.000000), 5.910645)),
+                    entry(1.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 14.165487)),
+                    entry(2.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 7.352065)),
+                    entry(3.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 5.368273)),
+                    entry(4.000000, new ShotResult(1.308338, new Rotation2d(-3.141593), 5.518598)),
+                    entry(5.000000, new ShotResult(1.142603, new Rotation2d(3.141593), 5.859588)),
+                    entry(6.000000, new ShotResult(0.998503, new Rotation2d(3.141593), 6.342652)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.117411, new Rotation2d(0.000000), 5.910645)),
+                    entry(1.000000, new ShotResult(1.209159, new Rotation2d(-0.361694), 5.682189)),
+                    entry(2.000000, new ShotResult(1.237216, new Rotation2d(-0.882793), 5.627345)),
+                    entry(3.000000, new ShotResult(1.181560, new Rotation2d(-1.359004), 5.750530)),
+                    entry(4.000000, new ShotResult(1.078747, new Rotation2d(-1.659094), 6.039359)),
+                    entry(5.000000, new ShotResult(0.966252, new Rotation2d(-1.835155), 6.471854)),
+                    entry(
+                        6.000000, new ShotResult(0.861074, new Rotation2d(-1.944516), 7.022049)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.117411, new Rotation2d(0.000000), 5.910645)),
+                    entry(1.000000, new ShotResult(1.089281, new Rotation2d(-0.370305), 5.995573)),
+                    entry(2.000000, new ShotResult(1.018396, new Rotation2d(-0.660172), 6.243052)),
+                    entry(3.000000, new ShotResult(0.929154, new Rotation2d(-0.861258), 6.634540)),
+                    entry(4.000000, new ShotResult(0.838681, new Rotation2d(-0.998608), 7.146459)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-1.143562), 7.804665)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.288517), 8.898428)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.117411, new Rotation2d(0.000000), 5.910645)),
+                    entry(1.000000, new ShotResult(1.005121, new Rotation2d(-0.212162), 6.292808)),
+                    entry(2.000000, new ShotResult(0.895934, new Rotation2d(-0.340662), 6.802499)),
+                    entry(3.000000, new ShotResult(0.798368, new Rotation2d(-0.424270), 7.413578)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.521805), 8.065767)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.593768), 9.003958)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.641810), 10.139307)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.117411, new Rotation2d(0.000000), 5.910645)),
+                    entry(1.000000, new ShotResult(0.976360, new Rotation2d(-0.000000), 6.411820)),
+                    entry(2.000000, new ShotResult(0.857617, new Rotation2d(-0.000000), 7.021079)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 7.660340)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.413366)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.403146)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 10.551533))))));
     put(
-        0.5061843534844404,
-        entry(5.317335234374565, new ShotResult(1.4179984970849486, 0.6445425065303132)),
-        entry(6.177079015019017, new ShotResult(1.4835298641951722, 0.968929957536048)));
+        2.2254303752538696,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.023108, new Rotation2d(0.000000), 6.331734)),
+                    entry(1.000000, ShotResult.invalid),
+                    entry(2.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 10.303857)),
+                    entry(3.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 6.147453)),
+                    entry(4.000000, new ShotResult(1.438168, new Rotation2d(3.141593), 5.478421)),
+                    entry(5.000000, new ShotResult(1.263225, new Rotation2d(3.141593), 5.698601)),
+                    entry(6.000000, new ShotResult(1.105645, new Rotation2d(3.141593), 6.078579)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.023108, new Rotation2d(0.000000), 6.331734)),
+                    entry(1.000000, new ShotResult(1.110010, new Rotation2d(-0.268175), 6.036975)),
+                    entry(2.000000, new ShotResult(1.159878, new Rotation2d(-0.648261), 5.901185)),
+                    entry(3.000000, new ShotResult(1.148336, new Rotation2d(-1.069922), 5.935590)),
+                    entry(4.000000, new ShotResult(1.082020, new Rotation2d(-1.411102), 6.136082)),
+                    entry(5.000000, new ShotResult(0.989365, new Rotation2d(-1.641506), 6.486654)),
+                    entry(
+                        6.000000, new ShotResult(0.892538, new Rotation2d(-1.792549), 6.965056)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.023108, new Rotation2d(0.000000), 6.331734)),
+                    entry(1.000000, new ShotResult(1.003208, new Rotation2d(-0.295943), 6.411132)),
+                    entry(2.000000, new ShotResult(0.950669, new Rotation2d(-0.547561), 6.643411)),
+                    entry(3.000000, new ShotResult(0.880367, new Rotation2d(-0.740814), 7.013114)),
+                    entry(4.000000, new ShotResult(0.805179, new Rotation2d(-0.883939), 7.499948)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-1.062678), 8.139321)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.211202), 9.140186)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.023108, new Rotation2d(0.000000), 6.331734)),
+                    entry(1.000000, new ShotResult(0.925485, new Rotation2d(-0.175563), 6.764001)),
+                    entry(2.000000, new ShotResult(0.831619, new Rotation2d(-0.292718), 7.309233)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.392885), 7.875981)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.488289), 8.584005)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.559127), 9.516221)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.610144), 10.620153)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(1.023108, new Rotation2d(0.000000), 6.331734)),
+                    entry(1.000000, new ShotResult(0.898655, new Rotation2d(-0.000000), 6.904779)),
+                    entry(2.000000, new ShotResult(0.794485, new Rotation2d(-0.000000), 7.567647)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.172835)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.987354)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.978412)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 11.110044))))));
     put(
-        0.674327739527894,
-        entry(5.365180901567305, new ShotResult(1.3681390352927938, 0.6445425065503778)),
-        entry(5.7712129135061625, new ShotResult(1.4258344497439768, 0.8348771013679653)),
-        entry(6.902950588532255, new ShotResult(1.483529864195174, 1.1568860124242875)));
+        2.800573833671826,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.948587, new Rotation2d(0.000000), 6.773037)),
+                    entry(1.000000, new ShotResult(1.079620, new Rotation2d(0.000000), 6.245265)),
+                    entry(2.000000, new ShotResult(1.231521, new Rotation2d(0.000000), 5.842260)),
+                    entry(3.000000, new ShotResult(1.401218, new Rotation2d(0.000000), 5.590772)),
+                    entry(4.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 5.824298)),
+                    entry(5.000000, new ShotResult(1.379361, new Rotation2d(-3.141593), 5.643323)),
+                    entry(
+                        6.000000, new ShotResult(1.212585, new Rotation2d(-3.141593), 5.917322)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.948587, new Rotation2d(0.000000), 6.773037)),
+                    entry(1.000000, new ShotResult(1.028727, new Rotation2d(-0.216231), 6.427772)),
+                    entry(2.000000, new ShotResult(1.085840, new Rotation2d(-0.512528), 6.227431)),
+                    entry(3.000000, new ShotResult(1.099991, new Rotation2d(-0.864914), 6.186666)),
+                    entry(4.000000, new ShotResult(1.065100, new Rotation2d(-1.198853), 6.307956)),
+                    entry(5.000000, new ShotResult(0.995771, new Rotation2d(-1.458590), 6.581366)),
+                    entry(
+                        6.000000, new ShotResult(0.912101, new Rotation2d(-1.643002), 6.989026)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.948587, new Rotation2d(0.000000), 6.773037)),
+                    entry(1.000000, new ShotResult(0.933653, new Rotation2d(-0.249469), 6.847392)),
+                    entry(2.000000, new ShotResult(0.893125, new Rotation2d(-0.471238), 7.065618)),
+                    entry(3.000000, new ShotResult(0.836639, new Rotation2d(-0.652561), 7.414815)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.808593), 7.864531)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.996283), 8.481663)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.144427), 9.409161)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.948587, new Rotation2d(0.000000), 6.773037)),
+                    entry(1.000000, new ShotResult(0.862675, new Rotation2d(-0.151528), 7.242006)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.260742), 7.800647)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.370826), 8.332963)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.460814), 9.072275)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.530652), 9.996558)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.583339), 11.078462)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.948587, new Rotation2d(0.000000), 6.773037)),
+                    entry(1.000000, new ShotResult(0.837944, new Rotation2d(-0.000000), 7.399150)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.009407)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.675251)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.518187)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.510332)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 11.633557))))));
     put(
-        0.8905120930123345,
-        entry(5.446192282212583, new ShotResult(1.3053089627430334, 0.6445425065987634)),
-        entry(5.610076515213791, new ShotResult(1.3498641881060613, 0.7491792225035105)),
-        entry(5.95044573338919, new ShotResult(1.394419413469099, 0.8821397951007983)),
-        entry(6.572404540202305, new ShotResult(1.438974638832135, 1.0661589097699538)),
-        entry(7.775960653997998, new ShotResult(1.483529864195175, 1.3590158372977998)));
+        3.375717292089783,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.888532, new Rotation2d(0.000000), 7.220785)),
+                    entry(1.000000, ShotResult.invalid),
+                    entry(2.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 13.557857)),
+                    entry(3.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 8.898562)),
+                    entry(4.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 6.528902)),
+                    entry(5.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 5.691272)),
+                    entry(
+                        6.000000, new ShotResult(1.317215, new Rotation2d(-3.141593), 5.842834)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.888532, new Rotation2d(0.000000), 7.220785)),
+                    entry(1.000000, new ShotResult(0.961951, new Rotation2d(-0.183082), 6.836539)),
+                    entry(2.000000, new ShotResult(1.020327, new Rotation2d(-0.426290), 6.584615)),
+                    entry(3.000000, new ShotResult(1.048398, new Rotation2d(-0.721852), 6.481072)),
+                    entry(4.000000, new ShotResult(1.036492, new Rotation2d(-1.028124), 6.532836)),
+                    entry(5.000000, new ShotResult(0.989210, new Rotation2d(-1.294653), 6.735432)),
+                    entry(
+                        6.000000, new ShotResult(0.920956, new Rotation2d(-1.500714), 7.075478)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.888532, new Rotation2d(0.000000), 7.220785)),
+                    entry(1.000000, new ShotResult(0.876850, new Rotation2d(-0.217541), 7.290655)),
+                    entry(2.000000, new ShotResult(0.844565, new Rotation2d(-0.416232), 7.496260)),
+                    entry(3.000000, new ShotResult(0.798248, new Rotation2d(-0.585511), 7.826758)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.765311), 8.221794)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.940579), 8.825471)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.086524), 9.694466)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.888532, new Rotation2d(0.000000), 7.220785)),
+                    entry(1.000000, new ShotResult(0.812037, new Rotation2d(-0.134417), 7.717196)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.248092), 8.200505)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.351663), 8.781155)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.437793), 9.535330)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.506597), 10.452893)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.560204), 11.519349)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.888532, new Rotation2d(0.000000), 7.220785)),
+                    entry(1.000000, new ShotResult(0.789263, new Rotation2d(-0.000000), 7.886914)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.443890)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.155646)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.016191)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 11.010780)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 12.131390))))));
     put(
-        1.1547374139377617,
-        entry(5.574017456373825, new ShotResult(1.231039873010925, 0.6445425067666057)),
-        entry(5.683594171039348, new ShotResult(1.2815378712477685, 0.7385228195803565)),
-        entry(5.9345360353817975, new ShotResult(1.332035869484621, 0.853070177401482)),
-        entry(6.385610409733011, new ShotResult(1.3825338677214716, 1.0018486464512397)),
-        entry(7.1818864874332995, new ShotResult(1.4330318659583217, 1.2139440683633607)),
-        entry(8.757494587076827, new ShotResult(1.4835298641951755, 1.5686422409677891)));
+        3.950860750507739,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.839191, new Rotation2d(0.000000), 7.667423)),
+                    entry(1.000000, new ShotResult(0.945816, new Rotation2d(0.000000), 7.043468)),
+                    entry(2.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 14.467576)),
+                    entry(3.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 10.546727)),
+                    entry(4.000000, new ShotResult(1.377764, new Rotation2d(0.000000), 5.831825)),
+                    entry(5.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 6.182406)),
+                    entry(
+                        6.000000, new ShotResult(1.417708, new Rotation2d(-3.141593), 5.842101)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.839191, new Rotation2d(0.000000), 7.667423)),
+                    entry(1.000000, new ShotResult(0.906495, new Rotation2d(-0.159994), 7.252670)),
+                    entry(2.000000, new ShotResult(0.963603, new Rotation2d(-0.367087), 6.959237)),
+                    entry(3.000000, new ShotResult(0.998883, new Rotation2d(-0.619524), 6.803444)),
+                    entry(4.000000, new ShotResult(1.002584, new Rotation2d(-0.894167), 6.794941)),
+                    entry(5.000000, new ShotResult(0.973747, new Rotation2d(-1.153139), 6.933647)),
+                    entry(
+                        6.000000, new ShotResult(0.920953, new Rotation2d(-1.369388), 7.210430)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.839191, new Rotation2d(0.000000), 7.667423)),
+                    entry(1.000000, new ShotResult(0.829761, new Rotation2d(-0.194153), 7.733339)),
+                    entry(2.000000, new ShotResult(0.803364, new Rotation2d(-0.374676), 7.927732)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.548324), 8.199765)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.727074), 8.581270)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.893016), 9.167723)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-1.035956), 9.989385)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.839191, new Rotation2d(0.000000), 7.667423)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.123983), 8.145614)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.236545), 8.605984)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.335088), 9.214943)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.418132), 9.977723)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.485877), 10.890426)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.539945), 11.946462)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.839191, new Rotation2d(0.000000), 7.667423)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.272129)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.873121)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.614818)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.488602)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 11.487321)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 12.609844))))));
     put(
-        1.467003702304176,
-        entry(5.763733466417975, new ShotResult(1.1492704969561245, 0.6469006124688276)),
-        entry(5.804186591541689, new ShotResult(1.1970218351331252, 0.7198404477938386)),
-        entry(5.930452942553016, new ShotResult(1.2447731733101346, 0.8031786251174023)),
-        entry(6.159048205434442, new ShotResult(1.292524511487143, 0.9017041350936915)),
-        entry(6.524890720743616, new ShotResult(1.3402758496641507, 1.0232879568051252)),
-        entry(7.099537302124645, new ShotResult(1.388027187841158, 1.182265697977169)),
-        entry(8.045073567091443, new ShotResult(1.4357785260181342, 1.4087264550508214)),
-        entry(9.823391240059909, new ShotResult(1.4835298641951757, 1.7818451133077458)));
+        4.526004208925696,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.797913, new Rotation2d(0.000000), 8.108749)),
+                    entry(1.000000, new ShotResult(0.895027, new Rotation2d(0.000000), 7.451717)),
+                    entry(2.000000, new ShotResult(1.009442, new Rotation2d(0.000000), 6.876576)),
+                    entry(3.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 11.978964)),
+                    entry(4.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 8.445873)),
+                    entry(5.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 6.787949)),
+                    entry(
+                        6.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 6.006263)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.797913, new Rotation2d(0.000000), 8.108749)),
+                    entry(1.000000, new ShotResult(0.859826, new Rotation2d(-0.142924), 7.669829)),
+                    entry(2.000000, new ShotResult(0.914629, new Rotation2d(-0.323993), 7.342707)),
+                    entry(3.000000, new ShotResult(0.953354, new Rotation2d(-0.543772), 7.143355)),
+                    entry(4.000000, new ShotResult(0.967288, new Rotation2d(-0.789185), 7.082934)),
+                    entry(5.000000, new ShotResult(0.952857, new Rotation2d(-1.033600), 7.164637)),
+                    entry(
+                        6.000000, new ShotResult(0.914154, new Rotation2d(-1.251067), 7.383096)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.797913, new Rotation2d(0.000000), 8.108749)),
+                    entry(1.000000, new ShotResult(0.790112, new Rotation2d(-0.176216), 8.171182)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.350178), 8.313279)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.524116), 8.553036)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.693456), 8.937580)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.851825), 9.506921)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.991445), 10.289772)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.797913, new Rotation2d(0.000000), 8.108749)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.118771), 8.513684)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.226237), 9.006436)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.320654), 9.634255)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.401082), 10.403057)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.467767), 11.312846)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.522005), 12.362577)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.797913, new Rotation2d(0.000000), 8.108749)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 8.653272)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.291646)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.055401)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.940588)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 11.945207)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 13.073534))))));
     put(
-        1.8273109581115763,
-        entry(6.011504841512291, new ShotResult(1.09434669362633, 0.6915821447472477)),
-        entry(6.046353594375617, new ShotResult(1.1429945899474312, 0.76011516894611)),
-        entry(6.154296976733678, new ShotResult(1.1916424862685382, 0.8370446765377968)),
-        entry(6.346516498274858, new ShotResult(1.2402903825896443, 0.9257796630707226)),
-        entry(6.645546410087194, new ShotResult(1.2889382789107506, 1.0315522146345901)),
-        entry(7.093951993776832, new ShotResult(1.337586175231856, 1.1630404672708947)),
-        entry(7.776087429556254, new ShotResult(1.3862340715529615, 1.3361372174225765)),
-        entry(8.88201754063162, new ShotResult(1.434881967874067, 1.5843373357689496)),
-        entry(10.959595843919391, new ShotResult(1.483529864195176, 1.9961636967738081)));
+        5.101147667343652,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.480999)),
+                    entry(1.000000, new ShotResult(0.851842, new Rotation2d(0.000000), 7.859129)),
+                    entry(2.000000, new ShotResult(0.956660, new Rotation2d(0.000000), 7.247883)),
+                    entry(3.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 13.116116)),
+                    entry(4.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 9.591222)),
+                    entry(5.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 7.491537)),
+                    entry(
+                        6.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 6.465536)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.480999)),
+                    entry(1.000000, new ShotResult(0.820020, new Rotation2d(-0.129749), 8.084164)),
+                    entry(2.000000, new ShotResult(0.872160, new Rotation2d(-0.291207), 7.729483)),
+                    entry(3.000000, new ShotResult(0.912209, new Rotation2d(-0.485814), 7.493676)),
+                    entry(4.000000, new ShotResult(0.932709, new Rotation2d(-0.706046), 7.388622)),
+                    entry(5.000000, new ShotResult(0.929104, new Rotation2d(-0.933536), 7.419819)),
+                    entry(
+                        6.000000, new ShotResult(0.902487, new Rotation2d(-1.146251), 7.585055)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.480999)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.168274), 8.524320)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.336114), 8.660088)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.502256), 8.905672)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.663787), 9.288817)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.815736), 9.842357)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.951971), 10.593041)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.480999)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.114004), 8.882562)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.217066), 9.398583)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.307971), 10.040301)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.386113), 10.814154)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.451756), 11.722933)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.505977), 12.769916)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.480999)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.032026)),
+                    entry(2.000000, ShotResult.invalid),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.480031)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 11.375991)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 12.388325)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 13.526071))))));
     put(
-        2.235659181359964,
-        entry(6.303047878924356, new ShotResult(1.0468206131217135, 0.7425965773979856)),
-        entry(6.32777611515513, new ShotResult(1.090491538229056, 0.8009720493585876)),
-        entry(6.403544764526362, new ShotResult(1.1341624633364031, 0.8647837568653418)),
-        entry(6.535406189165219, new ShotResult(1.1778333884437497, 0.93576797886199)),
-        entry(6.73288961014998, new ShotResult(1.2215043135510961, 1.0163283173990538)),
-        entry(7.012145383680328, new ShotResult(1.2651752386584425, 1.1099533893063616)),
-        entry(7.4002933764466485, new ShotResult(1.3088461637657889, 1.2219895690519003)),
-        entry(7.944697357499125, new ShotResult(1.352517088873135, 1.3611982986468292)),
-        entry(8.734967740769148, new ShotResult(1.396188013980481, 1.5432624741123)),
-        entry(9.964679367939144, new ShotResult(1.4398589390878267, 1.7999964433409796)),
-        entry(12.158505180803692, new ShotResult(1.4835298641951762, 2.2099415036664722)));
-    put(
-        2.6920483720493382,
-        entry(6.632808015217047, new ShotResult(1.006685102563837, 0.7986050464139485)),
-        entry(6.660047296542644, new ShotResult(1.0543695787269682, 0.8611997078431504)),
-        entry(6.743560847969811, new ShotResult(1.1020540548901023, 0.9296291655954962)),
-        entry(6.889088249722357, new ShotResult(1.1497385310532366, 1.0058126442012825)),
-        entry(7.10749801806612, new ShotResult(1.1974230072163705, 1.0924187323988082)),
-        entry(7.417327347160958, new ShotResult(1.2451074833795046, 1.1933450476550727)),
-        entry(7.849997052314519, new ShotResult(1.2927919595426385, 1.3146154889483284)),
-        entry(8.461135193406914, new ShotResult(1.3404764357057721, 1.466214856142321)),
-        entry(9.35814160940902, new ShotResult(1.388160911868906, 1.6663017225860302)),
-        entry(10.780582550679952, new ShotResult(1.4358453880320394, 1.9525945301033727)),
-        entry(13.416609796564371, new ShotResult(1.4835298641951762, 2.4219902939610445)));
-    put(
-        3.1964785301796987,
-        entry(6.995329724597548, new ShotResult(0.9731797536319022, 0.8584458868498267)),
-        entry(7.01967747711396, new ShotResult(1.01933298570588, 0.9187214474653311)),
-        entry(7.094055512849985, new ShotResult(1.0654862177798603, 0.9839365728237667)),
-        entry(7.2226870547797475, new ShotResult(1.1116394498538409, 1.0555689249321176)),
-        entry(7.41339836082684, new ShotResult(1.157792681927821, 1.1355961843539126)),
-        entry(7.679084137816852, new ShotResult(1.2039459140018012, 1.2267740229566202)),
-        entry(8.040522022998921, new ShotResult(1.2500991460757815, 1.333117275071662)),
-        entry(8.531928852332525, new ShotResult(1.2962523781497615, 1.4607914441034757)),
-        entry(9.212784649691047, new ShotResult(1.3424056102237416, 1.6199090023881304)),
-        entry(10.196129955180508, new ShotResult(1.3885588422977009, 1.8285684117448948)),
-        entry(11.729307057050171, new ShotResult(1.4347120743716761, 2.123434209059159)),
-        entry(14.499999999999998, new ShotResult(1.4808653064456843, 2.5946919132297164)));
-    put(
-        3.748949655751047,
-        entry(7.385895151227627, new ShotResult(0.9452847403703888, 0.921204021509567)),
-        entry(7.410807257212795, new ShotResult(0.9924917374721292, 0.9834577312586996)),
-        entry(7.486848320231204, new ShotResult(1.0396987345738715, 1.050590437101467)),
-        entry(7.618138579709433, new ShotResult(1.0869057316756143, 1.1240390586452074)),
-        entry(7.812278613840171, new ShotResult(1.1341127287773412, 1.2057070973946387)),
-        entry(8.081699264076056, new ShotResult(1.1813197258790995, 1.298215099611478)),
-        entry(8.446217786797558, new ShotResult(1.228526722980842, 1.405325935353794)),
-        entry(8.937984296909443, new ShotResult(1.2757337200825845, 1.5327142665579647)),
-        entry(9.611722351917981, new ShotResult(1.3229407171843097, 1.6894705114543733)),
-        entry(10.568306544531849, new ShotResult(1.3701477142860694, 1.8913472956126178)),
-        entry(12.018255066144583, new ShotResult(1.4173547113877887, 2.1687813731151078)),
-        entry(14.500000000000002, new ShotResult(1.4645617084895564, 2.59106289521391)));
-    put(
-        4.349461748763381,
-        entry(7.800704342180708, new ShotResult(0.921990603879864, 0.9861948311164523)),
-        entry(7.821943755649692, new ShotResult(0.9657019006425813, 1.0447153245373229)),
-        entry(7.886546229904853, new ShotResult(1.0094131974053009, 1.107164900747918)),
-        entry(7.9972776037031155, new ShotResult(1.0531244941680207, 1.1745715993299986)),
-        entry(8.159135612061316, new ShotResult(1.0968357909307405, 1.2482444748095975)),
-        entry(8.380030655374048, new ShotResult(1.1405470876934598, 1.3299017456507434)),
-        entry(8.67199582109259, new ShotResult(1.1842583844561794, 1.4218721303857444)),
-        entry(9.053331384454262, new ShotResult(1.2279696812188987, 1.5274263839176285)),
-        entry(9.552549379055227, new ShotResult(1.2716809779816027, 1.6513535739689087)),
-        entry(10.216111684594443, new ShotResult(1.3153922747443212, 1.8010305131214284)),
-        entry(11.12506987352796, new ShotResult(1.359103571507039, 1.9885770912183214)),
-        entry(12.435760362497327, new ShotResult(1.402814868269776, 2.235698757341687)),
-        entry(14.5, new ShotResult(1.4465261650324979, 2.586342877873936)));
-    put(
-        4.998014809216704,
-        entry(8.23682741398831, new ShotResult(0.9024109157995329, 1.0529190157644517)),
-        entry(8.258201918664884, new ShotResult(0.9460970350672286, 1.112801450907411)),
-        entry(8.32316409128879, new ShotResult(0.9897831543349265, 1.1764983905274908)),
-        entry(8.434332999656625, new ShotResult(1.033469273602609, 1.2449843934492748)),
-        entry(8.596420544351917, new ShotResult(1.0771553928703077, 1.3194870818734423)),
-        entry(8.816832046652934, new ShotResult(1.12084151213802, 1.4015977777633206)),
-        entry(9.106719218757883, new ShotResult(1.1645276314057178, 1.4934419082415669)),
-        entry(9.48281129749754, new ShotResult(1.2082137506734154, 1.597953126357159)),
-        entry(9.970699853353256, new ShotResult(1.2518998699410986, 1.7193365312992384)),
-        entry(10.61107394217661, new ShotResult(1.2955859892087955, 1.8638987116544816)),
-        entry(11.472550518115273, new ShotResult(1.3392721084764916, 2.0416471474233706)),
-        entry(12.681186045438787, new ShotResult(1.3829582277442058, 2.2696741879990006)),
-        entry(14.500000000000002, new ShotResult(1.4266443470119057, 2.5802792409469237)));
-    put(
-        5.69460883711101,
-        entry(8.692074894797534, new ShotResult(0.8858106174618405, 1.1210161643144256)),
-        entry(8.717432024311607, new ShotResult(0.9329889897464084, 1.187637528093439)),
-        entry(8.7946136458649, new ShotResult(0.9801673620309783, 1.2587106173833846)),
-        entry(8.927103734093132, new ShotResult(1.027345734315548, 1.3354517536771002)),
-        entry(9.12122734908433, new ShotResult(1.0745241066001179, 1.4194145904180437)),
-        entry(9.387065005124043, new ShotResult(1.1217024788846879, 1.5126484346809494)),
-        entry(9.740099558650726, new ShotResult(1.1688808511692577, 1.6179492769607338)),
-        entry(10.20418790361737, new ShotResult(1.216059223453814, 1.739277931576598)),
-        entry(10.817158109100035, new ShotResult(1.263237595738383, 1.8824972560989803)),
-        entry(11.6421367987923, new ShotResult(1.3104159680229515, 2.0567648589259497)),
-        entry(12.792948494076176, new ShotResult(1.3575943403075195, 2.277405140968245)),
-        entry(14.5, new ShotResult(1.4047727125921083, 2.572563798955936)));
-    put(
-        6.439243832446305,
-        entry(9.164857417231913, new ShotResult(0.8715971746891182, 1.190226528719346)),
-        entry(9.189829856764428, new ShotResult(0.9178818849817605, 1.2575293422743499)),
-        entry(9.265758764341513, new ShotResult(0.9641665952744048, 1.3290500483180925)),
-        entry(9.395811806391611, new ShotResult(1.0104513055670492, 1.4059009368777242)),
-        entry(9.585705520175521, new ShotResult(1.0567360158596932, 1.4894830534798853)),
-        entry(9.844462149070377, new ShotResult(1.1030207261523244, 1.5816143652985761)),
-        entry(10.18574722564208, new ShotResult(1.1493054364449684, 1.6847277107517709)),
-        entry(10.630220603229446, new ShotResult(1.1955901467376258, 1.8021904440986118)),
-        entry(11.209812751733303, new ShotResult(1.2418748570302698, 1.9388471889595449)),
-        entry(11.975988568033461, new ShotResult(1.288159567322914, 2.1019982042292535)),
-        entry(13.017155843250167, new ShotResult(1.334444277615542, 2.3032986191682028)),
-        entry(14.500000000000002, new ShotResult(1.3807289879082039, 2.5628148820373657)));
-    put(
-        7.231919795222588,
-        entry(9.654062283900824, new ShotResult(0.8592990899095568, 1.2603622960214316)),
-        entry(9.678329130850454, new ShotResult(0.9042971854955202, 1.327827142162182)),
-        entry(9.752028248162102, new ShotResult(0.9492952810814854, 1.3992285837476337)),
-        entry(9.877967662229539, new ShotResult(0.9942933766674509, 1.475562373873181)),
-        entry(10.061183313121719, new ShotResult(1.0392914722534161, 1.5580641894008287)),
-        entry(10.309542117917754, new ShotResult(1.0842895678393814, 1.6483096781844866)),
-        entry(10.634786740585707, new ShotResult(1.1292876634253337, 1.7483647155476982)),
-        entry(11.054322025460435, new ShotResult(1.174285759011299, 1.8610202261738908)),
-        entry(11.59434846962555, new ShotResult(1.219283854597277, 1.9901756398602082)),
-        entry(12.295637572380063, new ShotResult(1.264281950183228, 2.141497877960622)),
-        entry(13.22496041725775, new ShotResult(1.309280045769192, 2.323626025766502)),
-        entry(14.5, new ShotResult(1.3542781413551739, 2.550550668697872)));
-    put(
-        8.072636725439855,
-        entry(10.158953817894727, new ShotResult(0.8485427872743155, 1.3312868767953003)),
-        entry(10.18705207197295, new ShotResult(0.8961995968367081, 1.4051883481143421)),
-        entry(10.272485289920803, new ShotResult(0.9438564063991027, 1.4835557912826904)),
-        entry(10.41882616705185, new ShotResult(0.9915132159614835, 1.567581351630514)),
-        entry(10.63252794103125, new ShotResult(1.0391700255238787, 1.6587589759874486)),
-        entry(10.923780708040846, new ShotResult(1.0868268350862738, 1.7590173354296952)),
-        entry(11.30802584816509, new ShotResult(1.134483644648681, 1.8709236328088634)),
-        entry(11.808619137665971, new ShotResult(1.1821404542110627, 1.9980100762963364)),
-        entry(12.461676388271517, new ShotResult(1.2297972637734698, 2.1453230238270518)),
-        entry(13.325439086184847, new ShotResult(1.2774540733358644, 2.320401426716157)),
-        entry(14.499999999999998, new ShotResult(1.3251108828982603, 2.535148035560432)));
-    put(
-        8.961394623098109,
-        entry(10.679096206661264, new ShotResult(0.8390320554875029, 1.402900234163312)),
-        entry(10.705444648713037, new ShotResult(0.8844097577431111, 1.4754918811396451)),
-        entry(10.785433446384678, new ShotResult(0.9297874599987216, 1.5520830354909059)),
-        entry(10.92201582423953, new ShotResult(0.9751651622543179, 1.633679918355378)),
-        entry(11.120481613314086, new ShotResult(1.020542864509929, 1.7215193955634287)),
-        entry(11.389068969878116, new ShotResult(1.0659205667655525, 1.8171624222930762)),
-        entry(11.740017511720364, new ShotResult(1.1112982690211504, 1.9226321750691067)),
-        entry(12.191352660467125, new ShotResult(1.1566759712767727, 2.0406260963895027)),
-        entry(12.769977398769928, new ShotResult(1.2020536735323701, 2.1748549925962717)),
-        entry(13.517280182663681, new ShotResult(1.2474313757879798, 2.3306113100707697)),
-        entry(14.499999999999998, new ShotResult(1.2928090780436048, 2.5157760941190532)));
-    put(
-        9.898193488197352,
-        entry(11.214295041570248, new ShotResult(0.8305311505020975, 1.4751285411865915)),
-        entry(11.24405580043294, new ShotResult(0.8778928744848806, 1.5534713297441736)),
-        entry(11.334477909877068, new ShotResult(0.9252545984677003, 1.6362189085612295)),
-        entry(11.48914252177772, new ShotResult(0.9726163224505027, 1.7245260351869982)),
-        entry(11.714498805774067, new ShotResult(1.0199780464333053, 1.819820739387404)),
-        entry(12.020669322280709, new ShotResult(1.067339770416095, 1.9239194024995)),
-        entry(12.422857310805368, new ShotResult(1.1147014943988973, 2.0391991470215123)),
-        entry(12.943779283070308, new ShotResult(1.162063218381712, 2.168866706202195)),
-        entry(13.617990974669747, new ShotResult(1.2094249423645143, 2.3173966056678355)),
-        entry(14.499999999999998, new ShotResult(1.2567866663473177, 2.4912824014004666)));
-    put(
-        10.88303332073758,
-        entry(11.764553549973826, new ShotResult(0.8228514222407286, 1.5479168710179105)),
-        entry(11.790846630814446, new ShotResult(0.8665546635211187, 1.6224152789323765)),
-        entry(11.870564540136092, new ShotResult(0.9102579048015307, 1.7005976874450899)),
-        entry(12.006334395725919, new ShotResult(0.9539611460819557, 1.783348463375163)),
-        entry(12.20283481147507, new ShotResult(0.9976643873623524, 1.8717337996059382)),
-        entry(12.467273776379413, new ShotResult(1.0413676286427627, 1.9670698128710826)),
-        entry(12.810194052724126, new ShotResult(1.0850708699231726, 2.071019724062999)),
-        entry(13.246797634293888, new ShotResult(1.1287741112035943, 2.1857371864298196)),
-        entry(13.799152597216429, new ShotResult(1.172477352484004, 2.314085099019777)),
-        entry(14.5, new ShotResult(1.2161805937644148, 2.459982689794606)));
-    put(
-        11.915914120718794,
-        entry(12.330040085131007, new ShotResult(0.8158409248167405, 1.6212239949094402)),
-        entry(12.358018730671029, new ShotResult(0.8600642105697403, 1.699045965983261)),
-        entry(12.442854064660606, new ShotResult(0.9042874963227268, 1.7806531315613119)),
-        entry(12.587370761735771, new ShotResult(0.9485107820757303, 1.866964325861881)),
-        entry(12.796606469159993, new ShotResult(0.9927340678287461, 1.959085248708058)),
-        entry(13.078332066899534, new ShotResult(1.0369573535817356, 2.0583785664774856)),
-        entry(13.443930384918664, new ShotResult(1.0811806393347376, 2.166563732008135)),
-        entry(13.90984478763588, new ShotResult(1.1254039250877512, 2.285863897653363)),
-        entry(14.500000000000002, new ShotResult(1.1696272108407544, 2.4192297019588853)));
-    put(
-        12.996835888141,
-        entry(12.91106416047429, new ShotResult(0.8093764108777849, 1.6950186450182279)),
-        entry(12.94963078438496, new ShotResult(0.860268491130341, 1.7876945241927054)),
-        entry(13.066962080551335, new ShotResult(0.9111605713828843, 1.8855590081141604)),
-        entry(13.268232933124176, new ShotResult(0.9620526516354575, 1.990070996958866)),
-        entry(13.562857155269391, new ShotResult(1.0129447318880032, 2.103041892003174)),
-        entry(13.965810399339517, new ShotResult(1.0638368121405737, 2.226791564563323)),
-        entry(14.500000000000002, new ShotResult(1.114728892393133, 2.3643849721883776)));
-    put(
-        14.125798623004187,
-        entry(13.508058966956629, new ShotResult(0.8033571774529763, 1.7692767996238759)),
-        entry(13.544667626368314, new ShotResult(0.8519715837257591, 1.8604066848156058)),
-        entry(13.655883180961848, new ShotResult(0.9005859899985651, 1.9562104888854595)),
-        entry(13.84611201256411, new ShotResult(0.9492003962713833, 2.057941270767584)),
-        entry(14.123314802259378, new ShotResult(0.9978148025441862, 2.1671278159100487)),
-        entry(14.499999999999998, new ShotResult(1.0464292088169904, 2.285688251758856)));
+        5.676291125761609,
+        new AngleEntry(
+            entry(
+                0.000000,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.822621)),
+                    entry(1.000000, new ShotResult(0.814637, new Rotation2d(0.000000), 8.262866)),
+                    entry(2.000000, new ShotResult(0.911129, new Rotation2d(0.000000), 7.622410)),
+                    entry(3.000000, new ShotResult(1.023913, new Rotation2d(0.000000), 7.063214)),
+                    entry(4.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 10.767553)),
+                    entry(5.000000, new ShotResult(1.483530, new Rotation2d(3.141593), 8.282921)),
+                    entry(
+                        6.000000, new ShotResult(1.483530, new Rotation2d(-3.141593), 6.995463)))),
+            entry(
+                0.785398,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.822621)),
+                    entry(1.000000, new ShotResult(0.785627, new Rotation2d(-0.119245), 8.493304)),
+                    entry(2.000000, new ShotResult(0.835064, new Rotation2d(-0.265400), 8.115924)),
+                    entry(3.000000, new ShotResult(0.875233, new Rotation2d(-0.440181), 7.849476)),
+                    entry(4.000000, new ShotResult(0.899854, new Rotation2d(-0.639214), 7.706043)),
+                    entry(5.000000, new ShotResult(0.904208, new Rotation2d(-0.849831), 7.692673)),
+                    entry(
+                        6.000000, new ShotResult(0.887563, new Rotation2d(-1.054350), 7.809680)))),
+            entry(
+                1.570796,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.822621)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.161968), 8.867397)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.323264), 9.006570)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.482594), 9.254563)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.637448), 9.634363)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.783812), 10.173752)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.916722), 10.897569)))),
+            entry(
+                2.356194,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.822621)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.109684), 9.247708)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.208884), 9.781654)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.296734), 10.434527)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.372839), 11.213262)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.437473), 12.122881)),
+                    entry(
+                        6.000000, new ShotResult(0.785398, new Rotation2d(-0.491556), 13.170354)))),
+            entry(
+                3.141593,
+                new VelocityEntry(
+                    entry(0.000000, new ShotResult(0.785398, new Rotation2d(0.000000), 8.822621)),
+                    entry(1.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 9.405086)),
+                    entry(2.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.094091)),
+                    entry(3.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 10.891015)),
+                    entry(4.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 11.797782)),
+                    entry(5.000000, new ShotResult(0.785398, new Rotation2d(-0.000000), 12.819716)),
+                    entry(
+                        6.000000,
+                        new ShotResult(0.785398, new Rotation2d(-0.000000), 13.970468))))));
   }
 }
