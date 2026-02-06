@@ -9,6 +9,7 @@ package frc.cotc.shooter;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,6 +44,11 @@ public class Shooter extends SubsystemBase {
   @SuppressWarnings("FieldCanBeLocal")
   private final double DRAG_COMPENSATION_INVERSE_SECONDS = 0.2;
 
+  private final InterpolatingDoubleTreeMap flywheelVelToProjectileVelMap =
+      new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap projectileVelToFlywheelVelMap =
+      new InterpolatingDoubleTreeMap();
+
   // Location that the robot should shoot at for passing balls
   private final Translation2d BLUE_BOTTOM_GROUND_TARGET = new Translation2d(1, 1);
   private final Translation2d BLUE_TOP_GROUND_TARGET =
@@ -70,6 +76,11 @@ public class Shooter extends SubsystemBase {
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
+  }
+
+  private void addMapping(double flywheelVelRotPerSec, double projectileVelMetersPerSec) {
+    flywheelVelToProjectileVelMap.put(flywheelVelRotPerSec, projectileVelMetersPerSec);
+    projectileVelToFlywheelVelMap.put(projectileVelMetersPerSec, flywheelVelRotPerSec);
   }
 
   @Override
@@ -108,7 +119,7 @@ public class Shooter extends SubsystemBase {
               robotPoseSupplier.get(),
               fieldChassisSpeedsSupplier.get(),
               Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
-              flywheelInputs.projectileVelMetersPerSec);
+              flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
         })
         .withName("Shoot at hub");
   }
@@ -128,7 +139,7 @@ public class Shooter extends SubsystemBase {
               robotPose,
               fieldChassisSpeedsSupplier.get(),
               target,
-              flywheelInputs.projectileVelMetersPerSec);
+              flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
         })
         .withName("Pass to alliance");
   }
@@ -192,7 +203,7 @@ public class Shooter extends SubsystemBase {
         (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
             - fieldChassisSpeeds.omegaRadiansPerSecond);
     lastYawRad = turretYawAbsolute.getRadians();
-    flywheelIO.runVel(result.velocityMetersPerSecond());
+    flywheelIO.runVel(projectileVelToFlywheelVelMap.get(result.velocityMetersPerSecond()));
   }
 
   private final ShotMap hubShotMap = new HubShotMap();
