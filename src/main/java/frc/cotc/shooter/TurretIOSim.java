@@ -35,11 +35,11 @@ public class TurretIOSim implements TurretIO {
 
     @Override
     public void stop() {
-        
+        sim.setInputVoltage(0);
     }
 
     @Override
     public void runYaw(double thetaRad, double omegaRadPerSec) {
-
+        
     }
 }
