@@ -35,17 +35,17 @@ public class AprilTagPoseEstimator {
     cameraTransforms.put(
         "FrontLeft",
         new Transform3d(
-            Units.inchesToMeters(22 / 2 - 1.5),
-            Units.inchesToMeters(32 / 2 + .125),
+            Units.inchesToMeters(22.0 / 2 - 1.5),
+            Units.inchesToMeters(32.0 / 2 + .125),
             Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-55.5))));
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-45))));
     cameraTransforms.put(
         "FrontRight",
         new Transform3d(
-            Units.inchesToMeters(22 / 2 - 1.5),
-            -Units.inchesToMeters(32 / 2 + .125),
+            Units.inchesToMeters(22.0 / 2 - 1.5),
+            -Units.inchesToMeters(32.0 / 2 + .125),
             Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(55.5))));
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(45))));
   }
 
   private final PhotonPoseEstimator poseEstimator;
@@ -87,8 +87,8 @@ public class AprilTagPoseEstimator {
     if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
 
     // odometry check (inspired by 2025 vision)
-    return currentPoseEstimate != null
-        && !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
+    return currentPoseEstimate == null
+        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
             || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
                 > 2);
   }

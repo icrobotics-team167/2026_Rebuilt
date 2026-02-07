@@ -28,6 +28,8 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
   private final BaseStatusSignal[] connectedSignals;
 
+  private final BaseStatusSignal[] currentSignals = new BaseStatusSignal[16];
+
   public SwerveIOReal() {
     this(
         TunerConstants.FrontLeft,
@@ -44,12 +46,19 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
     connectedSignals = new BaseStatusSignal[3 * 4];
     for (int i = 0; i < 4; i++) {
-      connectedSignals[i * 3] = getModule(i).getDriveMotor().getVersion();
-      connectedSignals[i * 3 + 1] = getModule(i).getSteerMotor().getVersion();
-      connectedSignals[i * 3 + 2] = getModule(i).getEncoder().getVersion();
+      connectedSignals[i * 3] = getModule(i).getDriveMotor().getVersion(false);
+      connectedSignals[i * 3 + 1] = getModule(i).getSteerMotor().getVersion(false);
+      connectedSignals[i * 3 + 2] = getModule(i).getEncoder().getVersion(false);
+
+      currentSignals[i * 4] = getModule(i).getDriveMotor().getTorqueCurrent(false);
+      currentSignals[i * 4 + 1] = getModule(i).getDriveMotor().getSupplyCurrent(false);
+      currentSignals[i * 4 + 2] = getModule(i).getSteerMotor().getTorqueCurrent(false);
+      currentSignals[i * 4 + 3] = getModule(i).getSteerMotor().getSupplyCurrent(false);
     }
     Robot.canivoreSignals.addSignals(connectedSignals);
+    Robot.canivoreSignals.addSignals(currentSignals);
     BaseStatusSignal.setUpdateFrequencyForAll(10, connectedSignals);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, currentSignals);
   }
 
   private void updateTelemetry(SwerveDriveState state) {
@@ -109,6 +118,10 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.driveMotorConnected[i] = connectedSignals[i * 3].getStatus().isOK();
       inputs.steerMotorConnected[i] = connectedSignals[i * 3 + 1].getStatus().isOK();
       inputs.encoderConnected[i] = connectedSignals[i * 3 + 2].getStatus().isOK();
+      inputs.driveStatorCurrentAmps[i] = currentSignals[i * 4].getValueAsDouble();
+      inputs.driveSupplyCurrentAmps[i] = currentSignals[i * 4 + 1].getValueAsDouble();
+      inputs.steerStatorCurrentAmps[i] = currentSignals[i * 4 + 2].getValueAsDouble();
+      inputs.steerSupplyCurrentAmps[i] = currentSignals[i * 4 + 3].getValueAsDouble();
     }
     inputs.timeOffsetSeconds = Utils.fpgaToCurrentTime(0);
   }

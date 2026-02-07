@@ -57,12 +57,12 @@ public class SwerveIOSim extends SwerveIOReal {
         new SwerveDriveSimulation(
             new DriveTrainSimulationConfig(
                 Pounds.of(140),
-                Meters.of(Constants.bumperWidthMeters), // Bumper width
                 Meters.of(Constants.bumperLengthMeters), // Bumper length
-                // Track width
-                getModuleLocations()[0].getMeasureY().minus(getModuleLocations()[1].getMeasureY()),
+                Meters.of(Constants.bumperWidthMeters), // Bumper width
                 // Track length
-                getModuleLocations()[0].getMeasureX().minus(getModuleLocations()[2].getMeasureX()),
+                Meters.of(Constants.trackLengthMeters),
+                // Track width
+                Meters.of(Constants.trackWidthMeters),
                 COTS.ofPigeon2(),
                 // Module specs
                 new SwerveModuleSimulationConfig(
