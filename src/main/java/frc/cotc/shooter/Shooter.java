@@ -76,6 +76,8 @@ public class Shooter extends SubsystemBase {
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
+
+    addMapping(0, 0);
   }
 
   private void addMapping(double flywheelVelRotPerSec, double projectileVelMetersPerSec) {
@@ -118,8 +120,7 @@ public class Shooter extends SubsystemBase {
           runShooter(
               robotPoseSupplier.get(),
               fieldChassisSpeedsSupplier.get(),
-              Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
-              flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+              Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB);
         })
         .withName("Shoot at hub");
   }
@@ -135,11 +136,7 @@ public class Shooter extends SubsystemBase {
             target = Robot.isOnRed() ? ShotTarget.RED_BOTTOM_GROUND : ShotTarget.BLUE_BOTTOM_GROUND;
           }
 
-          runShooter(
-              robotPose,
-              fieldChassisSpeedsSupplier.get(),
-              target,
-              flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+          runShooter(robotPose, fieldChassisSpeedsSupplier.get(), target);
         })
         .withName("Pass to alliance");
   }
@@ -153,10 +150,7 @@ public class Shooter extends SubsystemBase {
   private double lastYawRad;
 
   private void runShooter(
-      Pose2d robotPose,
-      ChassisSpeeds fieldChassisSpeeds,
-      ShotTarget shotTarget,
-      double shooterVelMetersPerSecond) {
+      Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
     // Calculate where the shooter is on the field
     var shooterTranslation = robotPose.plus(robotToShooterTransform).getTranslation();
     // Rotate the robotToShooterTransform by the robot yaw
@@ -175,11 +169,23 @@ public class Shooter extends SubsystemBase {
             + fieldChassisSpeeds.omegaRadiansPerSecond * robotCenterToShooter.getX();
 
     var rotatedSpeeds =
-        new Translation2d(shooterVx, shooterVy).rotateBy(shooterToTarget.getAngle());
+        new Translation2d(shooterVx, shooterVy).rotateBy(shooterToTarget.getAngle().unaryMinus());
+
+    Logger.recordOutput("Shooter/Target relative speeds", rotatedSpeeds);
 
     var result =
         getResult(
             shooterToTarget.getNorm(), rotatedSpeeds.getX(), rotatedSpeeds.getY(), shotTarget);
+
+    if (result == null) {
+      lastPitchRad = hoodInputs.thetaRad;
+      hoodIO.runPitch(hoodInputs.thetaRad, 0);
+      lastYawRad = turretInputs.thetaRad;
+      turretIO.runYaw(turretInputs.thetaRad, 0);
+      flywheelIO.runVel(flywheelInputs.velRotPerSec);
+      return;
+    }
+
     var turretYawAbsolute = shooterToTarget.getAngle().plus(result.yawRad());
     Logger.recordOutput(
         "Shooter/Shooter pose",

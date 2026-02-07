@@ -22,6 +22,9 @@ public class ShotMap {
   public ShotResult get(double distanceMeters, double vxMetersPerSec, double vyMetersPerSec) {
     if (vyMetersPerSec < 0) {
       var flippedResult = get(distanceMeters, vxMetersPerSec, -vyMetersPerSec);
+      if (flippedResult == null) {
+        return null;
+      }
       return new ShotResult(
           flippedResult.pitchRad,
           flippedResult.yawRad.unaryMinus(),
@@ -47,13 +50,10 @@ public class ShotMap {
       var floor = map.get(floorKey).get(angleRad, velMetersPerSec);
       var ceiling = map.get(ceilingKey).get(angleRad, velMetersPerSec);
       var t = MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters);
-      if (ShotResult.isInvalid(floor) && t >= 0.5) {
-        return ShotResult.isInvalid(ceiling) ? null : ceiling;
+      if (floor == null || ceiling == null) {
+        return null;
       }
-      if (ShotResult.isInvalid(ceiling) && t <= 0.5) {
-        return ShotResult.isInvalid(floor) ? null : floor;
-      }
-      if (ShotResult.isInvalid(ceiling) || ShotResult.isInvalid(floor)) {
+      if (ShotResult.isInvalid(floor) || ShotResult.isInvalid(ceiling)) {
         return null;
       }
       return floor.interpolate(ceiling, t);
@@ -103,13 +103,10 @@ public class ShotMap {
         var floor = map.get(floorKey).get(velocityMetersPerSecond);
         var ceiling = map.get(ceilingKey).get(velocityMetersPerSecond);
         var t = MathUtil.inverseInterpolate(floorKey, ceilingKey, angleRad);
-        if (ShotResult.isInvalid(floor) && t >= 0.5) {
-          return ShotResult.isInvalid(ceiling) ? null : ceiling;
+        if (floor == null || ceiling == null) {
+          return null;
         }
-        if (ShotResult.isInvalid(ceiling) && t <= 0.5) {
-          return ShotResult.isInvalid(floor) ? null : floor;
-        }
-        if (ShotResult.isInvalid(ceiling) || ShotResult.isInvalid(floor)) {
+        if (ShotResult.isInvalid(floor) || ShotResult.isInvalid(ceiling)) {
           return null;
         }
         return floor.interpolate(ceiling, t);
@@ -145,13 +142,7 @@ public class ShotMap {
         var floor = map.get(floorKey);
         var ceiling = map.get(ceilingKey);
         var t = MathUtil.inverseInterpolate(floorKey, ceilingKey, velocityMetersPerSecond);
-        if (ShotResult.isInvalid(floor) && t >= 0.5) {
-          return ShotResult.isInvalid(ceiling) ? null : ceiling;
-        }
-        if (ShotResult.isInvalid(ceiling) && t <= 0.5) {
-          return ShotResult.isInvalid(floor) ? null : floor;
-        }
-        if (ShotResult.isInvalid(ceiling) || ShotResult.isInvalid(floor)) {
+        if (ShotResult.isInvalid(floor) || ShotResult.isInvalid(ceiling)) {
           return null;
         }
         return floor.interpolate(ceiling, t);
