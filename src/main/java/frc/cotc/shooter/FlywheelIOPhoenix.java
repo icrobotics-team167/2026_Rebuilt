@@ -17,39 +17,27 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
+import frc.cotc.Robot;
 
 public class FlywheelIOPhoenix implements FlywheelIO {
   private static final int MOTOR_0_ID = 0; // TODO: Update Can IDs
   private static final int MOTOR_1_ID = 1;
-  private static final int MOTOR_2_ID = 2;
-  private static final int MOTOR_3_ID = 3;
 
-  private final TalonFX motor0;
-  private final TalonFX motor1;
-  private final TalonFX motor2;
-  private final TalonFX motor3;
+  private final TalonFX motor0, motor1;
 
-  private final StatusSignal<AngularVelocity> vel0;
-  private final StatusSignal<Voltage> volts;
-  private final StatusSignal<Current> stat0, stat1, stat2, stat3;
-  private final StatusSignal<Current> sup0, sup1, sup2, sup3;
+  private final StatusSignal<AngularVelocity> velocity;
+  private final StatusSignal<Current> motor0StatorCurrent, motor1StatorCurrent;
+  private final StatusSignal<Current> motor0SupplyCurrent, motor1SupplyCurrent;
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private final VoltageOut stopRequest = new VoltageOut(0);
 
-  private final InterpolatingDoubleTreeMap mpsToRpsMap = new InterpolatingDoubleTreeMap();
-  private final InterpolatingDoubleTreeMap rpsToMpsMap = new InterpolatingDoubleTreeMap();
-
   public FlywheelIOPhoenix() {
     motor0 = new TalonFX(MOTOR_0_ID);
     motor1 = new TalonFX(MOTOR_1_ID);
-    motor2 = new TalonFX(MOTOR_2_ID);
-    motor3 = new TalonFX(MOTOR_3_ID);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.CurrentLimits.StatorCurrentLimit = 240;
@@ -58,74 +46,56 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.Slot0.kV = 0.12;
     config.Slot0.kP = 0.10;
 
-    mpsToRpsMap.put(0.0, 0.0); // TODO: Get Real Values
-    mpsToRpsMap.put(10.0, 15.0);
-    mpsToRpsMap.put(30.0, 45.0);
-
-    rpsToMpsMap.put(0.0, 0.0); // TODO: Get Real Values
-    rpsToMpsMap.put(15.0, 10.0);
-    rpsToMpsMap.put(45.0, 30.0);
-
     //  Left Side
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor0.getConfigurator().apply(config);
     motor1.getConfigurator().apply(config);
 
-    //  Right Side
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    motor2.getConfigurator().apply(config);
-    motor3.getConfigurator().apply(config);
-
     //  All motors follow motor 0
     motor1.setControl(new StrictFollower(MOTOR_0_ID));
-    motor2.setControl(new StrictFollower(MOTOR_0_ID));
-    motor3.setControl(new StrictFollower(MOTOR_0_ID));
 
-    vel0 = motor0.getVelocity();
-    volts = motor0.getMotorVoltage();
+    velocity = motor0.getVelocity(false);
 
-    stat0 = motor0.getStatorCurrent();
-    stat1 = motor1.getStatorCurrent();
-    stat2 = motor2.getStatorCurrent();
-    stat3 = motor3.getStatorCurrent();
+    motor0StatorCurrent = motor0.getStatorCurrent(false);
+    motor1StatorCurrent = motor1.getStatorCurrent(false);
 
-    sup0 = motor0.getSupplyCurrent();
-    sup1 = motor1.getSupplyCurrent();
-    sup2 = motor2.getSupplyCurrent();
-    sup3 = motor3.getSupplyCurrent();
+    motor0SupplyCurrent = motor0.getSupplyCurrent(false);
+    motor1SupplyCurrent = motor1.getSupplyCurrent(false);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, vel0, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+        50.0,
+        velocity,
+        motor0StatorCurrent,
+        motor1StatorCurrent,
+        motor0SupplyCurrent,
+        motor1SupplyCurrent);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(100.0, volts);
+    Robot.canivoreSignals.addSignals(
+        velocity,
+        motor0StatorCurrent,
+        motor1StatorCurrent,
+        motor0SupplyCurrent,
+        motor1SupplyCurrent);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(100.0, motor0.getMotorVoltage(false));
 
     ParentDevice.optimizeBusUtilizationForAll();
   }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    BaseStatusSignal.refreshAll(vel0, volts, stat0, stat1, stat2, stat3, sup0, sup1, sup2, sup3);
+    inputs.velRotPerSec = velocity.getValueAsDouble();
 
-    double currentRps = vel0.getValueAsDouble();
+    inputs.motor0StatorCurrentAmps = motor0StatorCurrent.getValueAsDouble();
+    inputs.motor1StatorCurrentAmps = motor1StatorCurrent.getValueAsDouble();
 
-    inputs.projectileVelMetersPerSec = rpsToMpsMap.get(currentRps);
-    inputs.appliedVolts = volts.getValueAsDouble();
-
-    inputs.motor0StatorCurrentAmps = stat0.getValueAsDouble();
-    inputs.motor1StatorCurrentAmps = stat1.getValueAsDouble();
-    inputs.motor2StatorCurrentAmps = stat2.getValueAsDouble();
-    inputs.motor3StatorCurrentAmps = stat3.getValueAsDouble();
-
-    inputs.motor0SupplyCurrentAmps = sup0.getValueAsDouble();
-    inputs.motor1SupplyCurrentAmps = sup1.getValueAsDouble();
-    inputs.motor2SupplyCurrentAmps = sup2.getValueAsDouble();
-    inputs.motor3SupplyCurrentAmps = sup3.getValueAsDouble();
+    inputs.motor0SupplyCurrentAmps = motor0SupplyCurrent.getValueAsDouble();
+    inputs.motor1SupplyCurrentAmps = motor1SupplyCurrent.getValueAsDouble();
   }
 
   @Override
-  public void runVel(double projectileVelMetersPerSec) {
-    double targetRps = mpsToRpsMap.get(projectileVelMetersPerSec);
-    motor0.setControl(velocityRequest.withVelocity(targetRps));
+  public void runVel(double velRotPerSec) {
+    motor0.setControl(velocityRequest.withVelocity(velRotPerSec));
   }
 
   @Override
