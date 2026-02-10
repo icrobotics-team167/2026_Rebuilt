@@ -22,8 +22,8 @@ public class FlywheelIOSim implements FlywheelIO {
 
   private final PIDController pid = new PIDController(1, 0, 1); // Placeholders
 
-  private final double kvRotPerSecPerVolt = 
-    DCMotor.getKrakenX44(2).withReduction(0.5).KvRadPerSecPerVolt;
+  private final double kvRotPerSecPerVolt =
+      Units.radiansToRotations(DCMotor.getKrakenX44(2).withReduction(0.5).KvRadPerSecPerVolt);
 
   @Override
   public void stop() {
@@ -40,6 +40,7 @@ public class FlywheelIOSim implements FlywheelIO {
   @Override
   public void runVel(double velRotPerSec) {
     sim.setInputVoltage(
-        pid.calculate(sim.getAngularVelocityRadPerSec(), velRotPerSec));
+        pid.calculate(sim.getAngularVelocityRadPerSec(), velRotPerSec)
+            + Units.radiansToRotations(sim.getAngularVelocityRadPerSec()) / kvRotPerSecPerVolt);
   }
 }
