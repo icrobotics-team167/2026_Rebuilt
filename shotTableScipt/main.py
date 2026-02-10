@@ -33,7 +33,6 @@ ball_diameter = 5.91 * 0.0254  # m
 
 
 # Solve settings
-delta_pitch = np.deg2rad(2.5)
 printResults = False
 
 
@@ -181,14 +180,8 @@ def solve(
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
     problem.subject_to(v_z[-1] < 0)
-    # Max horizontal velocity is 5 times the downwards velocity (~11.3 degrees from horizontal)
-    problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -2)
-
-    pitch = atan2(
-        v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0]))
-    )
-    problem.subject_to(pitch >= min_pitch)
-    problem.subject_to(pitch <= max_pitch)
+    # Max horizontal velocity is 5 times the downwards velocity (~22 degrees from horizontal)
+    problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -2.5)
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -225,14 +218,30 @@ def solve(
     #   v_x² + v_y² + v_z² ≤ v²
     #   vᵀv ≤ v²
     problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter <= max_shooter_velocity**2)
+    problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter >= 5)
+
+    pitch = atan2(
+        v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0]))
+    )
+    problem.subject_to(pitch <= max_pitch)
 
     if last_x is None:
-        problem.solve(tolerance=1e-4)
+        problem.minimize(v0_wrt_shooter.T @ v0_wrt_shooter)
+        status = problem.solve(tolerance=1e-3)
+        if trying_again:
+            print(f"Pre-solve 1 status: {status.name}")
+
+    problem.subject_to(pitch >= min_pitch)
+
+    if last_x is None:
+        status = problem.solve(tolerance=1e-3)
+        if trying_again:
+            print(f"Pre-solve 2 status: {status.name}")
 
     # Minimize time
     problem.minimize(T)
 
-    status = problem.solve()
+    status = problem.solve(tolerance=1e-6)
     if status == ExitStatus.SUCCESS:
         # Initial velocity vector with respect to shooter
         v0 = v0_wrt_shooter.value()
@@ -260,21 +269,15 @@ def solve(
     return False, 0
 
 
-def print_iteration(iteration_info: IterationInfo):
-    print(f"Iteration: {iteration_info.iteration}, x")
-
-
 def iterate_distance(file, distance, target_height):
-    file.write("    put(\n")
-    file.write(f"        {distance},\n")
-    file.write("        new AngleEntry(\n")
-    angle_samples = 5
-    velocity_samples = 7
+    file.write(f"    \"{distance:.06f}\": " "{\n")
+    file.write("      \"map\": {\n")
+    angle_samples = 13
+    velocity_samples = 13
     for i in range(angle_samples):
         angle = math.pi * i / (angle_samples - 1)
-        file.write("            entry(\n")
-        file.write(f"                {angle:f},\n")
-        file.write(f"                new VelocityEntry(\n")
+        file.write(f"        \"{angle:.06f}\": " "{\n")
+        file.write("          \"map\": {\n")
         last_x = None
         last_shot_velocity = None
         for j in range(velocity_samples):
@@ -287,25 +290,42 @@ def iterate_distance(file, distance, target_height):
                 last_x,
                 last_shot_velocity,
             )
-            file.write(f"                    entry({velocity:.06f}, ")
             if status[0]:
                 shot_velocity, pitch, yaw, x = status[1:]
-                file.write(
-                    f"new ShotResult({pitch:.06f}, "
-                    f"new Rotation2d({yaw:.06f}), {shot_velocity:.06f}))"
-                )
+                file.write(f"            \"{velocity}\": " "{\n")
+                file.write(f"              \"pitchRad\": {pitch:.6f},\n")
+                file.write("              \"yaw\": {\n")
+                file.write(f"                \"radians\": {yaw:.6f}\n")
+                file.write("              },\n")
+                file.write(f"              \"velocityMetersPerSecond\": {shot_velocity:.6f}\n")
+                file.write("            }")
                 last_x = x
                 last_shot_velocity = shot_velocity
             else:
-                file.write("ShotResult.invalid)")
+                file.write(f"            \"{velocity}\": " "{\n")
+                file.write("              \"pitchRad\": -1,\n")
+                file.write("              \"yaw\": {\n")
+                file.write("                \"radians\": 0.0\n")
+                file.write("              },\n")
+                file.write("              \"velocityMetersPerSecond\": -1\n")
+                file.write("            }")
+                if j == 0 and i == 0:
+                    print(
+                        f"Warning: No valid stationary shot found at distance {distance:.03f} m, "
+                        f"velocity {velocity:.03f} m/s, angle {angle:.03f} rad"
+                    )
             if j < velocity_samples - 1:
                 file.write(",\n")
             else:
-                file.write("))")
-                if i < angle_samples - 1:
-                    file.write(",\n")
-                else:
-                    file.write("));\n")
+                file.write("\n")
+        file.write("          }\n")
+        file.write("        }")
+        if i < angle_samples - 1:
+            file.write(",\n")
+        else:
+            file.write("\n")
+    file.write("      }\n")
+    file.write("    }")
 
 
 def write(
@@ -315,22 +335,10 @@ def write(
     distance_samples,
     name,
 ):
-    file = open(f"../src/main/java/frc/cotc/shooter/{name}.java", "w")
-    file.write("// Copyright (c) 2026 FRC 167\n")
-    file.write("// https://github.com/icrobotics-team167\n")
-    file.write("//\n")
-    file.write("// Use of this source code is governed by an MIT-style\n")
-    file.write("// license that can be found in the LICENSE file at\n")
-    file.write("// the root directory of this project.\n\n")
+    file = open(f"../src/main/deploy/{name}.json", "w")
 
-    file.write("package frc.cotc.shooter;\n\n")
-
-    file.write("import static java.util.Map.entry;\n\n")
-
-    file.write("import edu.wpi.first.math.geometry.Rotation2d;\n\n")
-
-    file.write(f"public final class {name} extends ShotMap " "{\n")
-    file.write(f"  public {name}() " "{\n")
+    file.write("{\n")
+    file.write("  \"map\": {\n")
 
     for i in range(distance_samples):
         distance = lerp(
@@ -339,6 +347,10 @@ def write(
             i / (distance_samples - 1),
         )
         iterate_distance(file, distance, target_height)
+        if i < distance_samples - 1:
+            file.write(",\n")
+        else:
+            file.write("\n")
 
     file.write("  }\n")
     file.write("}\n")
@@ -346,5 +358,5 @@ def write(
 
 
 if __name__ == "__main__":
-    write(72 * 0.0254, 0.5, math.hypot(8.069 / 2, 157.2 * .0254), 10, "HubShotMap")
-    write(0, 0.5, math.hypot(8.069, 16.541), 10, "GroundShotMap")
+    write(72 * 0.0254, 0.5, math.hypot(8.069 / 2, (158.6 + 47 / 2) * .0254), 20, "HubShotMap")
+    write(0, 0.5, math.hypot(8.069, 16.541), 40, "GroundShotMap")

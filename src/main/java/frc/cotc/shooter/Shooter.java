@@ -38,12 +38,6 @@ public class Shooter extends SubsystemBase {
   @SuppressWarnings("FieldCanBeLocal")
   private final double LOOK_AHEAD_SECONDS = 0;
 
-  // The ball will slow down due to drag as it flies through the air when the robot was moving when
-  // it was launched
-  // TODO: Tune
-  @SuppressWarnings("FieldCanBeLocal")
-  private final double DRAG_COMPENSATION_INVERSE_SECONDS = 0.2;
-
   private final InterpolatingDoubleTreeMap flywheelVelToProjectileVelMap =
       new InterpolatingDoubleTreeMap();
   private final InterpolatingDoubleTreeMap projectileVelToFlywheelVelMap =
@@ -64,6 +58,9 @@ public class Shooter extends SubsystemBase {
           RED_BOTTOM_GROUND_TARGET.getX(),
           FieldConstants.fieldWidth - RED_BOTTOM_GROUND_TARGET.getY());
 
+  private final ShotMap hubShotMap;
+  private final ShotMap groundShotMap;
+
   public Shooter(
       HoodIO hoodIO,
       FlywheelIO flywheelIO,
@@ -76,6 +73,9 @@ public class Shooter extends SubsystemBase {
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
+
+    hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
+    groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
     addMapping(0, 0);
   }
@@ -151,6 +151,12 @@ public class Shooter extends SubsystemBase {
 
   private void runShooter(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
+    robotPose =
+        robotPose.plus(
+            new Transform2d(
+                fieldChassisSpeeds.vxMetersPerSecond * LOOK_AHEAD_SECONDS,
+                fieldChassisSpeeds.vyMetersPerSecond * LOOK_AHEAD_SECONDS,
+                new Rotation2d(fieldChassisSpeeds.omegaRadiansPerSecond * LOOK_AHEAD_SECONDS)));
     // Calculate where the shooter is on the field
     var shooterTranslation = robotPose.plus(robotToShooterTransform).getTranslation();
     // Rotate the robotToShooterTransform by the robot yaw
@@ -183,10 +189,12 @@ public class Shooter extends SubsystemBase {
       lastYawRad = turretInputs.thetaRad;
       turretIO.runYaw(turretInputs.thetaRad, 0);
       flywheelIO.runVel(flywheelInputs.velRotPerSec);
+      Logger.recordOutput("Shooter/Shot possible", false);
       return;
     }
+    Logger.recordOutput("Shooter/Shot possible", true);
 
-    var turretYawAbsolute = shooterToTarget.getAngle().plus(result.yawRad());
+    var turretYawAbsolute = shooterToTarget.getAngle().plus(result.yaw());
     Logger.recordOutput(
         "Shooter/Shooter pose",
         new Pose3d(
@@ -211,9 +219,6 @@ public class Shooter extends SubsystemBase {
     lastYawRad = turretYawAbsolute.getRadians();
     flywheelIO.runVel(projectileVelToFlywheelVelMap.get(result.velocityMetersPerSecond()));
   }
-
-  private final ShotMap hubShotMap = new HubShotMap();
-  private final ShotMap groundShotMap = new GroundShotMap();
 
   private ShotMap.ShotResult getResult(
       double distanceMeters, double vxMetersPerSec, double vyMetersPerSec, ShotTarget target) {

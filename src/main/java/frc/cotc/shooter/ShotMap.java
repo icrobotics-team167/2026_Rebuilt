@@ -7,13 +7,30 @@
 
 package frc.cotc.shooter;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Filesystem;
+import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class ShotMap {
+  @JsonProperty("map")
   private final TreeMap<Double, AngleEntry> map = new TreeMap<>();
+
+  public static ShotMap loadFromDeploy(String filePath) {
+    try {
+      var mapper = new ObjectMapper();
+      mapper.configure(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION, true);
+      return mapper.readValue(
+          new File(Filesystem.getDeployDirectory() + File.separator + filePath), ShotMap.class);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   final void put(double distanceMeters, AngleEntry entry) {
     map.put(distanceMeters, entry);
@@ -27,7 +44,7 @@ public class ShotMap {
       }
       return new ShotResult(
           flippedResult.pitchRad,
-          flippedResult.yawRad.unaryMinus(),
+          flippedResult.yaw.unaryMinus(),
           flippedResult.velocityMetersPerSecond);
     }
     var velMetersPerSec =
@@ -61,11 +78,14 @@ public class ShotMap {
     return val.get(angleRad, velMetersPerSec);
   }
 
-  public record ShotResult(double pitchRad, Rotation2d yawRad, double velocityMetersPerSecond) {
+  public record ShotResult(
+      @JsonProperty("pitchRad") double pitchRad,
+      @JsonProperty("yaw") Rotation2d yaw,
+      @JsonProperty("velocityMetersPerSecond") double velocityMetersPerSecond) {
     public ShotResult interpolate(ShotResult endValue, double t) {
       return new ShotResult(
           MathUtil.interpolate(pitchRad, endValue.pitchRad, t),
-          yawRad.interpolate(endValue.yawRad, t),
+          yaw.interpolate(endValue.yaw, t),
           MathUtil.interpolate(velocityMetersPerSecond, endValue.velocityMetersPerSecond, t));
     }
 
@@ -77,7 +97,10 @@ public class ShotMap {
   }
 
   static class AngleEntry {
+    @JsonProperty("map")
     private final TreeMap<Double, VelocityEntry> map = new TreeMap<>();
+
+    public AngleEntry() {}
 
     @SafeVarargs
     AngleEntry(Map.Entry<Double, VelocityEntry>... entries) {
@@ -116,7 +139,10 @@ public class ShotMap {
   }
 
   static class VelocityEntry {
+    @JsonProperty("map")
     private final TreeMap<Double, ShotResult> map = new TreeMap<>();
+
+    public VelocityEntry() {}
 
     @SafeVarargs
     public VelocityEntry(Map.Entry<Double, ShotResult>... entries) {
