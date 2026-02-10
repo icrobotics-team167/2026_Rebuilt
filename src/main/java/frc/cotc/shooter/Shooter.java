@@ -193,6 +193,10 @@ public class Shooter extends SubsystemBase {
       return;
     }
     Logger.recordOutput("Shooter/Shot possible", true);
+    Logger.recordOutput(
+        "Shooter/Shot result/Shot velocity meters per second", result.velocityMetersPerSecond());
+    Logger.recordOutput("Shooter/Shot result/Pitch rad", result.pitchRad());
+    Logger.recordOutput("Shooter/Shot result/Yaw rad", result.yaw());
 
     var turretYawAbsolute = shooterToTarget.getAngle().plus(result.yaw());
     Logger.recordOutput(
