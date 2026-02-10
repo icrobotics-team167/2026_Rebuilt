@@ -30,13 +30,12 @@ public class FlywheelIOSim implements FlywheelIO {
   public void updateInputs(FlywheelIOInputs inputs) {
     sim.update(Robot.defaultPeriodSecs);
 
-    inputs.projectileVelMetersPerSec = sim.getAngularVelocityRadPerSec();
-    inputs.appliedVolts = sim.getInputVoltage();
+    inputs.velRotPerSec = sim.getAngularVelocityRadPerSec();
   }
 
   @Override
-  public void runVel(double projectileVelMetersPerSec) {
+  public void runVel(double velRotPerSec) {
     sim.setInputVoltage(
-        pid.calculate(sim.getAngularVelocityRadPerSec(), projectileVelMetersPerSec));
+        pid.calculate(sim.getAngularVelocityRadPerSec(), velRotPerSec));
   }
 }
