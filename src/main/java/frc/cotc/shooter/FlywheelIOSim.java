@@ -10,6 +10,7 @@ package frc.cotc.shooter;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.cotc.Robot;
 
@@ -20,6 +21,9 @@ public class FlywheelIOSim implements FlywheelIO {
           DCMotor.getKrakenX44(2).withReduction(0.5));
 
   private final PIDController pid = new PIDController(1, 0, 1); // Placeholders
+
+  private final double kvRotPerSecPerVolt = 
+    DCMotor.getKrakenX44(2).withReduction(0.5).KvRadPerSecPerVolt;
 
   @Override
   public void stop() {
