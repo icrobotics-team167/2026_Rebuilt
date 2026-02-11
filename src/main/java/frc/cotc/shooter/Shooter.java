@@ -211,6 +211,16 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Shooter distance meters", shooterToTarget.getNorm());
     Logger.recordOutput("Shooter/Shooter pitch rad", result.pitchRad());
 
+    Logger.recordOutput(
+        "Shooter/Shot result/Trajectory",
+        TrajectoryCalc.simulateShot(
+            new Translation3d(
+                shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(20)),
+            new Translation3d(
+                    result.velocityMetersPerSecond(),
+                    new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))
+                .plus(new Translation3d(shooterVx, shooterVy, 0))));
+
     hoodIO.runPitch(
         result.pitchRad(), (result.pitchRad() - lastPitchRad) / Robot.defaultPeriodSecs);
     lastPitchRad = result.pitchRad();
