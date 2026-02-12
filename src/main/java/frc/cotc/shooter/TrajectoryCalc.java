@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N6;
 import edu.wpi.first.math.util.Units;
+import frc.cotc.FieldConstants;
 import java.util.ArrayList;
 
 public class TrajectoryCalc {
@@ -52,7 +53,7 @@ public class TrajectoryCalc {
     var C_L = 0.00025;
 
     var v_hat = v.div(v_mag);
-    var F_M = Vector.cross(omega, v).times(0.5 * rho * C_L * A * v_mag);
+    var F_M = Vector.cross(v, omega).times(0.5 * rho * C_L * A * v_mag);
     var a = v_hat.times(-F_D / m).plus(F_M).plus(VecBuilder.fill(0, 0, -9.81));
     return VecBuilder.fill(v.get(0), v.get(1), v.get(2), a.get(0), a.get(1), a.get(2));
   }
@@ -86,6 +87,18 @@ public class TrajectoryCalc {
       poses.add(new Pose3d(x.get(0), x.get(1), x.get(2), Rotation3d.kZero));
       x = rk4(x, omega, dt);
       if (x.get(2) < 0) {
+        break;
+      }
+      var blueHub = FieldConstants.Hub.topCenterPoint;
+      var redHub = FieldConstants.Hub.oppTopCenterPoint;
+      if (Math.hypot(x.get(0) - blueHub.getX(), x.get(1) - blueHub.getY())
+              < Units.inchesToMeters(47.0 / 2)
+          && x.get(2) - blueHub.getZ() < 0) {
+        break;
+      }
+      if (Math.hypot(x.get(0) - redHub.getX(), x.get(1) - redHub.getY())
+              < Units.inchesToMeters(47.0 / 2)
+          && x.get(2) - redHub.getZ() < 0) {
         break;
       }
       t += dt;

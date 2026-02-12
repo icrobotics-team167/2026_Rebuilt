@@ -18,12 +18,13 @@ Required packages:
 import math
 
 import numpy as np
+import sleipnir.autodiff as autodiff
 from numpy.linalg import norm
 from sleipnir.autodiff import VariableMatrix, atan2, block, cos, hypot, sin, sqrt
-from sleipnir.optimization import ExitStatus, IterationInfo, Problem
+from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
-shooter_height = 20 * 0.0254  # m
+shooter_height = 18 * 0.0254  # m
 min_pitch = np.deg2rad(45)  # rad
 max_pitch = np.deg2rad(85)  # rad
 g = np.array([[0], [0], [9.81]])  # m/s²
@@ -80,7 +81,7 @@ def f(x, omega):
     C_L = 0.00025
 
     v_hat = v / v_mag
-    F_M = 0.5 * rho * C_L * A * v_mag * cross(omega, v)
+    F_M = 0.5 * rho * C_L * A * v_mag * cross(v, omega)
     return block([[v], [-g - F_D / m * v_hat + F_M / m]])
 
 
@@ -174,14 +175,23 @@ def solve(
         k4 = f(x_k + h * k3, omega)
         problem.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
+    target_radius = 47 * 0.0254 / 2
+    wiggle_room = 0.05
+    for k in range(N):
+        dx = X[0, k] - target_wrt_field[0, 0]
+        dy = X[1, k] - target_wrt_field[1, 0]
+        dz = X[2, k] - (target_wrt_field[2, 0] + ball_diameter / 2 + wiggle_room)
+        radius_outside = hypot(dx, dy) - (
+            target_radius + ball_diameter / 2 + wiggle_room
+        )
+        problem.subject_to(autodiff.max(autodiff.max(radius_outside, dz), -v_z[k]) >= 0)
+
     # Require final position is in center of target circle
     problem.subject_to(p[:, -1] == target_wrt_field[:3, :])
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
     problem.subject_to(v_z[-1] < 0)
-    # Max horizontal velocity is 5 times the downwards velocity (~22 degrees from horizontal)
-    problem.subject_to(hypot(v_x[-1], v_y[-1]) <= v_z[-1] * -2.5)
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -220,28 +230,30 @@ def solve(
     problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter <= max_shooter_velocity**2)
     problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter >= 5)
 
+    status = problem.solve(tolerance=1e-3, max_iterations=500)
+    if printResults and status != ExitStatus.SUCCESS:
+        print(f"Pre-solve 1 failed with status: {status.name}")
+
     pitch = atan2(
         v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0]))
     )
     problem.subject_to(pitch <= max_pitch)
-
-    if last_x is None:
-        problem.minimize(v0_wrt_shooter.T @ v0_wrt_shooter)
-        status = problem.solve(tolerance=1e-3)
-        if trying_again:
-            print(f"Pre-solve 1 status: {status.name}")
-
     problem.subject_to(pitch >= min_pitch)
 
-    if last_x is None:
-        status = problem.solve(tolerance=1e-3)
-        if trying_again:
-            print(f"Pre-solve 2 status: {status.name}")
+    status = problem.solve(tolerance=1e-3, max_iterations=500)
+    if printResults and status != ExitStatus.SUCCESS:
+        print(f"Pre-solve 2 failed with status: {status.name}")
+
+    # problem.minimize(v0_wrt_shooter.T @ v0_wrt_shooter)
+    #
+    # status = problem.solve(tolerance=1e-3,max_iterations=500)
+    # if printResults and status != ExitStatus.SUCCESS:
+    #     print(f"Pre-solve 3 failed with status: {status.name}")
 
     # Minimize time
     problem.minimize(T)
 
-    status = problem.solve(tolerance=1e-6)
+    status = problem.solve()
     if status == ExitStatus.SUCCESS:
         # Initial velocity vector with respect to shooter
         v0 = v0_wrt_shooter.value()
@@ -260,7 +272,8 @@ def solve(
 
         return True, velocity, pitch, yaw, X.value()
     if not trying_again:
-        print(f"Solve failed with status {status.name}, trying again")
+        if printResults:
+            print(f"Solve failed with status {status.name}, trying again")
         return solve(distance, target_height, vx, vy, trying_again=True)
     print(
         f"Infeasible at distance {distance:.03f} m, vx = {vx:.03f} m/s, "
@@ -270,14 +283,14 @@ def solve(
 
 
 def iterate_distance(file, distance, target_height):
-    file.write(f"    \"{distance:.06f}\": " "{\n")
-    file.write("      \"map\": {\n")
-    angle_samples = 13
-    velocity_samples = 13
+    file.write(f'    "{distance:.06f}": ' "{\n")
+    file.write('      "map": {\n')
+    angle_samples = 5
+    velocity_samples = 5
     for i in range(angle_samples):
         angle = math.pi * i / (angle_samples - 1)
-        file.write(f"        \"{angle:.06f}\": " "{\n")
-        file.write("          \"map\": {\n")
+        file.write(f'        "{angle:.06f}": ' "{\n")
+        file.write('          "map": {\n')
         last_x = None
         last_shot_velocity = None
         for j in range(velocity_samples):
@@ -292,27 +305,28 @@ def iterate_distance(file, distance, target_height):
             )
             if status[0]:
                 shot_velocity, pitch, yaw, x = status[1:]
-                file.write(f"            \"{velocity}\": " "{\n")
-                file.write(f"              \"pitchRad\": {pitch:.6f},\n")
-                file.write("              \"yaw\": {\n")
-                file.write(f"                \"radians\": {yaw:.6f}\n")
+                file.write(f'            "{velocity}": ' "{\n")
+                file.write(f'              "pitchRad": {pitch:.16f},\n')
+                file.write('              "yaw": {\n')
+                file.write(f'                "radians": {yaw:.16f}\n')
                 file.write("              },\n")
-                file.write(f"              \"velocityMetersPerSecond\": {shot_velocity:.6f}\n")
+                file.write(
+                    f'              "velocityMetersPerSecond": {shot_velocity:.6f}\n'
+                )
                 file.write("            }")
                 last_x = x
                 last_shot_velocity = shot_velocity
             else:
-                file.write(f"            \"{velocity}\": " "{\n")
-                file.write("              \"pitchRad\": -1,\n")
-                file.write("              \"yaw\": {\n")
-                file.write("                \"radians\": 0.0\n")
+                file.write(f'            "{velocity}": ' "{\n")
+                file.write('              "pitchRad": -1,\n')
+                file.write('              "yaw": {\n')
+                file.write('                "radians": 0.0\n')
                 file.write("              },\n")
-                file.write("              \"velocityMetersPerSecond\": -1\n")
+                file.write('              "velocityMetersPerSecond": -1\n')
                 file.write("            }")
                 if j == 0 and i == 0:
                     print(
-                        f"Warning: No valid stationary shot found at distance {distance:.03f} m, "
-                        f"velocity {velocity:.03f} m/s, angle {angle:.03f} rad"
+                        f"Warning: No valid stationary shot found at distance {distance:.03f} m"
                     )
             if j < velocity_samples - 1:
                 file.write(",\n")
@@ -338,7 +352,7 @@ def write(
     file = open(f"../src/main/deploy/{name}.json", "w")
 
     file.write("{\n")
-    file.write("  \"map\": {\n")
+    file.write('  "map": {\n')
 
     for i in range(distance_samples):
         distance = lerp(
@@ -358,5 +372,11 @@ def write(
 
 
 if __name__ == "__main__":
-    write(72 * 0.0254, 0.5, math.hypot(8.069 / 2, (158.6 + 47 / 2) * .0254), 20, "HubShotMap")
-    write(0, 0.5, math.hypot(8.069, 16.541), 40, "GroundShotMap")
+    write(
+        72 * 0.0254,
+        1.2,
+        math.hypot(8.069 / 2, (158.6 + 47 / 2) * 0.0254),
+        30,
+        "HubShotMap",
+    )
+    # write(0, 0.5, math.hypot(8.069, 16.541), 40, "GroundShotMap")
