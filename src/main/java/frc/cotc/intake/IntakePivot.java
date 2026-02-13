@@ -38,11 +38,9 @@ public class IntakePivot extends SubsystemBase {
     double intervalSeconds = 0.5; // Placeholder speed
 
     return Commands.repeatingSequence(
-        extend().withTimeout(intervalSeconds),
-        retract().withTimeout(intervalSeconds)
-    )
-    .finallyDo(io::stop)
-    .withName("Agitate");
+            extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
+        .finallyDo(io::stop)
+        .withName("Agitate");
   }
 
   private Command runAngle(double angleRad) {
