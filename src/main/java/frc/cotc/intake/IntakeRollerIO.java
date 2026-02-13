@@ -9,7 +9,7 @@ package frc.cotc.intake;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface IntakeIO {
+public interface IntakeRollerIO {
   public default void updateInputs(IntakeIOInputs inputs) {}
 
   public default void run() {}
