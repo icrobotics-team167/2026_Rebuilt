@@ -34,7 +34,7 @@ public class FlywheelIOSim implements FlywheelIO {
   public void updateInputs(FlywheelIOInputs inputs) {
     sim.update(Robot.defaultPeriodSecs);
 
-    inputs.velRotPerSec = sim.getAngularVelocityRadPerSec();
+    inputs.velRotPerSec = Units.radiansToRotations(sim.getAngularVelocityRadPerSec());
   }
 
   @Override
