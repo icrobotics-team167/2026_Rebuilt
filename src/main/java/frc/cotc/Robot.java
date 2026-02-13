@@ -23,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.intake.IntakeRollerIO;
 import frc.cotc.intake.IntakeRollerIOPhoenix;
+import frc.cotc.intake.IntakePivot;
+import frc.cotc.intake.IntakePivotIO;
+import frc.cotc.intake.IntakePivotIOPhoenix;
 import frc.cotc.shooter.FlywheelIO;
 import frc.cotc.shooter.HoodIO;
 import frc.cotc.shooter.Shooter;
@@ -125,6 +128,13 @@ public class Robot extends LoggedRobot {
             switch (mode) {
               case REAL -> new IntakeRollerIOPhoenix();
               case SIM, REPLAY -> new IntakeRollerIO() {};
+            });
+
+    var intakePivot =
+        new IntakePivot(
+            switch (mode) {
+              case REAL -> new IntakePivotIOPhoenix();
+              case SIM, REPLAY -> new IntakePivotIO() {};
             });
     
     var intakePivot =
