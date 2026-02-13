@@ -9,9 +9,12 @@ package frc.cotc.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+
+import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 
 public class IntakePivotIOPhoenix implements IntakePivotIO {
@@ -35,9 +38,10 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     intakePivotMotor1 = new TalonFX(INTAKE_ID_1);
     intakePivotMotor2 = new TalonFX(INTAKE_ID_2);
     var config = new TalonFXConfiguration();
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    
     config.CurrentLimits.StatorCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     intakePivotMotor1.getConfigurator().apply(config);
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     intakePivotMotor2.getConfigurator().apply(config);
@@ -53,10 +57,16 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
         posSignal, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
   }
 
+  private final PositionVoltage controlSignal = new PositionVoltage(0);
+
   @Override
-  public void run() {
-    intakePivotMotor1.setVoltage(INTAKE_DEFAULT_VOLTAGE);
-    intakePivotMotor2.setVoltage(INTAKE_DEFAULT_VOLTAGE);
+  public void run(double thetaRad) {
+    intakePivotMotor1.setControl(
+        controlSignal
+            .withPosition(Units.radiansToRotations(thetaRad)));
+    intakePivotMotor2.setControl(
+        controlSignal
+            .withPosition(Units.radiansToRotations(thetaRad)));
   }
 
   @Override
@@ -65,6 +75,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     inputs.statorCurrentAmps2 = statorSignal2.getValueAsDouble();
     inputs.supplyCurrentAmps1 = supplySignal1.getValueAsDouble();
     inputs.supplyCurrentAmps2 = supplySignal2.getValueAsDouble();
+    inputs.thetaRad = Units.rotationsToRadians(posSignal.getValueAsDouble());
   }
 
   @Override
