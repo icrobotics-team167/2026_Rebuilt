@@ -41,8 +41,8 @@ public class Swerve extends SubsystemBase {
   private final PIDController pathXController = new PIDController(10, 0, 0);
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
-  private final PIDController bumpAlignVyController = new PIDController(10, 0, 1); // Placeholder
-  private final PIDController bumpAlignOmegaController = new PIDController(10, 0, 1); // Placeholder
+  private final PIDController bumpAlignYController = new PIDController(10, 0, 1); // Placeholder
+  private final PIDController bumpAlignThetaController = new PIDController(10, 0, 1); // Placeholder
 
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
@@ -78,7 +78,7 @@ public class Swerve extends SubsystemBase {
               Alert.AlertType.kError);
     }
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
-    bumpAlignOmegaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
+    bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -153,9 +153,9 @@ public class Swerve extends SubsystemBase {
           } else {
             targetY = bottomTrenchY;
           }
-          return bumpAlignVyController.calculate(getPose().getY(), targetY);
+          return bumpAlignYController.calculate(getPose().getY(), targetY);
         },
-        () -> bumpAlignOmegaController.calculate(getPose().getRotation().getRadians(), 0));
+        () -> bumpAlignThetaController.calculate(getPose().getRotation().getRadians(), 0));
   }
 
   public Command setToBlue() {
