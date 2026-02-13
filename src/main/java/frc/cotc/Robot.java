@@ -136,13 +136,6 @@ public class Robot extends LoggedRobot {
               case REAL -> new IntakePivotIOPhoenix();
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
-    
-    var intakePivot =
-      new IntakePivot(
-          switch (mode) {
-              case REAL -> new IntakePivotIOPhoenix();
-              case SIM, REPLAY -> new IntakePivotIO() {};
-      });
 
     swerve.setDefaultCommand(
         swerve.teleopDrive(

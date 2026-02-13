@@ -18,12 +18,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Filesystem;
 import frc.cotc.Robot;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -34,15 +30,7 @@ public class AprilTagPoseEstimator {
   protected static final HashMap<String, Transform3d> cameraTransforms = new HashMap<>();
 
   static {
-    AprilTagFieldLayout fieldLayout;
-    try {
-      fieldLayout =
-          new AprilTagFieldLayout(
-              Filesystem.getDeployDirectory() + "/2025-reefscape-welded-reefonly.json");
-    } catch (IOException e) {
-      fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-    }
-    tagLayout = fieldLayout;
+    tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     cameraTransforms.put(
         "FrontLeft",
@@ -73,9 +61,7 @@ public class AprilTagPoseEstimator {
 
   private final String name;
 
-  private final Supplier<Pose2d> currentPoseEstimateSupplier;
-
-  public AprilTagPoseEstimator(String name, Supplier<Pose2d> currentPoseEstimateSupplier) {
+  public AprilTagPoseEstimator(String name) {
     io =
         Robot.mode == Robot.Mode.REPLAY
             ? new AprilTagPoseEstimatorIO() {}
@@ -86,55 +72,49 @@ public class AprilTagPoseEstimator {
             tagLayout,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             cameraTransforms.get(name));
-    this.currentPoseEstimateSupplier = currentPoseEstimateSupplier;
   }
 
-
-  //data filtering system that Jaynou added
-    private boolean isValidPose(EstimatedRobotPose est) {
+  // data filtering system that Jaynou added
+  private boolean isValidPose(EstimatedRobotPose est, Pose2d currentPoseEstimate) {
     Pose3d pose3d = est.estimatedPose;
     Pose2d pose2d = pose3d.toPose2d();
 
-    //floor and sky clip checking
+    // floor and sky clip checking
     if (pose3d.getZ() < -0.3 || pose3d.getZ() > 0.8) return false;
 
-    //out of bounds clip checking
+    // out of bounds clip checking
     if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
     if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
 
-    //tag check
-    if (est.targetsUsed.size() < 2) return false;
-
-    //odometry check (inspired by 2025 vision) 
-    if (pose2d.getTranslation().getDistance(currentPoseEstimateSupplier.get().getTranslation()) > 0.25 
-       || pose2d.getRotation().getDegrees() - currentPoseEstimateSupplier.get().getRotation().getDegrees() > 2)
-    return false;
-
-  return true;
+    // odometry check (inspired by 2025 vision)
+    return currentPoseEstimate == null
+        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
+            || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
+                > 2);
   }
 
-  public void update(Pose2d currentPose, VisionEstimateConsumer estimateConsumer) {
+  public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimate) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
     for (var result : inputs.results) {
-        poseEstimator.update(result).ifPresent(poseEstimate -> {
-          //data filtering
-            if (!isValidPose(poseEstimate)) {
-                return;
-            }
+      poseEstimator
+          .update(result)
+          .ifPresent(
+              poseEstimate -> {
+                // data filtering
+                if (!isValidPose(poseEstimate, currentPoseEstimate)) {
+                  return;
+                }
 
-            estimateConsumer.accept(
-              poseEstimate.estimatedPose.toPose2d(),
-              result.getTimestampSeconds(),
-              VecBuilder.fill(
-              0.9 / poseEstimate.targetsUsed.size(),
-              0.9 / poseEstimate.targetsUsed.size(),
-              0.9 / poseEstimate.targetsUsed.size()
-            )
-            );
-        } );
-      }
+                estimateConsumer.accept(
+                    poseEstimate.estimatedPose.toPose2d(),
+                    result.getTimestampSeconds(),
+                    VecBuilder.fill(
+                        0.9 / poseEstimate.targetsUsed.size(),
+                        0.9 / poseEstimate.targetsUsed.size(),
+                        0.9 / poseEstimate.targetsUsed.size()));
+              });
     }
-
+  }
 }
