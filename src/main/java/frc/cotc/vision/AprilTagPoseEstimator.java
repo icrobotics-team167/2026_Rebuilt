@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.cotc.vision;
+package frc.cotc.vision; 
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -88,7 +88,7 @@ public class AprilTagPoseEstimator {
 
     // odometry check (inspired by 2025 vision)
     return currentPoseEstimate == null
-        && !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
+        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
             || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
                 > 2);
   }
