@@ -13,7 +13,6 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-
 import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 
@@ -38,7 +37,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     intakePivotMotor1 = new TalonFX(INTAKE_ID_1);
     intakePivotMotor2 = new TalonFX(INTAKE_ID_2);
     var config = new TalonFXConfiguration();
-    
+
     config.CurrentLimits.StatorCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimit = 60;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -61,12 +60,8 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
 
   @Override
   public void run(double thetaRad) {
-    intakePivotMotor1.setControl(
-        controlSignal
-            .withPosition(Units.radiansToRotations(thetaRad)));
-    intakePivotMotor2.setControl(
-        controlSignal
-            .withPosition(Units.radiansToRotations(thetaRad)));
+    intakePivotMotor1.setControl(controlSignal.withPosition(Units.radiansToRotations(thetaRad)));
+    intakePivotMotor2.setControl(controlSignal.withPosition(Units.radiansToRotations(thetaRad)));
   }
 
   @Override
