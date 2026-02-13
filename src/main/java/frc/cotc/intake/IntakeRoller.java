@@ -12,13 +12,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
-public class Intake extends SubsystemBase {
-  private final IntakeIO io;
-  private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+public class IntakeRoller extends SubsystemBase {
+  private final IntakeRollerIO io;
+  private final IntakeRollerIOInputsAutoLogged inputs = new IntakeRollerIOInputsAutoLogged();
   private final DigitalInput beamBreakSensor;
   private final int BEAM_BREAK_SENSOR_ID = 0; // Placeholder ID for beamBreakSensor
 
-  public Intake(IntakeIO io) {
+  public IntakeRoller(IntakeRollerIO io) {
     this.io = io;
     beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
   }

@@ -9,22 +9,21 @@ package frc.cotc.intake;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface IntakeIO {
-  public default void updateInputs(IntakeIOInputs inputs) {}
+public interface IntakePivotIO {
+  public default void updateInputs(IntakePivotIOInputs inputs) {}
 
-  public default void run() {}
-
-  public default void runReverse() {}
+  public default void run(double thetaRad) {}
 
   public default void stop() {}
 
   @AutoLog
-  public class IntakeIOInputs {
+  public class IntakePivotIOInputs {
     public double appliedVolts1 = 0.0;
     public double statorCurrentAmps1 = 0.0;
     public double supplyCurrentAmps1 = 0.0;
     public double appliedVolts2 = 0.0;
     public double statorCurrentAmps2 = 0.0;
     public double supplyCurrentAmps2 = 0.0;
+    public double thetaRad = 0.0;
   }
 }
