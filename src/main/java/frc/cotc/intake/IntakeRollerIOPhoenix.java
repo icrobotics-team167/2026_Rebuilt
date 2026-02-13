@@ -9,29 +9,21 @@ package frc.cotc.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import frc.cotc.Robot;
 
-public class IntakeIOPhoenix implements IntakeIO {
-  private final CANcoder encoder;
+public class IntakeRollerIOPhoenix implements IntakeRollerIO {
   private final TalonFX intakeMotor1;
   private final TalonFX intakeMotor2;
-  private final int ENCODER_ID = 2; // Placeholder ID for encoder
   private final int INTAKE_ID_1 = 0; // Placeholder ID for intakeMotor1
   private final int INTAKE_ID_2 = 1; // Placeholder ID for intakeMotor2
   private final double INTAKE_DEFAULT_VOLTAGE = 12.0;
   private final double OUTAKE_DEFAULT_VOLTAGE = -12.0;
 
-  private final BaseStatusSignal posSignal,
-      statorSignal1,
-      supplySignal1,
-      statorSignal2,
-      supplySignal2;
+  private final BaseStatusSignal statorSignal1, supplySignal1, statorSignal2, supplySignal2;
 
-  public IntakeIOPhoenix() {
-    encoder = new CANcoder(ENCODER_ID);
+  public IntakeRollerIOPhoenix() {
 
     intakeMotor1 = new TalonFX(INTAKE_ID_1);
     intakeMotor2 = new TalonFX(INTAKE_ID_2);
@@ -43,15 +35,13 @@ public class IntakeIOPhoenix implements IntakeIO {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     intakeMotor2.getConfigurator().apply(config);
 
-    posSignal = encoder.getAbsolutePosition(false);
     statorSignal1 = intakeMotor2.getStatorCurrent(false);
     statorSignal2 = intakeMotor2.getStatorCurrent(false);
     supplySignal1 = intakeMotor2.getSupplyCurrent(false);
     supplySignal2 = intakeMotor2.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50, posSignal, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
-    Robot.canivoreSignals.addSignals(
-        posSignal, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
+        50, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
+    Robot.canivoreSignals.addSignals(statorSignal1, statorSignal2, supplySignal1, supplySignal2);
   }
 
   @Override
@@ -67,7 +57,7 @@ public class IntakeIOPhoenix implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
+  public void updateInputs(IntakeRollerIOInputs inputs) {
     inputs.statorCurrentAmps1 = statorSignal1.getValueAsDouble();
     inputs.statorCurrentAmps2 = statorSignal2.getValueAsDouble();
     inputs.supplyCurrentAmps1 = supplySignal1.getValueAsDouble();

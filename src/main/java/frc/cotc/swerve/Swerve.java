@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
+import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
@@ -40,6 +41,8 @@ public class Swerve extends SubsystemBase {
   private final PIDController pathXController = new PIDController(10, 0, 0);
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
+  private final PIDController bumpAlignYController = new PIDController(10, 0, 1); // Placeholder
+  private final PIDController bumpAlignThetaController = new PIDController(10, 0, 1); // Placeholder
 
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
@@ -75,6 +78,7 @@ public class Swerve extends SubsystemBase {
               Alert.AlertType.kError);
     }
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
+    bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -135,6 +139,23 @@ public class Swerve extends SubsystemBase {
                     .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
                     .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)))
         .withName("Teleop Drive");
+  }
+
+  public Command alignToBump(DoubleSupplier vx) {
+    return teleopDrive(
+        vx,
+        () -> {
+          var bottomTrenchY = 2.5;
+          var topTrenchY = FieldConstants.fieldWidth - bottomTrenchY;
+          double targetY;
+          if (getPose().getY() > FieldConstants.fieldWidth / 2) {
+            targetY = topTrenchY;
+          } else {
+            targetY = bottomTrenchY;
+          }
+          return bumpAlignYController.calculate(getPose().getY(), targetY);
+        },
+        () -> bumpAlignThetaController.calculate(getPose().getRotation().getRadians(), 0));
   }
 
   public Command setToBlue() {
