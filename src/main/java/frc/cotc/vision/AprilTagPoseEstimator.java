@@ -87,8 +87,8 @@ public class AprilTagPoseEstimator {
     if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
 
     // odometry check (inspired by 2025 vision)
-    return currentPoseEstimate != null
-        && !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
+    return currentPoseEstimate == null
+        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
             || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
                 > 2);
   }
