@@ -27,11 +27,11 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command extend() {
-    return runAngle(0, "Extend");
+    return runAngle(0);
   }
 
   public Command retract() {
-    return runAngle(Math.PI / 2, "Retract");
+    return runAngle(Math.PI / 2);
   }
 
   public Command agitate() {
@@ -45,7 +45,7 @@ public class IntakePivot extends SubsystemBase {
     .withName("Agitate");
   }
 
-  private Command runAngle(double angleRad, String name) {
+  private Command runAngle(double angleRad) {
     return run(() -> io.run(angleRad)).finallyDo(io::stop);
   }
 }
