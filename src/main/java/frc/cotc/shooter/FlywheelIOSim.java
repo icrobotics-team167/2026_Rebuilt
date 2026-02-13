@@ -40,7 +40,7 @@ public class FlywheelIOSim implements FlywheelIO {
   @Override
   public void runVel(double velRotPerSec) {
     sim.setInputVoltage(
-        pid.calculate(sim.getAngularVelocityRadPerSec(), velRotPerSec)
-            + Units.radiansToRotations(sim.getAngularVelocityRadPerSec()) / kvRotPerSecPerVolt);
+        pid.calculate(Units.radiansToRotations(sim.getAngularVelocityRadPerSec()), velRotPerSec)
+            + velRotPerSec / kvRotPerSecPerVolt);
   }
 }
