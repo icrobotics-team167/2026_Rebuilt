@@ -19,7 +19,7 @@ public interface IntakePivotIO {
   public default void stop() {}
 
   @AutoLog
-  public class IntakeIOInputs {
+  public class IntakePivotIOInputs {
     public double appliedVolts1 = 0.0;
     public double statorCurrentAmps1 = 0.0;
     public double supplyCurrentAmps1 = 0.0;

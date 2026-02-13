@@ -13,7 +13,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import frc.cotc.Robot;
 
-public class IntakeIOPhoenix implements IntakeIO {
+public class IntakeRollerIOPhoenix implements IntakeRollerIO {
   private final TalonFX intakeMotor1;
   private final TalonFX intakeMotor2;
   private final int INTAKE_ID_1 = 0; // Placeholder ID for intakeMotor1
@@ -23,7 +23,7 @@ public class IntakeIOPhoenix implements IntakeIO {
 
   private final BaseStatusSignal statorSignal1, supplySignal1, statorSignal2, supplySignal2;
 
-  public IntakeIOPhoenix() {
+  public IntakeRollerIOPhoenix() {
 
     intakeMotor1 = new TalonFX(INTAKE_ID_1);
     intakeMotor2 = new TalonFX(INTAKE_ID_2);
@@ -57,7 +57,7 @@ public class IntakeIOPhoenix implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
+  public void updateInputs(IntakeRollerIOInputs inputs) {
     inputs.statorCurrentAmps1 = statorSignal1.getValueAsDouble();
     inputs.statorCurrentAmps2 = statorSignal2.getValueAsDouble();
     inputs.supplyCurrentAmps1 = supplySignal1.getValueAsDouble();

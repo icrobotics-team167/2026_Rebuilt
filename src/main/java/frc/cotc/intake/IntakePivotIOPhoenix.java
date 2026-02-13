@@ -22,7 +22,6 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final int INTAKE_ID_1 = 0; // Placeholder ID for intakeMotor1
   private final int INTAKE_ID_2 = 1; // Placeholder ID for intakeMotor2
   private final double INTAKE_DEFAULT_VOLTAGE = 12.0;
-  private final double OUTAKE_DEFAULT_VOLTAGE = -12.0;
 
   private final BaseStatusSignal posSignal,
       statorSignal1,

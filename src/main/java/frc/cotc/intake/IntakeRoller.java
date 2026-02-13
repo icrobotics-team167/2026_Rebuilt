@@ -18,7 +18,7 @@ public class IntakeRoller extends SubsystemBase {
   private final DigitalInput beamBreakSensor;
   private final int BEAM_BREAK_SENSOR_ID = 0; // Placeholder ID for beamBreakSensor
 
-  public IntakeRoller(IntakeIO io) {
+  public IntakeRoller(IntakeRollerIO io) {
     this.io = io;
     beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
   }

@@ -10,7 +10,7 @@ package frc.cotc.intake;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeRollerIO {
-  public default void updateInputs(IntakeIOInputs inputs) {}
+  public default void updateInputs(IntakeRollerIOInputs inputs) {}
 
   public default void run() {}
 
@@ -19,7 +19,7 @@ public interface IntakeRollerIO {
   public default void stop() {}
 
   @AutoLog
-  public class IntakeIOInputs {
+  public class IntakeRollerIOInputs {
     public double appliedVolts1 = 0.0;
     public double statorCurrentAmps1 = 0.0;
     public double supplyCurrentAmps1 = 0.0;
