@@ -10,6 +10,10 @@ package frc.cotc.swerve;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import choreo.trajectory.SwerveSample;
+
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
