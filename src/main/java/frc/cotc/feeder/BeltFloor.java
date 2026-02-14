@@ -7,6 +7,8 @@
 
 package frc.cotc.feeder;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,5 +24,20 @@ public class BeltFloor extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("BeltFloor", inputs);
+  }
+
+  public Command runIntermittenly() {
+    double interval = 1.0; // placeholder
+
+    return Commands.repeatingSequence(
+      runBelt().withTimeout(interval), stopBelt().withTimeout(interval)).withName("RunIntermittenly");
+  }
+
+  public Command runBelt() {
+    return run(() -> io.run());
+  }
+
+  public Command stopBelt() {
+    return run(() -> io.stop());
   }
 }
