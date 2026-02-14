@@ -30,7 +30,8 @@ public class BeltFloor extends SubsystemBase {
     double interval = 1.0; // placeholder
 
     return Commands.repeatingSequence(
-      runBelt().withTimeout(interval), stopBelt().withTimeout(interval)).withName("RunIntermittenly");
+            runBelt().withTimeout(interval), stopBelt().withTimeout(interval))
+        .withName("RunIntermittenly");
   }
 
   public Command runBelt() {
