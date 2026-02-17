@@ -148,6 +148,7 @@ public class Shooter extends SubsystemBase {
 
   private double lastPitchRad;
   private double lastYawRad;
+  private double lastFlywheelVelRotPerSec;
 
   private void runShooter(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
@@ -198,7 +199,14 @@ public class Shooter extends SubsystemBase {
     } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec) {
       flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
       projectileSpeedMetersPerSec = maxShotSpeedMetersPerSec;
+    } else {
+      var flywheelAccelerationMetersPerSecSquared =
+          (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
+      if (flywheelAccelerationMetersPerSecSquared > -1) {
+        flywheelIO.runVel(lastFlywheelVelRotPerSec);
+      }
     }
+    lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
 
     var result =
         getResult(
