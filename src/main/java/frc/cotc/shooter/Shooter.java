@@ -179,22 +179,44 @@ public class Shooter extends SubsystemBase {
 
     Logger.recordOutput("Shooter/Target relative speeds", rotatedSpeeds);
 
+    var projectileSpeedMetersPerSec =
+        flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec);
+    var minShotSpeedMetersPerSec =
+        getMinShotSpeed(
+            shooterToTarget.getNorm(), rotatedSpeeds.getX(), rotatedSpeeds.getY(), shotTarget);
+    var maxShotSpeedMetersPerSec =
+        getMaxShotSpeed(
+            shooterToTarget.getNorm(), rotatedSpeeds.getX(), rotatedSpeeds.getY(), shotTarget);
+    if (minShotSpeedMetersPerSec == null || maxShotSpeedMetersPerSec == null) {
+      return;
+    }
+    Logger.recordOutput("Shooter/Min shot speed meters per sec", minShotSpeedMetersPerSec);
+    Logger.recordOutput("Shooter/Max shot speed meters per sec", maxShotSpeedMetersPerSec);
+    if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec) {
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
+      projectileSpeedMetersPerSec = minShotSpeedMetersPerSec;
+    } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec) {
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
+      projectileSpeedMetersPerSec = maxShotSpeedMetersPerSec;
+    }
+
     var result =
         getResult(
-            shooterToTarget.getNorm(), rotatedSpeeds.getX(), rotatedSpeeds.getY(), shotTarget);
+            shooterToTarget.getNorm(),
+            rotatedSpeeds.getX(),
+            rotatedSpeeds.getY(),
+            projectileSpeedMetersPerSec,
+            shotTarget);
 
     if (result == null) {
       lastPitchRad = hoodInputs.thetaRad;
       hoodIO.runPitch(hoodInputs.thetaRad, 0);
       lastYawRad = turretInputs.thetaRad;
       turretIO.runYaw(turretInputs.thetaRad, 0);
-      flywheelIO.runVel(flywheelInputs.velRotPerSec);
       Logger.recordOutput("Shooter/Shot possible", false);
       return;
     }
     Logger.recordOutput("Shooter/Shot possible", true);
-    Logger.recordOutput(
-        "Shooter/Shot result/Shot velocity meters per second", result.velocityMetersPerSecond());
     Logger.recordOutput("Shooter/Shot result/Pitch rad", result.pitchRad());
     Logger.recordOutput("Shooter/Shot result/Yaw rad", result.yaw());
 
@@ -217,7 +239,7 @@ public class Shooter extends SubsystemBase {
             new Translation3d(
                 shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(20)),
             new Translation3d(
-                    result.velocityMetersPerSecond(),
+                    projectileSpeedMetersPerSec,
                     new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))
                 .plus(new Translation3d(shooterVx, shooterVy, 0))));
 
@@ -231,14 +253,37 @@ public class Shooter extends SubsystemBase {
         (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
             - fieldChassisSpeeds.omegaRadiansPerSecond);
     lastYawRad = turretYawAbsolute.getRadians();
-    flywheelIO.runVel(projectileVelToFlywheelVelMap.get(result.velocityMetersPerSecond()));
   }
 
   private ShotMap.ShotResult getResult(
+      double distanceMeters,
+      double vxMetersPerSec,
+      double vyMetersPerSec,
+      double shotSpeedMetersPerSec,
+      ShotTarget target) {
+    return switch (target) {
+      case BLUE_HUB, RED_HUB ->
+          hubShotMap.get(distanceMeters, vxMetersPerSec, vyMetersPerSec, shotSpeedMetersPerSec);
+      default ->
+          groundShotMap.get(distanceMeters, vxMetersPerSec, vyMetersPerSec, shotSpeedMetersPerSec);
+    };
+  }
+
+  private Double getMinShotSpeed(
       double distanceMeters, double vxMetersPerSec, double vyMetersPerSec, ShotTarget target) {
     return switch (target) {
-      case BLUE_HUB, RED_HUB -> hubShotMap.get(distanceMeters, vxMetersPerSec, vyMetersPerSec);
-      default -> groundShotMap.get(distanceMeters, vxMetersPerSec, vyMetersPerSec);
+      case BLUE_HUB, RED_HUB ->
+          hubShotMap.getMinSpeed(distanceMeters, vxMetersPerSec, vyMetersPerSec);
+      default -> groundShotMap.getMinSpeed(distanceMeters, vxMetersPerSec, vyMetersPerSec);
+    };
+  }
+
+  private Double getMaxShotSpeed(
+      double distanceMeters, double vxMetersPerSec, double vyMetersPerSec, ShotTarget target) {
+    return switch (target) {
+      case BLUE_HUB, RED_HUB ->
+          hubShotMap.getMaxSpeed(distanceMeters, vxMetersPerSec, vyMetersPerSec);
+      default -> groundShotMap.getMaxSpeed(distanceMeters, vxMetersPerSec, vyMetersPerSec);
     };
   }
 }

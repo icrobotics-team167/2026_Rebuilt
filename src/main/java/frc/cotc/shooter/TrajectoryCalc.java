@@ -42,13 +42,12 @@ public class TrajectoryCalc {
     var rho = 1.204;
     var v = VecBuilder.fill(x.get(3), x.get(4), x.get(5));
     var v2 = v.get(0) * v.get(0) + v.get(1) * v.get(1) + v.get(2) * v.get(2);
-    var C_D = 0.4;
+    var v_mag = Math.sqrt(v2);
+    var C_D = -0.000114322 * v2 + 0.00518553 * v_mag + 0.384853;
     var r = ballDiameter / 2;
     var A = Math.PI * r * r;
     var m = ballMass;
     var F_D = 0.5 * rho * v2 * C_D * A;
-
-    var v_mag = Math.sqrt(v2);
 
     var C_L = 0.00025;
 
@@ -82,7 +81,7 @@ public class TrajectoryCalc {
 
     var poses = new ArrayList<Pose3d>();
     var t = 0.0;
-    var dt = 0.02;
+    var dt = 0.05;
     while (t < 2) {
       poses.add(new Pose3d(x.get(0), x.get(1), x.get(2), Rotation3d.kZero));
       x = rk4(x, omega, dt);
