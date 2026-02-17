@@ -17,7 +17,6 @@ import frc.cotc.Robot;
 import frc.cotc.swerve.TunerConstants;
 
 public class ClimbIOPhoenix implements ClimbIO {
-
   private final TalonFX motor;
   private final CANcoder encoder;
   private final int CLIMB_MOTOR_ID = 0; // Placeholder CAN ID

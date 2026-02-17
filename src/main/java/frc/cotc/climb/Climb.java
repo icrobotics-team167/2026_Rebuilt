@@ -16,7 +16,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Climb extends SubsystemBase {
-
   private final ClimbIO io;
   private final ClimbIOInputsAutoLogged inputs = new ClimbIOInputsAutoLogged();
 
@@ -72,7 +71,6 @@ public class Climb extends SubsystemBase {
 
   private boolean isPoseNear(
       Pose2d pose, Pose2d target, double xyToleranceMeters, double thetaToleranceRad) {
-
     return pose.getTranslation().getDistance(target.getTranslation()) <= xyToleranceMeters
         && Math.abs(pose.getRotation().minus(target.getRotation()).getRadians())
             <= thetaToleranceRad;
