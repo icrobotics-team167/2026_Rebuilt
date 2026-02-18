@@ -35,12 +35,19 @@ public class RacewayIOPhoenix implements RacewayIO {
     Robot.canivoreSignals.addSignals(statorSignal, supplySignal);
   }
 
+  @Override
   public void run() {
     motor.setVoltage(RACEWAY_DEFAULT_VOLTAGE);
   }
 
+  @Override
   public void stop() {
     motor.setVoltage(0);
-    ;
+  }
+
+  @Override
+  public void updateInputs(RacewayIOInputs inputs) {
+    inputs.statorCurrentAmps = statorSignal.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
   }
 }

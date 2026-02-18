@@ -26,6 +26,6 @@ public class Raceway extends SubsystemBase {
   }
 
   public Command runRaceway() {
-    return run(() -> io.run()).finallyDo(io::stop);
+    return run(io::run).finallyDo(io::stop);
   }
 }

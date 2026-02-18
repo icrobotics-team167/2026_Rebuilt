@@ -35,10 +35,10 @@ public class BeltFloor extends SubsystemBase {
   }
 
   public Command runBelt() {
-    return run(() -> io.run());
+    return run(io::run);
   }
 
   public Command stopBelt() {
-    return run(() -> io.stop());
+    return run(io::stop);
   }
 }
