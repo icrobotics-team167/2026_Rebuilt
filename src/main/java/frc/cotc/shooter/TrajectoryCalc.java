@@ -39,11 +39,11 @@ public class TrajectoryCalc {
     //   A is the cross-sectional area of a circle in m²
     //   m is the mass in kg
     //   v̂ is the velocity direction unit vector
-    var rho = 1.204;
+    var rho = 1.221;
     var v = VecBuilder.fill(x.get(3), x.get(4), x.get(5));
     var v2 = v.get(0) * v.get(0) + v.get(1) * v.get(1) + v.get(2) * v.get(2);
     var v_mag = Math.sqrt(v2);
-    var C_D = 0.4;
+    var C_D = 0.47;
     var r = ballDiameter / 2;
     var A = Math.PI * r * r;
     var m = ballMass;

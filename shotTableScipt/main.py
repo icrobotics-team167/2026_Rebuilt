@@ -71,7 +71,7 @@ def f(x, omega):
     v2 = (v.T @ v)[0, 0]
     v_mag = sqrt(v2)
     r = ball_diameter / 2
-    C_D = 0.4
+    C_D = 0.47
     A = math.pi * r**2  # m²
     m = ball_mass
     F_D = 0.5 * rho * v2 * C_D * A

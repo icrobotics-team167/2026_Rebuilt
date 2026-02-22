@@ -149,12 +149,13 @@ public class Shooter extends SubsystemBase {
 
   public boolean canShoot() {
     return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
-        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1));
+        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1)) && isFlywheelSpeedOk;
   }
 
   private double lastPitchRad;
   private double lastYawRad;
   private double lastFlywheelVelRotPerSec;
+  private boolean isFlywheelSpeedOk = false;
 
   private void runShooter(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
@@ -209,6 +210,7 @@ public class Shooter extends SubsystemBase {
     //
     // a'(τ) = e^-kt
     // E'(τ) = 1 - τ'(D) * dD/dτ = 1 + a'(τ) * τ'(D) * (d_x * v_x + d_y * v_y) / D
+
     final int iterations = 10;
     var iterationsPoses = new Pose2d[iterations + 2];
     iterationsPoses[0] =
@@ -255,38 +257,48 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Shot result/Iterations", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Result", result);
     Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTarget.getNorm());
-    Logger.recordOutput(
-        "Shooter/Shot result/Clamped projectile speed",
+    var clampedProjectileSpeed =
         clampShotSpeedToBounds(
-            finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget));
+            finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
+    Logger.recordOutput("Shooter/Shot result/Clamped projectile speed", clampedProjectileSpeed);
 
-    // if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec) {
-    //   flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
-    //   projectileSpeedMetersPerSec = minShotSpeedMetersPerSec;
-    // } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec) {
-    //   flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
-    //   projectileSpeedMetersPerSec = maxShotSpeedMetersPerSec;
-    // } else {
-    //   var flywheelAccelerationMetersPerSecSquared =
-    //       (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
-    //   if (flywheelAccelerationMetersPerSecSquared > -1) {
-    //     flywheelIO.runVel(lastFlywheelVelRotPerSec);
-    //   }
-    // }
-    // lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
+    var minShotSpeedMetersPerSec = groundShotMap.getMinSpeed(clampedProjectileSpeed);
+    var maxShotSpeedMetersPerSec = groundShotMap.getMaxSpeed(clampedProjectileSpeed);
+    var tolerance = .5;
+    if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec - tolerance) {
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
+      isFlywheelSpeedOk = false;
+    } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec + tolerance) {
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
+      isFlywheelSpeedOk = false;
+    } else {
+      var flywheelAccelerationMetersPerSecSquared =
+          (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
+      if (flywheelAccelerationMetersPerSecSquared > -1) {
+        flywheelIO.runVel(lastFlywheelVelRotPerSec);
+      }
+      isFlywheelSpeedOk = true;
+    }
+    lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
 
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
-    Logger.recordOutput(
-        "Shooter/Shot result/Trajectory",
-        TrajectoryCalc.simulateShot(
-            new Translation3d(
-                shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(18)),
-            new Translation3d(
-                    clampShotSpeedToBounds(
-                        finalVirtualShooterPos.getNorm(), projectileSpeedMetersPerSec, shotTarget),
-                    new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))
-                .plus(new Translation3d(shooterVx, shooterVy, 0))));
+    var shooterPose =
+        new Pose3d(
+            shooterTranslation.getX(),
+            shooterTranslation.getY(),
+            Units.inchesToMeters(18),
+            new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()));
+    Logger.recordOutput("Shooter/Shot result/Pose", shooterPose);
+
+    if (Robot.isSimulation()) {
+      Logger.recordOutput(
+          "Shooter/Shot result/Trajectory",
+          TrajectoryCalc.simulateShot(
+              shooterPose.getTranslation(),
+              new Translation3d(clampedProjectileSpeed, shooterPose.getRotation())
+                  .plus(new Translation3d(shooterVx, shooterVy, 0))));
+    }
 
     hoodIO.runPitch(
         result.pitchRad(), (result.pitchRad() - lastPitchRad) / Robot.defaultPeriodSecs);
