@@ -77,7 +77,32 @@ public class ShotMap {
       return floor.interpolate(
           ceiling, MathUtil.inverseInterpolate(distanceMeters, floorKey, ceilingKey));
     } else {
-      return val.map.get(shotSpeedMetersPerSecond);
+      return val.get(shotSpeedMetersPerSecond);
+    }
+  }
+
+  public Double getTimeOfFlightDerivative(double distanceMeters, double shotSpeedMetersPerSecond) {
+    var val = map.get(distanceMeters);
+    if (val == null) {
+      var ceilingKey = map.ceilingKey(distanceMeters);
+      var floorKey = map.floorKey(distanceMeters);
+
+      if (ceilingKey == null && floorKey == null) {
+        return null;
+      }
+      if (ceilingKey == null) {
+        return map.get(floorKey).getTimeOfFlightDerivative(shotSpeedMetersPerSecond);
+      }
+      if (floorKey == null) {
+        return map.get(ceilingKey).getTimeOfFlightDerivative(shotSpeedMetersPerSecond);
+      }
+      var floor = map.get(floorKey).getTimeOfFlightDerivative(shotSpeedMetersPerSecond);
+      var ceiling = map.get(ceilingKey).getTimeOfFlightDerivative(shotSpeedMetersPerSecond);
+
+      return MathUtil.interpolate(
+          floor, ceiling, MathUtil.inverseInterpolate(distanceMeters, floorKey, ceilingKey));
+    } else {
+      return val.getTimeOfFlightDerivative(shotSpeedMetersPerSecond);
     }
   }
 
@@ -90,22 +115,54 @@ public class ShotMap {
   }
 
   static class ShotSpeedEntry {
-    private final InterpolatingTreeMap<Double, ShotResult> map =
+    private final InterpolatingTreeMap<Double, ShotResult> shotSpeedToResultMap =
         new InterpolatingTreeMap<>(MathUtil::inverseInterpolate, ShotResult::interpolate);
+    private final InterpolatingDoubleTreeMap shotSpeedToTimeOfFlightDerivativeMap =
+        new InterpolatingDoubleTreeMap();
     final double minSpeedMetersPerSecond;
     final double maxSpeedMetersPerSecond;
 
     ShotSpeedEntry(@JsonProperty("map") Map<Double, ShotResult> map) {
       for (var entry : map.entrySet()) {
-        this.map.put(entry.getKey(), entry.getValue());
+        this.shotSpeedToResultMap.put(entry.getKey(), entry.getValue());
       }
       var speedsArray = map.keySet().toArray(new Double[0]);
       minSpeedMetersPerSecond = speedsArray[0];
       maxSpeedMetersPerSecond = speedsArray[speedsArray.length - 1];
+      var valuesArray = map.values().toArray(new ShotResult[0]);
+      if (valuesArray.length > 1) {
+        // Slope from first entry to second entry
+        shotSpeedToTimeOfFlightDerivativeMap.put(
+            speedsArray[0],
+            (valuesArray[1].timeOfFlightSeconds - valuesArray[0].timeOfFlightSeconds)
+                / (speedsArray[1] - speedsArray[0]));
+        for (int i = 1; i < speedsArray.length - 2; i++) {
+          // Average of slopes between this point and the two adjacent points
+          var lowerSlope =
+              (valuesArray[i].timeOfFlightSeconds - valuesArray[i - 1].timeOfFlightSeconds)
+                  / (speedsArray[i] - speedsArray[i - 1]);
+          var upperSlope =
+              (valuesArray[i + 1].timeOfFlightSeconds - valuesArray[i].timeOfFlightSeconds)
+                  / (speedsArray[i + 1] - speedsArray[i]);
+          shotSpeedToTimeOfFlightDerivativeMap.put(speedsArray[i], (upperSlope + lowerSlope) / 2.0);
+        }
+        // Slope from last entry to second to last entry
+        shotSpeedToTimeOfFlightDerivativeMap.put(
+            speedsArray[speedsArray.length - 1],
+            (valuesArray[valuesArray.length - 1].timeOfFlightSeconds
+                    - valuesArray[valuesArray.length - 2].timeOfFlightSeconds)
+                / (speedsArray[speedsArray.length - 1] - speedsArray[speedsArray.length - 2]));
+      } else {
+        shotSpeedToTimeOfFlightDerivativeMap.put(speedsArray[0], 0.0);
+      }
     }
 
     ShotResult get(double shotSpeedMetersPerSec) {
-      return map.get(shotSpeedMetersPerSec);
+      return shotSpeedToResultMap.get(shotSpeedMetersPerSec);
+    }
+
+    double getTimeOfFlightDerivative(double shotSpeedMetersPerSec) {
+      return shotSpeedToTimeOfFlightDerivativeMap.get(shotSpeedMetersPerSec);
     }
   }
 }

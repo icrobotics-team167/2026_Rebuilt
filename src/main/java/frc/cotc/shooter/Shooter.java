@@ -171,7 +171,6 @@ public class Shooter extends SubsystemBase {
 
     // Get target location and delta pos from shooter to target
     var targetLocation = getTargetLocation(shotTarget);
-    var shooterToTarget = targetLocation.minus(shooterTranslation);
 
     // Rotation affects the velocity of the shooter, so account for that
     var shooterVx =
@@ -184,39 +183,82 @@ public class Shooter extends SubsystemBase {
     var projectileSpeedMetersPerSec =
         flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec);
 
-    final int iterations = 10;
-    Pose2d[] iterationsPoses = new Pose2d[iterations + 1];
-    iterationsPoses[0] = new Pose2d(shooterTranslation, Rotation2d.kZero);
-    // TODO: Replace this with Newton's method
     // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html
     // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html
-    var result =
-        getResult(
-            shooterToTarget.getNorm(),
-            clampShotSpeedToBounds(
-                shooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget),
-            shotTarget);
-    var virtualShooterToTarget =
-        targetLocation.minus(
-            shooterTranslation.plus(
-                new Translation2d(
-                    shooterVx * result.timeOfFlightSeconds(),
-                    shooterVy * result.timeOfFlightSeconds())));
-    for (int i = 0; i < iterations; i++) {
-      var clampedShotSpeed =
-          clampShotSpeedToBounds(
-              virtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
-      var virtualShooterTranslation =
+    // Newton's method iteration for shoot on the move solving
+    // Let τ be the time of flight of the projectile
+    // Let r be the position of the robot's shooter
+    // Let g be the position of the goal
+    // Let v be the vector of the shooter's velocity
+    // Let d be the vector of the delta between the shooter and the target, compensated by time
+    // of flight
+    // Let D be the magnitude of d
+    // Let k be the linear drag speed decay factor for when the shooter is moving
+    //
+    // a(τ) = (1 - e^-kτ) / k
+    // d(τ) = g - (p + v * a(τ))
+    // D(τ) = |d(τ)| = √(d_x(τ)² + d_y(τ)²)
+    //
+    // Let E(τ) = τ − τ(D(τ)) be the root-finding problem that Newton's method solves for.
+    // At E(τ*) = 0, τ* represents the time of flight of the projectile at the solution for the
+    // shot parameters, such that using d(τ*) for our shot distance calculations will make it
+    // into the goal.
+    //
+    // Newton's method states:
+    // τ_(n+1) = τ_n - E(τ_n) / E'(τ_n)
+    //
+    // a'(τ) = e^-kt
+    // E'(τ) = 1 - τ'(D) * dD/dτ = 1 + a'(τ) * τ'(D) * (d_x * v_x + d_y * v_y) / D
+    final int iterations = 10;
+    var iterationsPoses = new Pose2d[iterations + 2];
+    iterationsPoses[0] =
+        new Pose2d(shooterTranslation, targetLocation.minus(shooterTranslation).getAngle());
+    // Initial guess using the stationary shot's time of flight
+    var baseDistance = targetLocation.getDistance(shooterTranslation);
+    var timeOfFlight = // τ(D(τ))
+        getResult(baseDistance, projectileSpeedMetersPerSec, shotTarget).timeOfFlightSeconds();
+    for (int i = 1; i <= iterations; i++) {
+      var virtualShooterPos =
           shooterTranslation.plus(
-              new Translation2d(
-                  shooterVx * result.timeOfFlightSeconds(),
-                  shooterVy * result.timeOfFlightSeconds()));
-      virtualShooterToTarget = targetLocation.minus(virtualShooterTranslation);
-      result = getResult(virtualShooterToTarget.getNorm(), clampedShotSpeed, shotTarget);
-      iterationsPoses[i + 1] = new Pose2d(virtualShooterTranslation, Rotation2d.kZero);
+              new Translation2d(shooterVx * timeOfFlight, shooterVy * timeOfFlight));
+      var virtualShooterToTarget = targetLocation.minus(virtualShooterPos); // d(τ)
+      iterationsPoses[i] = new Pose2d(virtualShooterPos, virtualShooterToTarget.getAngle());
+
+      var virtualShooterToTargetNorm = virtualShooterToTarget.getNorm(); // D(τ)
+
+      var timeOfFlightDerivative =
+          getTimeOfFlightDerivative(
+              virtualShooterToTargetNorm, projectileSpeedMetersPerSec, shotTarget); // τ'(D(τ))
+      var a_prime = Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight); // a'(τ)
+
+      var error =
+          timeOfFlight
+              - getResult(virtualShooterToTargetNorm, projectileSpeedMetersPerSec, shotTarget)
+                  .timeOfFlightSeconds(); // E(τ)
+      var error_prime =
+          1
+              + a_prime
+                  * timeOfFlightDerivative
+                  * (virtualShooterToTarget.getX() * shooterVx
+                      + virtualShooterToTarget.getY() * shooterVy)
+                  / virtualShooterToTargetNorm; // E'(τ)
+      timeOfFlight -= error / error_prime;
     }
+    var finalVirtualShooterPos =
+        shooterTranslation.plus(
+            new Translation2d(shooterVx * timeOfFlight, shooterVy * timeOfFlight));
+    var finalVirtualShooterToTarget = targetLocation.minus(finalVirtualShooterPos);
+    iterationsPoses[iterations + 1] =
+        new Pose2d(finalVirtualShooterPos, finalVirtualShooterToTarget.getAngle());
+    var result =
+        getResult(finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
     Logger.recordOutput("Shooter/Shot result/Iterations", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Result", result);
+    Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTarget.getNorm());
+    Logger.recordOutput(
+        "Shooter/Shot result/Clamped projectile speed",
+        clampShotSpeedToBounds(
+            finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget));
 
     // if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec) {
     //   flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
@@ -233,7 +275,7 @@ public class Shooter extends SubsystemBase {
     // }
     // lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
 
-    var turretYawAbsolute = virtualShooterToTarget.getAngle();
+    var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
     Logger.recordOutput(
         "Shooter/Shot result/Trajectory",
@@ -242,7 +284,7 @@ public class Shooter extends SubsystemBase {
                 shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(18)),
             new Translation3d(
                     clampShotSpeedToBounds(
-                        virtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget),
+                        finalVirtualShooterPos.getNorm(), projectileSpeedMetersPerSec, shotTarget),
                     new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))
                 .plus(new Translation3d(shooterVx, shooterVy, 0))));
 
@@ -266,11 +308,18 @@ public class Shooter extends SubsystemBase {
           default -> groundShotMap;
         };
     return shotMap.get(
-        distanceMeters,
-        MathUtil.clamp(
-            shotSpeedMetersPerSec,
-            shotMap.getMinSpeed(distanceMeters),
-            shotMap.getMaxSpeed(distanceMeters)));
+        distanceMeters, clampShotSpeedToBounds(distanceMeters, shotSpeedMetersPerSec, target));
+  }
+
+  private double getTimeOfFlightDerivative(
+      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
+    var shotMap =
+        switch (target) {
+          case BLUE_HUB, RED_HUB -> hubShotMap;
+          default -> groundShotMap;
+        };
+    return shotMap.getTimeOfFlightDerivative(
+        distanceMeters, clampShotSpeedToBounds(distanceMeters, shotSpeedMetersPerSec, target));
   }
 
   private double clampShotSpeedToBounds(

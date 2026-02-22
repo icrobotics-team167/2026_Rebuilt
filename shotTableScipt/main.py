@@ -226,7 +226,7 @@ def solve(
     problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
 
     pitch = atan2(
-        v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], (v0_wrt_shooter[1, 0]))
+        v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], v0_wrt_shooter[1, 0])
     )
     problem.subject_to(pitch <= max_pitch)
     problem.subject_to(pitch >= min_pitch)
@@ -259,7 +259,7 @@ def solve(
             print(f"Time = {time:.03f} s")
 
         return True, velocity, pitch, time, X.value()
-    if not trying_again:
+    if not trying_again and mode != 2:
         if printResults:
             print(f"Solve failed with status {status.name}, trying again")
         return solve(
@@ -293,7 +293,8 @@ def iterate_distance(file, distance, target_height, last_min_vel_solve):
 
 def iterate_shot_velocity(file, distance, target_height, min_vel_solve):
     solves = [min_vel_solve[1:4]]
-    base_delta_vel = 0.5
+    base_delta_vel = 2
+    max_delta_pitch = np.deg2rad(25)
     delta_vel = base_delta_vel
     if min_vel_solve[1] < max_shooter_velocity:
         target_velocity = min_vel_solve[1] + delta_vel
@@ -306,7 +307,7 @@ def iterate_shot_velocity(file, distance, target_height, min_vel_solve):
                 mode=2,
                 target_velocity=target_velocity,
             )
-            if fixed_vel_solve[0]:
+            if fixed_vel_solve[0] and fixed_vel_solve[1] - last_solve[1] <= max_delta_pitch:
                 solves.append(fixed_vel_solve[1:4])
                 last_solve = fixed_vel_solve
                 delta_vel = base_delta_vel
@@ -362,17 +363,17 @@ def write(
             delta_distance = base_delta_distance
             distance += delta_distance
             if distance > max_distance:
-                file.write("\n")
                 break
         else:
             distance -= delta_distance
             delta_distance /= 2
             if delta_distance < 0.01:
-                delta_distance = base_delta_distance
-            distance += delta_distance * 2
+                delta_distance = base_delta_distance / 2
+            distance += delta_distance * 1.5
             if distance > max_distance:
-                file.write("\n")
                 break
+    iterate_distance(file, max_distance, target_height, last_min_vel_solve)
+    file.write("\n")
 
     file.write("  }\n")
     file.write("}\n")
@@ -381,11 +382,11 @@ def write(
 
 
 if __name__ == "__main__":
-    write(
-        72 * 0.0254,
-        0.3,
-        10,
-        0.5,
-        "HubShotMap",
-    )
-    write(0, 0.75, math.hypot(8.069, 16.541), .5, "GroundShotMap")
+    # write(
+    #     72 * 0.0254,
+    #     0.3,
+    #     14,
+    #     0.25,
+    #     "HubShotMap",
+    # )
+    write(0, 0.5, 15.5, 1, "GroundShotMap")
