@@ -16,6 +16,7 @@ Required packages:
 """
 
 import math
+from math import ceil
 
 import numpy as np
 from numpy.linalg import norm
@@ -91,7 +92,7 @@ def solve(
     target_height,
     last_solve=None,
     mode=0,
-    target_velocity=None,
+    target_pitch=None,
     trying_again=False,
 ):
     """
@@ -222,8 +223,6 @@ def solve(
     #   v_x² + v_y² + v_z² ≤ v²
     #   vᵀv ≤ v²
     initial_velocity_squared = v0_wrt_shooter.T @ v0_wrt_shooter
-    # Require initial velocity is less than max shooter velocity
-    problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
 
     pitch = atan2(
         v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], v0_wrt_shooter[1, 0])
@@ -234,15 +233,21 @@ def solve(
         problem.subject_to(pitch > last_solve[2])
 
     if mode == 0:
+        # Require initial velocity is less than max shooter velocity
+        problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
         # Minimize initial velocity
         problem.minimize(initial_velocity_squared)
     elif mode == 1:
         if last_solve is not None:
-            problem.subject_to(initial_velocity_squared > last_solve[1] ** 2)
+            problem.subject_to(pitch > last_solve[2])
         # Maximize initial velocity
         problem.maximize(initial_velocity_squared)
+        problem.solve()
+        # Require initial velocity is less than max shooter velocity
+        problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
     elif mode == 2:
-        problem.subject_to(v0_wrt_shooter.T @ v0_wrt_shooter == target_velocity**2)
+        problem.subject_to(pitch == target_pitch)
+        problem.minimize(initial_velocity_squared)
 
     status = problem.solve()
     if status == ExitStatus.SUCCESS:
@@ -266,11 +271,14 @@ def solve(
             distance,
             target_height,
             mode=mode,
-            target_velocity=target_velocity,
+            target_pitch=target_pitch,
             trying_again=True,
         )
     if mode != 2:
         print(f"Mode {mode} solve failed at distance {distance:.03f} m")
+    else:
+        print(f"Mode 2 solve failed at distance {distance:.03f} m and pitch "
+              f"{np.rad2deg(target_pitch):.03f}°")
     return False, 0
 
 
@@ -293,40 +301,36 @@ def iterate_distance(file, distance, target_height, last_min_vel_solve):
 
 def iterate_shot_velocity(file, distance, target_height, min_vel_solve):
     solves = [min_vel_solve[1:4]]
-    base_delta_vel = 2
-    max_delta_pitch = np.deg2rad(25)
-    delta_vel = base_delta_vel
-    if min_vel_solve[1] < max_shooter_velocity:
-        target_velocity = min_vel_solve[1] + delta_vel
+    base_delta_pitch = np.deg2rad(2.5)
+    max_vel_solve = solve(distance, target_height, min_vel_solve, 1)
+    if max_vel_solve[0]:
+        samples = ceil((max_vel_solve[2] - min_vel_solve[2]) / base_delta_pitch)
         last_solve = min_vel_solve
-        while target_velocity < max_shooter_velocity:
-            fixed_vel_solve = solve(
+        for i in range(1, samples):
+            fixed_pitch_solve = solve(
                 distance,
                 target_height,
                 last_solve,
-                mode=2,
-                target_velocity=target_velocity,
+                2,
+                lerp(min_vel_solve[2], max_vel_solve[2], i / samples),
             )
-            if fixed_vel_solve[0] and fixed_vel_solve[1] - last_solve[1] <= max_delta_pitch:
-                solves.append(fixed_vel_solve[1:4])
-                last_solve = fixed_vel_solve
-                delta_vel = base_delta_vel
-                target_velocity += delta_vel
-            else:
-                if delta_vel < 0.01:
-                    break
-                target_velocity -= delta_vel
-                delta_vel /= 2
-                target_velocity += delta_vel
-
-        max_vel_solve = solve(
-            distance,
-            target_height,
-            last_solve,
-            mode=1,
-        )
-        if max_vel_solve[0] and max_vel_solve[0] > solves[-1][0]:
+            if fixed_pitch_solve[0]:
+                solves.append(fixed_pitch_solve[1:4])
+                last_solve = fixed_pitch_solve
+        solves.append(max_vel_solve[1:4])
+    else:
+        pitch = min_vel_solve[2] + base_delta_pitch
+        last_solve = min_vel_solve
+        while pitch <= max_pitch:
+            fixed_pitch_solve = solve(distance, target_height, last_solve, 2, pitch)
+            if fixed_pitch_solve[0]:
+                solves.append(fixed_pitch_solve[1:4])
+                last_solve = fixed_pitch_solve
+            pitch += base_delta_pitch
+        max_vel_solve = solve(distance, target_height, last_solve, 1)
+        if max_vel_solve[0]:
             solves.append(max_vel_solve[1:4])
+
     for i in range(len(solves)):
         shot_velocity, pitch, time = solves[i]
         file.write(f'        "{shot_velocity}": ' "{\n")
@@ -382,11 +386,11 @@ def write(
 
 
 if __name__ == "__main__":
-    # write(
-    #     72 * 0.0254,
-    #     0.3,
-    #     14,
-    #     0.25,
-    #     "HubShotMap",
-    # )
-    write(0, 0.5, 15.5, 1, "GroundShotMap")
+    write(
+        72 * 0.0254,
+        0.3,
+        14,
+        0.5,
+        "HubShotMap",
+    )
+    write(0, 0.5, 15.5, .5, "GroundShotMap")
