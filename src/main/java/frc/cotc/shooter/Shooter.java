@@ -40,9 +40,9 @@ public class Shooter extends SubsystemBase {
   private final double LOOK_AHEAD_SECONDS = 0;
 
   // Shooting on the move will induce drag on the projectile, so compensate for that
-  // Time in seconds for the shot's velocity to decay by 1/e times (decay to ~36.8%)
+  // Time in inverse seconds for the shot's velocity to decay by 1/e times (decay to ~36.8%)
   // TODO: Tune
-  private final double DRAG_CONSTANT_INVERSE_SECONDS = 0;
+  private final double DRAG_CONSTANT_INVERSE_SECONDS = 0.2;
 
   private final InterpolatingDoubleTreeMap flywheelVelToProjectileVelMap =
       new InterpolatingDoubleTreeMap();
@@ -149,7 +149,8 @@ public class Shooter extends SubsystemBase {
 
   public boolean canShoot() {
     return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
-        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1)) && isFlywheelSpeedOk;
+        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1))
+        && isFlywheelSpeedOk;
   }
 
   private double lastPitchRad;
@@ -217,12 +218,15 @@ public class Shooter extends SubsystemBase {
         new Pose2d(shooterTranslation, targetLocation.minus(shooterTranslation).getAngle());
     // Initial guess using the stationary shot's time of flight
     var baseDistance = targetLocation.getDistance(shooterTranslation);
-    var timeOfFlight = // τ(D(τ))
+    var timeOfFlight =
         getResult(baseDistance, projectileSpeedMetersPerSec, shotTarget).timeOfFlightSeconds();
     for (int i = 1; i <= iterations; i++) {
+      var a =
+          (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
+              / DRAG_CONSTANT_INVERSE_SECONDS;
       var virtualShooterPos =
           shooterTranslation.plus(
-              new Translation2d(shooterVx * timeOfFlight, shooterVy * timeOfFlight));
+              new Translation2d(shooterVx * timeOfFlight * a, shooterVy * timeOfFlight * a));
       var virtualShooterToTarget = targetLocation.minus(virtualShooterPos); // d(τ)
       iterationsPoses[i] = new Pose2d(virtualShooterPos, virtualShooterToTarget.getAngle());
 

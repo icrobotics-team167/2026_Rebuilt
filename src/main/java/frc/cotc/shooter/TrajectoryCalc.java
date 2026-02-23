@@ -82,7 +82,7 @@ public class TrajectoryCalc {
     var poses = new ArrayList<Pose3d>();
     var t = 0.0;
     var dt = 0.05;
-    while (t < 2) {
+    while (t < 10) {
       poses.add(new Pose3d(x.get(0), x.get(1), x.get(2), Rotation3d.kZero));
       x = rk4(x, omega, dt);
       if (x.get(2) < 0) {
