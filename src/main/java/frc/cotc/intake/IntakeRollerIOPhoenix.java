@@ -24,7 +24,6 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
   private final BaseStatusSignal statorSignal1, supplySignal1, statorSignal2, supplySignal2;
 
   public IntakeRollerIOPhoenix() {
-
     intakeMotor1 = new TalonFX(INTAKE_ID_1);
     intakeMotor2 = new TalonFX(INTAKE_ID_2);
     var config = new TalonFXConfiguration();
