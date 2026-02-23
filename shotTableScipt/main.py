@@ -77,10 +77,14 @@ def f(x, omega):
     m = ball_mass
     F_D = 0.5 * rho * v2 * C_D * A
 
+    # Magnus force formula
+    # Kinda sus since the internet can't seem to agree on a formula but this seems to be a good one
+    #   F_M(v) = ½ρvAC_L (v̂ × ω)
+    #   C_L is the lift coefficient (dimensionless)
     C_L = 0.00025
-
     v_hat = v / v_mag
     F_M = 0.5 * rho * C_L * A * v_mag * cross(v, omega)
+
     return block([[v], [-g - F_D / m * v_hat + F_M / m]])
 
 
@@ -277,8 +281,10 @@ def solve(
     if mode != 2:
         print(f"Mode {mode} solve failed at distance {distance:.03f} m")
     else:
-        print(f"Mode 2 solve failed at distance {distance:.03f} m and pitch "
-              f"{np.rad2deg(target_pitch):.03f}°")
+        print(
+            f"Mode 2 solve failed at distance {distance:.03f} m and pitch "
+            f"{np.rad2deg(target_pitch):.03f}°"
+        )
     return False, 0
 
 
@@ -393,4 +399,4 @@ if __name__ == "__main__":
         0.5,
         "HubShotMap",
     )
-    write(0, 0.5, 15.5, .5, "GroundShotMap")
+    write(0, 0.5, 15.5, 0.5, "GroundShotMap")

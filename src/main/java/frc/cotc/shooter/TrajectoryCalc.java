@@ -49,15 +49,20 @@ public class TrajectoryCalc {
     var m = ballMass;
     var F_D = 0.5 * rho * v2 * C_D * A;
 
+    // Magnus force formula
+    // Kinda sus since the internet can't seem to agree on a formula but this seems to be a good one
+    //   F_M(v) = ½ρvAC_L (v̂ × ω)
+    //   C_L is the lift coefficient (dimensionless)
     var C_L = 0.00025;
-
     var v_hat = v.div(v_mag);
     var F_M = Vector.cross(v, omega).times(0.5 * rho * C_L * A * v_mag);
-    var a = v_hat.times(-F_D / m).plus(F_M).plus(VecBuilder.fill(0, 0, -9.81));
+
+    var a = v_hat.times(-F_D / m).plus(F_M.div(m)).plus(VecBuilder.fill(0, 0, -9.81));
     return VecBuilder.fill(v.get(0), v.get(1), v.get(2), a.get(0), a.get(1), a.get(2));
   }
 
   private static Vector<N6> rk4(Vector<N6> x, Vector<N3> omega, double dt) {
+    // RK4 integration
     var k1 = f(x, omega);
     var k2 = f(x.plus(k1.times(dt / 2)), omega);
     var k3 = f(x.plus(k2.times(dt / 2)), omega);
@@ -67,6 +72,8 @@ public class TrajectoryCalc {
   }
 
   public static Pose3d[] simulateShot(Translation3d initialPose, Translation3d initialVelocity) {
+    // For a ball with full backspin, the direction of the rotational velocity vector is clockwise
+    // 90 degrees from the direction of travel and the magnitude is the launch velocity / diameter
     var omegaMag = initialVelocity.getNorm() / ballDiameter;
     var rotatedYaw = initialVelocity.toTranslation2d().getAngle().plus(Rotation2d.kCW_Pi_2);
     var omega = VecBuilder.fill(omegaMag * rotatedYaw.getCos(), omegaMag * rotatedYaw.getSin(), 0);
