@@ -23,8 +23,7 @@ public class HoodIOSim implements HoodIO {
           0,
           0,
           false,
-          0,
-          null); // placeholders
+          0); // placeholders
 
   private final PIDController pid = new PIDController(1, 0, 1);
   private final double kvRadPerSecPerVolt =

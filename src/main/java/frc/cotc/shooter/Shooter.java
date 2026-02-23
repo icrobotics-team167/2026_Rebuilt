@@ -256,34 +256,38 @@ public class Shooter extends SubsystemBase {
     var finalVirtualShooterToTarget = targetLocation.minus(finalVirtualShooterPos);
     iterationsPoses[iterations + 1] =
         new Pose2d(finalVirtualShooterPos, finalVirtualShooterToTarget.getAngle());
+    var finalVirtualShooterToTargetDistance = finalVirtualShooterToTarget.getNorm();
     var result =
-        getResult(finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
+        getResult(finalVirtualShooterToTargetDistance, projectileSpeedMetersPerSec, shotTarget);
     Logger.recordOutput("Shooter/Shot result/Iterations", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Result", result);
-    Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTarget.getNorm());
+    Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTargetDistance);
     var clampedProjectileSpeed =
         clampShotSpeedToBounds(
             finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
     Logger.recordOutput("Shooter/Shot result/Clamped projectile speed", clampedProjectileSpeed);
 
-    var minShotSpeedMetersPerSec = groundShotMap.getMinSpeed(clampedProjectileSpeed);
-    var maxShotSpeedMetersPerSec = groundShotMap.getMaxSpeed(clampedProjectileSpeed);
+    var minShotSpeedMetersPerSec = groundShotMap.getMinSpeed(finalVirtualShooterToTargetDistance);
+    var maxShotSpeedMetersPerSec = groundShotMap.getMaxSpeed(finalVirtualShooterToTargetDistance);
     var tolerance = .5;
     if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec - tolerance) {
       flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
       isFlywheelSpeedOk = false;
+      lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
     } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec + tolerance) {
       flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
       isFlywheelSpeedOk = false;
+      lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
     } else {
       var flywheelAccelerationMetersPerSecSquared =
           (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
-      if (flywheelAccelerationMetersPerSecSquared > -1) {
+      if (flywheelAccelerationMetersPerSecSquared > -tolerance) {
         flywheelIO.runVel(lastFlywheelVelRotPerSec);
+      } else {
+        lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
       }
       isFlywheelSpeedOk = true;
     }
-    lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
 
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
