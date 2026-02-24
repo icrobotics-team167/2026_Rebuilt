@@ -7,6 +7,8 @@
 
 package frc.cotc.intake;
 
+import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -31,6 +33,15 @@ public class IntakePivot extends SubsystemBase {
 
   public Command retract() {
     return runAngle(Math.PI / 2);
+  }
+
+  public Command agitate() {
+    double intervalSeconds = 0.5; // Placeholder speed
+
+    return repeatingSequence(
+            extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
+        .finallyDo(io::stop)
+        .withName("Agitate");
   }
 
   private Command runAngle(double angleRad) {
