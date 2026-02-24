@@ -27,9 +27,15 @@ import frc.cotc.intake.IntakeRoller;
 import frc.cotc.intake.IntakeRollerIO;
 import frc.cotc.intake.IntakeRollerIOPhoenix;
 import frc.cotc.shooter.FlywheelIO;
+import frc.cotc.shooter.FlywheelIOPhoenix;
+import frc.cotc.shooter.FlywheelIOSim;
 import frc.cotc.shooter.HoodIO;
+import frc.cotc.shooter.HoodIOPhoenix;
+import frc.cotc.shooter.HoodIOSim;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.shooter.TurretIO;
+import frc.cotc.shooter.TurretIOPhoenix;
+import frc.cotc.shooter.TurretIOSim;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
@@ -156,9 +162,21 @@ public class Robot extends LoggedRobot {
 
     var shooter =
         new Shooter(
-            new HoodIO() {},
-            new FlywheelIO() {},
-            new TurretIO() {},
+            switch (mode) {
+              case REAL -> new HoodIOPhoenix();
+              case SIM -> new HoodIOSim();
+              case REPLAY -> new HoodIO() {};
+            },
+            switch (mode) {
+              case REAL -> new FlywheelIOPhoenix();
+              case SIM -> new FlywheelIOSim();
+              case REPLAY -> new FlywheelIO() {};
+            },
+            switch (mode) {
+              case REAL -> new TurretIOPhoenix();
+              case SIM -> new TurretIOSim();
+              case REPLAY -> new TurretIO() {};
+            },
             swerve::getPose,
             swerve::getFieldSpeeds);
     shooter.setDefaultCommand(shooter.shootAtHub());

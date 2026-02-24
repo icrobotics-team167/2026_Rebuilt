@@ -33,16 +33,16 @@ public class Shooter extends SubsystemBase {
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier;
 
-  // The shooter will lag behind, so try to look a little further into the future to compensate
+  // The shooter will lag behind the target position, so try to look a little further into the
+  // future to compensate
   // TODO: Tune
   @SuppressWarnings("FieldCanBeLocal")
   private final double LOOK_AHEAD_SECONDS = 0;
 
-  // The ball will slow down due to drag as it flies through the air when the robot was moving when
-  // it was launched
+  // Shooting on the move will induce drag on the projectile, so compensate for that
+  // Time in inverse seconds for the shot's velocity to decay by 1/e times (decay to ~36.8%)
   // TODO: Tune
-  @SuppressWarnings("FieldCanBeLocal")
-  private final double DRAG_COMPENSATION_INVERSE_SECONDS = 0.2;
+  private final double DRAG_CONSTANT_INVERSE_SECONDS = 0.2;
 
   private final InterpolatingDoubleTreeMap flywheelVelToProjectileVelMap =
       new InterpolatingDoubleTreeMap();
@@ -64,6 +64,9 @@ public class Shooter extends SubsystemBase {
           RED_BOTTOM_GROUND_TARGET.getX(),
           FieldConstants.fieldWidth - RED_BOTTOM_GROUND_TARGET.getY());
 
+  private final ShotMap hubShotMap;
+  private final ShotMap groundShotMap;
+
   public Shooter(
       HoodIO hoodIO,
       FlywheelIO flywheelIO,
@@ -76,6 +79,11 @@ public class Shooter extends SubsystemBase {
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
+
+    hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
+    groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
+
+    addMapping(0, 0);
   }
 
   private void addMapping(double flywheelVelRotPerSec, double projectileVelMetersPerSec) {
@@ -118,8 +126,7 @@ public class Shooter extends SubsystemBase {
           runShooter(
               robotPoseSupplier.get(),
               fieldChassisSpeedsSupplier.get(),
-              Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB,
-              flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+              Robot.isOnRed() ? ShotTarget.RED_HUB : ShotTarget.BLUE_HUB);
         })
         .withName("Shoot at hub");
   }
@@ -135,31 +142,30 @@ public class Shooter extends SubsystemBase {
             target = Robot.isOnRed() ? ShotTarget.RED_BOTTOM_GROUND : ShotTarget.BLUE_BOTTOM_GROUND;
           }
 
-          runShooter(
-              robotPose,
-              fieldChassisSpeedsSupplier.get(),
-              target,
-              flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+          runShooter(robotPose, fieldChassisSpeedsSupplier.get(), target);
         })
         .withName("Pass to alliance");
   }
 
   public boolean canShoot() {
-    return shotValid
-        && MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
-        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1));
+    return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
+        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1))
+        && isFlywheelSpeedOk;
   }
 
   private double lastPitchRad;
   private double lastYawRad;
-
-  private boolean shotValid = false;
+  private double lastFlywheelVelRotPerSec;
+  private boolean isFlywheelSpeedOk = false;
 
   private void runShooter(
-      Pose2d robotPose,
-      ChassisSpeeds fieldChassisSpeeds,
-      ShotTarget shotTarget,
-      double shooterVelMetersPerSecond) {
+      Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
+    robotPose =
+        robotPose.plus(
+            new Transform2d(
+                fieldChassisSpeeds.vxMetersPerSecond * LOOK_AHEAD_SECONDS,
+                fieldChassisSpeeds.vyMetersPerSecond * LOOK_AHEAD_SECONDS,
+                new Rotation2d(fieldChassisSpeeds.omegaRadiansPerSecond * LOOK_AHEAD_SECONDS)));
     // Calculate where the shooter is on the field
     var shooterTranslation = robotPose.plus(robotToShooterTransform).getTranslation();
     // Rotate the robotToShooterTransform by the robot yaw
@@ -167,7 +173,6 @@ public class Shooter extends SubsystemBase {
 
     // Get target location and delta pos from shooter to target
     var targetLocation = getTargetLocation(shotTarget);
-    var shooterToTarget = targetLocation.minus(shooterTranslation);
 
     // Rotation affects the velocity of the shooter, so account for that
     var shooterVx =
@@ -177,49 +182,127 @@ public class Shooter extends SubsystemBase {
         fieldChassisSpeeds.vyMetersPerSecond
             + fieldChassisSpeeds.omegaRadiansPerSecond * robotCenterToShooter.getX();
 
-    // Get initial shot solution for a stationary shot
-    var result = getShot(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
-    // As the ball slows down due to drag, the effective distance shrinks
-    // This can be approximated with an exponential function
-    var timeCompensationSeconds =
-        (1 - Math.exp(-result.timeToTargetSeconds() * DRAG_COMPENSATION_INVERSE_SECONDS))
-            / DRAG_COMPENSATION_INVERSE_SECONDS;
-    int iterations = 5;
-    for (int i = 0; i < iterations; i++) {
-      // Offset the shooter's position by how far it will move during the time of flight
-      shooterToTarget =
-          targetLocation.minus(
-              shooterTranslation.plus(
-                  new Translation2d(
-                      shooterVx * (timeCompensationSeconds + LOOK_AHEAD_SECONDS),
-                      shooterVy * (timeCompensationSeconds + LOOK_AHEAD_SECONDS))));
-      // Recalculate the shot solution
-      // This will create a new time of flight, which will change the offset above
-      // This converges to a stable lookahead point in 3-5 iterations
-      result = getShot(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
-      timeCompensationSeconds =
-          (1 - Math.exp(-result.timeToTargetSeconds() * DRAG_COMPENSATION_INVERSE_SECONDS))
-              / DRAG_COMPENSATION_INVERSE_SECONDS;
+    var projectileSpeedMetersPerSec =
+        flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec);
+
+    // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html
+    // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html
+    // Newton's method iteration for shoot on the move solving
+    // Let τ be the time of flight of the projectile
+    // Let r be the position of the robot's shooter
+    // Let g be the position of the goal
+    // Let v be the vector of the shooter's velocity
+    // Let d be the vector of the delta between the shooter and the target, compensated by time
+    // of flight
+    // Let D be the magnitude of d
+    // Let k be the linear drag speed decay factor for when the shooter is moving
+    //
+    // a(τ) = (1 - e^-kτ) / k
+    // d(τ) = g - (p + v * a(τ))
+    // D(τ) = |d(τ)| = √(d_x(τ)² + d_y(τ)²)
+    //
+    // Let E(τ) = τ − τ(D(τ)) be the root-finding problem that Newton's method solves for.
+    // At E(τ*) = 0, τ* represents the time of flight of the projectile at the solution for the
+    // shot parameters, such that using d(τ*) for our shot distance calculations will make it
+    // into the goal.
+    //
+    // Newton's method states:
+    // τ_(n+1) = τ_n - E(τ_n) / E'(τ_n)
+    //
+    // a'(τ) = e^-kt
+    // E'(τ) = 1 - τ'(D) * dD/dτ = 1 + a'(τ) * τ'(D) * (d_x * v_x + d_y * v_y) / D
+
+    final int iterations = 10;
+    var iterationsPoses = new Pose2d[iterations + 2];
+    iterationsPoses[0] =
+        new Pose2d(shooterTranslation, targetLocation.minus(shooterTranslation).getAngle());
+    // Initial guess using the stationary shot's time of flight
+    var baseDistance = targetLocation.getDistance(shooterTranslation);
+    var timeOfFlight =
+        getResult(baseDistance, projectileSpeedMetersPerSec, shotTarget).timeOfFlightSeconds();
+    for (int i = 1; i <= iterations; i++) {
+      var a =
+          (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
+              / DRAG_CONSTANT_INVERSE_SECONDS;
+      var virtualShooterPos =
+          shooterTranslation.plus(
+              new Translation2d(shooterVx * timeOfFlight * a, shooterVy * timeOfFlight * a));
+      var virtualShooterToTarget = targetLocation.minus(virtualShooterPos); // d(τ)
+      iterationsPoses[i] = new Pose2d(virtualShooterPos, virtualShooterToTarget.getAngle());
+
+      var virtualShooterToTargetNorm = virtualShooterToTarget.getNorm(); // D(τ)
+
+      var timeOfFlightDerivative =
+          getTimeOfFlightDerivative(
+              virtualShooterToTargetNorm, projectileSpeedMetersPerSec, shotTarget); // τ'(D(τ))
+      var a_prime = Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight); // a'(τ)
+
+      var error =
+          timeOfFlight
+              - getResult(virtualShooterToTargetNorm, projectileSpeedMetersPerSec, shotTarget)
+                  .timeOfFlightSeconds(); // E(τ)
+      var error_prime =
+          1
+              + a_prime
+                  * timeOfFlightDerivative
+                  * (virtualShooterToTarget.getX() * shooterVx
+                      + virtualShooterToTarget.getY() * shooterVy)
+                  / virtualShooterToTargetNorm; // E'(τ)
+      timeOfFlight -= error / error_prime;
     }
-    // A shot may not be possible due to the shooter velocity being too low or too high.
-    shotValid = isPossible(shooterToTarget.getNorm(), shooterVelMetersPerSecond, shotTarget);
+    var finalVirtualShooterPos =
+        shooterTranslation.plus(
+            new Translation2d(shooterVx * timeOfFlight, shooterVy * timeOfFlight));
+    var finalVirtualShooterToTarget = targetLocation.minus(finalVirtualShooterPos);
+    iterationsPoses[iterations + 1] =
+        new Pose2d(finalVirtualShooterPos, finalVirtualShooterToTarget.getAngle());
+    var result =
+        getResult(finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
+    Logger.recordOutput("Shooter/Shot result/Iterations", iterationsPoses);
+    Logger.recordOutput("Shooter/Shot result/Result", result);
+    Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTarget.getNorm());
+    var clampedProjectileSpeed =
+        clampShotSpeedToBounds(
+            finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
+    Logger.recordOutput("Shooter/Shot result/Clamped projectile speed", clampedProjectileSpeed);
 
-    var turretYawAbsolute = shooterToTarget.getAngle();
+    var minShotSpeedMetersPerSec = groundShotMap.getMinSpeed(clampedProjectileSpeed);
+    var maxShotSpeedMetersPerSec = groundShotMap.getMaxSpeed(clampedProjectileSpeed);
+    var tolerance = .5;
+    if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec - tolerance) {
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
+      isFlywheelSpeedOk = false;
+    } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec + tolerance) {
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
+      isFlywheelSpeedOk = false;
+    } else {
+      var flywheelAccelerationMetersPerSecSquared =
+          (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
+      if (flywheelAccelerationMetersPerSecSquared > -1) {
+        flywheelIO.runVel(lastFlywheelVelRotPerSec);
+      }
+      isFlywheelSpeedOk = true;
+    }
+    lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
 
-    Logger.recordOutput(
-        "Shooter/Shooter pose",
+    var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
+
+    var shooterPose =
         new Pose3d(
-            new Translation3d(
-                shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(20)),
-            new Rotation3d(
-                // Rotation3d uses +pitch down, but the shooter pitch is done +pitch up
-                // 90 degree offset to make the "Axes" model in AScope look prettier
-                0, Math.PI / 2 - result.pitchRad(), turretYawAbsolute.getRadians())));
-    Logger.recordOutput("Shooter/Shooter distance meters", shooterToTarget.getNorm());
-    Logger.recordOutput("Shooter/Shooter pitch rad", result.pitchRad());
-    Logger.recordOutput(
-        "Shooter/Lookahead target",
-        new Pose2d(shooterTranslation.plus(shooterToTarget), Rotation2d.kZero));
+            shooterTranslation.getX(),
+            shooterTranslation.getY(),
+            Units.inchesToMeters(18),
+            new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()));
+    Logger.recordOutput("Shooter/Shot result/Pose", shooterPose);
+
+    if (Robot.isSimulation()) {
+      Logger.recordOutput(
+          "Shooter/Shot result/Trajectory",
+          TrajectoryCalc.simulateShot(
+              shooterPose.getTranslation(),
+              new Translation3d(clampedProjectileSpeed, shooterPose.getRotation())
+                  .plus(new Translation3d(shooterVx, shooterVy, 0))));
+    }
 
     hoodIO.runPitch(
         result.pitchRad(), (result.pitchRad() - lastPitchRad) / Robot.defaultPeriodSecs);
@@ -231,43 +314,40 @@ public class Shooter extends SubsystemBase {
         (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
             - fieldChassisSpeeds.omegaRadiansPerSecond);
     lastYawRad = turretYawAbsolute.getRadians();
-    flywheelIO.runVel(
-        projectileVelToFlywheelVelMap.get(getMaxVelocity(shooterToTarget.getNorm(), shotTarget)));
   }
 
-  private final ShotMap hubShotMap = new HubShotMap();
-  private final ShotMap groundShotMap = new GroundShotMap();
-
-  private ShotMap.ShotResult getShot(
-      double distanceMeters, double velocityMetersPerSecond, ShotTarget shotTarget) {
-    return switch (shotTarget) {
-      case BLUE_HUB, RED_HUB -> hubShotMap.get(distanceMeters, velocityMetersPerSecond);
-      default -> groundShotMap.get(distanceMeters, velocityMetersPerSecond);
-    };
+  private ShotMap.ShotResult getResult(
+      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
+    var shotMap =
+        switch (target) {
+          case BLUE_HUB, RED_HUB -> hubShotMap;
+          default -> groundShotMap;
+        };
+    return shotMap.get(
+        distanceMeters, clampShotSpeedToBounds(distanceMeters, shotSpeedMetersPerSec, target));
   }
 
-  private final double TOLERANCE_METERS_PER_SEC = 0.01;
-
-  private boolean isPossible(
-      double distanceMeters, double velocityMetersPerSecond, ShotTarget shotTarget) {
-    return switch (shotTarget) {
-      case BLUE_HUB, RED_HUB ->
-          hubShotMap.getMinimumVelocity(distanceMeters) - TOLERANCE_METERS_PER_SEC
-                  <= velocityMetersPerSecond
-              && velocityMetersPerSecond
-                  <= hubShotMap.getMaximumVelocity(distanceMeters) + TOLERANCE_METERS_PER_SEC;
-      default ->
-          groundShotMap.getMinimumVelocity(distanceMeters) - TOLERANCE_METERS_PER_SEC
-                  <= velocityMetersPerSecond
-              && velocityMetersPerSecond
-                  <= groundShotMap.getMaximumVelocity(distanceMeters) + TOLERANCE_METERS_PER_SEC;
-    };
+  private double getTimeOfFlightDerivative(
+      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
+    var shotMap =
+        switch (target) {
+          case BLUE_HUB, RED_HUB -> hubShotMap;
+          default -> groundShotMap;
+        };
+    return shotMap.getTimeOfFlightDerivative(
+        distanceMeters, clampShotSpeedToBounds(distanceMeters, shotSpeedMetersPerSec, target));
   }
 
-  private double getMaxVelocity(double distanceMeters, ShotTarget shotTarget) {
-    return switch (shotTarget) {
-      case BLUE_HUB, RED_HUB -> hubShotMap.getMaximumVelocity(distanceMeters);
-      default -> groundShotMap.getMaximumVelocity(distanceMeters);
-    };
+  private double clampShotSpeedToBounds(
+      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
+    var shotMap =
+        switch (target) {
+          case BLUE_HUB, RED_HUB -> hubShotMap;
+          default -> groundShotMap;
+        };
+    return MathUtil.clamp(
+        shotSpeedMetersPerSec,
+        shotMap.getMinSpeed(distanceMeters),
+        shotMap.getMaxSpeed(distanceMeters));
   }
 }

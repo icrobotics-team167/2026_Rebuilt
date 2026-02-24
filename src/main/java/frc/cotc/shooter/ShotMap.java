@@ -7,72 +7,115 @@
 
 package frc.cotc.shooter;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.wpilibj.Filesystem;
+import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class ShotMap {
-  private final TreeMap<Double, InterpolatingTreeMap<Double, ShotResult>> resultsMap =
-      new TreeMap<>();
-  private final InterpolatingDoubleTreeMap minimumVelsMap = new InterpolatingDoubleTreeMap();
-  private final InterpolatingDoubleTreeMap maximumVelsMap = new InterpolatingDoubleTreeMap();
+  private final TreeMap<Double, ShotSpeedEntry> map;
+  private final InterpolatingDoubleTreeMap minSpeedsMap = new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap maxSpeedsMap = new InterpolatingDoubleTreeMap();
 
-  @SafeVarargs
-  public final void put(
-      double distanceMeters, Map.Entry<Double, ShotResult>... shotVelToPitchEntries) {
-    minimumVelsMap.put(distanceMeters, shotVelToPitchEntries[0].getKey());
-    maximumVelsMap.put(
-        distanceMeters, shotVelToPitchEntries[shotVelToPitchEntries.length - 1].getKey());
-    var shotVelToResultsMap =
-        new InterpolatingTreeMap<>(MathUtil::inverseInterpolate, ShotResult::interpolate);
-    for (var entry : shotVelToPitchEntries) {
-      shotVelToResultsMap.put(entry.getKey(), entry.getValue());
+  public static ShotMap loadFromDeploy(String filePath) {
+    try {
+      System.out.println(
+          "Loading shot map from " + Filesystem.getDeployDirectory() + File.separator + filePath);
+      var mapper = new ObjectMapper();
+      mapper.configure(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION, true);
+      return mapper.readValue(
+          new File(Filesystem.getDeployDirectory() + File.separator + filePath), ShotMap.class);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
-    resultsMap.put(distanceMeters, shotVelToResultsMap);
   }
 
-  public record ShotResult(double pitchRad, double timeToTargetSeconds) {
+  public record ShotResult(
+      @JsonProperty("pitchRad") double pitchRad,
+      @JsonProperty("timeOfFlightSeconds") double timeOfFlightSeconds) {
     public ShotResult interpolate(ShotResult endValue, double t) {
       return new ShotResult(
           MathUtil.interpolate(pitchRad, endValue.pitchRad, t),
-          MathUtil.interpolate(timeToTargetSeconds, endValue.timeToTargetSeconds, t));
+          MathUtil.interpolate(timeOfFlightSeconds, endValue.timeOfFlightSeconds, t));
     }
   }
 
-  public ShotResult get(double distanceMeters, double velocityMetersPerSecond) {
-    var val = resultsMap.get(distanceMeters);
+  ShotMap(@JsonProperty("map") TreeMap<Double, ShotSpeedEntry> map) {
+    this.map = map;
+    for (var entry : map.entrySet()) {
+      var distance = entry.getKey();
+      var value = entry.getValue();
+      minSpeedsMap.put(distance, value.minSpeedMetersPerSecond);
+      maxSpeedsMap.put(distance, value.maxSpeedMetersPerSecond);
+    }
+  }
+
+  public ShotResult get(double distanceMeters, double shotSpeedMetersPerSecond) {
+    var val = map.get(distanceMeters);
     if (val == null) {
-      var ceilingKey = resultsMap.ceilingKey(distanceMeters);
-      var floorKey = resultsMap.floorKey(distanceMeters);
+      var ceilingKey = map.ceilingKey(distanceMeters);
+      var floorKey = map.floorKey(distanceMeters);
 
       if (ceilingKey == null && floorKey == null) {
         return null;
       }
       if (ceilingKey == null) {
-        return resultsMap.get(floorKey).get(velocityMetersPerSecond);
+        return map.get(floorKey).get(shotSpeedMetersPerSecond);
       }
       if (floorKey == null) {
-        return resultsMap.get(ceilingKey).get(velocityMetersPerSecond);
+        return map.get(ceilingKey).get(shotSpeedMetersPerSecond);
       }
-      var floor = resultsMap.get(floorKey);
-      var ceiling = resultsMap.get(ceilingKey);
-      return floor
-          .get(velocityMetersPerSecond)
-          .interpolate(
-              ceiling.get(velocityMetersPerSecond),
-              MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters));
+      var floor = map.get(floorKey).get(shotSpeedMetersPerSecond);
+      var ceiling = map.get(ceilingKey).get(shotSpeedMetersPerSecond);
+
+      return floor.interpolate(
+          ceiling, MathUtil.inverseInterpolate(floorKey, ceilingKey, distanceMeters));
     } else {
-      return val.get(velocityMetersPerSecond);
+      return val.get(shotSpeedMetersPerSecond);
     }
   }
 
-  public double getMinimumVelocity(double distanceMeters) {
-    return minimumVelsMap.get(distanceMeters);
+  public Double getTimeOfFlightDerivative(double distanceMeters, double shotSpeedMetersPerSecond) {
+    var epsilon = 0.01;
+    var baseTof = get(distanceMeters, shotSpeedMetersPerSecond).timeOfFlightSeconds();
+    var tofPlusEpsilon =
+        get(distanceMeters + epsilon, shotSpeedMetersPerSecond).timeOfFlightSeconds();
+    var tofMinusEpsilon =
+        get(distanceMeters - epsilon, shotSpeedMetersPerSecond).timeOfFlightSeconds();
+    return ((tofPlusEpsilon - baseTof) / epsilon + (baseTof - tofMinusEpsilon) / epsilon) / 2;
   }
 
-  public double getMaximumVelocity(double distanceMeters) {
-    return maximumVelsMap.get(distanceMeters);
+  public double getMinSpeed(double distanceMeters) {
+    return minSpeedsMap.get(distanceMeters);
+  }
+
+  public double getMaxSpeed(double distanceMeters) {
+    return maxSpeedsMap.get(distanceMeters);
+  }
+
+  static class ShotSpeedEntry {
+    private final InterpolatingTreeMap<Double, ShotResult> shotSpeedToResultMap =
+        new InterpolatingTreeMap<>(MathUtil::inverseInterpolate, ShotResult::interpolate);
+    final double minSpeedMetersPerSecond;
+    final double maxSpeedMetersPerSecond;
+
+    ShotSpeedEntry(@JsonProperty("map") Map<Double, ShotResult> map) {
+      for (var entry : map.entrySet()) {
+        this.shotSpeedToResultMap.put(entry.getKey(), entry.getValue());
+      }
+      var speedsArray = map.keySet().toArray(new Double[0]);
+      minSpeedMetersPerSecond = speedsArray[0];
+      maxSpeedMetersPerSecond = speedsArray[speedsArray.length - 1];
+    }
+
+    ShotResult get(double shotSpeedMetersPerSec) {
+      return shotSpeedToResultMap.get(shotSpeedMetersPerSec);
+    }
   }
 }

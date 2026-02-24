@@ -43,6 +43,11 @@ public interface SwerveIO {
     boolean[] driveMotorConnected = new boolean[] {true, true, true, true};
     boolean[] steerMotorConnected = new boolean[] {true, true, true, true};
     boolean[] encoderConnected = new boolean[] {true, true, true, true};
+
+    double[] driveStatorCurrentAmps = new double[4];
+    double[] driveSupplyCurrentAmps = new double[4];
+    double[] steerStatorCurrentAmps = new double[4];
+    double[] steerSupplyCurrentAmps = new double[4];
   }
 
   /** Updates the set of loggable inputs. */
