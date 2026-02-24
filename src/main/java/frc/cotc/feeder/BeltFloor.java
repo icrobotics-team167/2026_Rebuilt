@@ -7,6 +7,7 @@
 
 package frc.cotc.feeder;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,9 +16,14 @@ import org.littletonrobotics.junction.Logger;
 public class BeltFloor extends SubsystemBase {
   private final BeltFloorIO io;
   private final BeltFloorIOInputsAutoLogged inputs = new BeltFloorIOInputsAutoLogged();
+  private final double DEFAULT_JAM_TIME = 0.2;
+  private final Debouncer debouncer;
+  private final double JAM_VOLTAGE = 40.0;
+  private final double JAM_SPEED = 40.0;
 
   public BeltFloor(BeltFloorIO io) {
     this.io = io;
+    debouncer = new Debouncer(DEFAULT_JAM_TIME, Debouncer.DebounceType.kBoth);
   }
 
   @Override
@@ -40,5 +46,10 @@ public class BeltFloor extends SubsystemBase {
 
   public Command stopBelt() {
     return run(io::stop);
+  }
+
+  public boolean isJam() {
+    return debouncer.calculate(
+        inputs.motorSpeed < JAM_SPEED && inputs.statorCurrentAmps > JAM_VOLTAGE);
   }
 }
