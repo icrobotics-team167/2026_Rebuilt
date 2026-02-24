@@ -41,6 +41,11 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
   }
 
   @Override
+  public void runReverse() {
+    motor.setVoltage(-TURRET_FEEDER_DEFAULT_VOLTAGE);
+  }
+
+  @Override
   public void stop() {
     motor.setVoltage(0);
   }
