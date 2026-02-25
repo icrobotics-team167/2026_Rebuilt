@@ -18,7 +18,7 @@ public class BeltFloor extends SubsystemBase {
   private final BeltFloorIOInputsAutoLogged inputs = new BeltFloorIOInputsAutoLogged();
   private final double DEFAULT_JAM_TIME = 0.2;
   private final Debouncer debouncer;
-  private final double JAM_VOLTAGE = 40.0;
+  private final double JAM_CURRENT = 40.0;
   private final double JAM_SPEED = 40.0;
 
   public BeltFloor(BeltFloorIO io) {
@@ -44,12 +44,20 @@ public class BeltFloor extends SubsystemBase {
     return run(io::run);
   }
 
+  public Command runBeltReverse() {
+    return run(io::runReverse);
+  }
+
   public Command stopBelt() {
     return run(io::stop);
   }
 
   public boolean isJam() {
     return debouncer.calculate(
-        inputs.motorSpeed < JAM_SPEED && inputs.statorCurrentAmps > JAM_VOLTAGE);
+        inputs.motorSpeed < JAM_SPEED && inputs.statorCurrentAmps > JAM_CURRENT);
+  }
+
+  public Command reverseJam() {
+    return run(() -> runBeltReverse()).finallyDo(() -> stopBelt()).withName("ReverseJam");
   }
 }

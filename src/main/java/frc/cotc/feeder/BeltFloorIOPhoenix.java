@@ -41,6 +41,11 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
   }
 
   @Override
+  public void runReverse() {
+    motor.setVoltage(-BELTFLOOR_DEFAULT_VOLTAGE);
+  }
+
+  @Override
   public void stop() {
     motor.setVoltage(0);
   }

@@ -14,6 +14,8 @@ public interface BeltFloorIO {
 
   public default void run() {}
 
+  public default void runReverse() {}
+
   public default void stop() {}
 
   @AutoLog
