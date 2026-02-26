@@ -14,11 +14,14 @@ public interface BeltFloorIO {
 
   public default void run() {}
 
+  public default void runReverse() {}
+
   public default void stop() {}
 
   @AutoLog
   public class BeltFloorIOInputs {
     public double statorCurrentAmps = 0.0;
     public double supplyCurrentAmps = 0.0;
+    public double motorSpeed = 0.0;
   }
 }
