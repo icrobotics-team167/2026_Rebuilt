@@ -110,8 +110,7 @@ public class Shooter extends SubsystemBase {
     BLUE_TOP_GROUND(groundShotMap, BLUE_TOP_GROUND_TARGET),
     RED_HUB(hubShotMap, FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()),
     RED_BOTTOM_GROUND(groundShotMap, RED_BOTTOM_GROUND_TARGET),
-    RED_TOP_GROUND(groundShotMap, RED_TOP_GROUND_TARGET),
-    ;
+    RED_TOP_GROUND(groundShotMap, RED_TOP_GROUND_TARGET);
 
     final ShotMap map;
     final Translation2d targetLocation;
@@ -189,6 +188,7 @@ public class Shooter extends SubsystemBase {
 
     // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html
     // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html
+    // TODO: Remove this when I get the latex doc done
     // Newton's method iteration for shoot on the move solving
     // Let τ be the time of flight of the projectile
     // Let r be the position of the robot's shooter
