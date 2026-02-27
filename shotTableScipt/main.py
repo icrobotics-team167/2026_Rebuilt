@@ -156,7 +156,7 @@ def solve(
     # Shooter initial position
     problem.subject_to(p[:, :1] == shooter_wrt_field[:3, :])
 
-    omega_magnitude = v0_wrt_shooter.T @ v0_wrt_shooter / ball_diameter
+    omega_magnitude = sqrt((v0_wrt_shooter.T @ v0_wrt_shooter)[0,0]) / ball_diameter
 
     omega = problem.decision_variable(3, 1)
     problem.subject_to(
@@ -395,8 +395,8 @@ if __name__ == "__main__":
     write(
         72 * 0.0254,
         0.3,
-        14,
+        14.5,
         0.5,
         "HubShotMap",
     )
-    write(0, 0.5, 15.5, 0.5, "GroundShotMap")
+    write(0, 0.5, 16, 0.5, "GroundShotMap")
