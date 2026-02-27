@@ -244,3 +244,13 @@ spotless {
         endWithNewline()
     }
 }
+
+if (hasProperty('compilerArgs')) {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            compilerArgs.split().each { arg ->
+                options.compilerArgs << arg
+            }
+        }
+    }
+}
