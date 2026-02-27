@@ -83,20 +83,26 @@ public class ShotMap {
 
   public Double getTimeOfFlightDerivative(double distanceMeters, double shotSpeedMetersPerSecond) {
     var epsilon = 0.01;
-    var baseTof = get(distanceMeters, shotSpeedMetersPerSecond).timeOfFlightSeconds();
     var tofPlusEpsilon =
         get(distanceMeters + epsilon, shotSpeedMetersPerSecond).timeOfFlightSeconds();
     var tofMinusEpsilon =
         get(distanceMeters - epsilon, shotSpeedMetersPerSecond).timeOfFlightSeconds();
-    return ((tofPlusEpsilon - baseTof) / epsilon + (baseTof - tofMinusEpsilon) / epsilon) / 2;
+    return (tofPlusEpsilon - tofMinusEpsilon) / (2 * epsilon);
   }
 
-  public double getMinSpeed(double distanceMeters) {
+  public double getMinSpeedMetersPerSec(double distanceMeters) {
     return minSpeedsMap.get(distanceMeters);
   }
 
-  public double getMaxSpeed(double distanceMeters) {
+  public double getMaxSpeedMetersPerSec(double distanceMeters) {
     return maxSpeedsMap.get(distanceMeters);
+  }
+
+  public double clampSpeed(double distanceMeters, double speedMetersPerSecond) {
+    return MathUtil.clamp(
+        speedMetersPerSecond,
+        getMinSpeedMetersPerSec(distanceMeters),
+        getMaxSpeedMetersPerSec(distanceMeters));
   }
 
   static class ShotSpeedEntry {

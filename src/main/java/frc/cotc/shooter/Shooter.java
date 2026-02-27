@@ -8,6 +8,7 @@
 package frc.cotc.shooter;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -44,28 +45,30 @@ public class Shooter extends SubsystemBase {
   // TODO: Tune
   private final double DRAG_CONSTANT_INVERSE_SECONDS = 0.2;
 
-  private final InterpolatingDoubleTreeMap flywheelVelToProjectileVelMap =
-      new InterpolatingDoubleTreeMap();
-  private final InterpolatingDoubleTreeMap projectileVelToFlywheelVelMap =
-      new InterpolatingDoubleTreeMap();
+  // Tolerancing and debouncing for the "is flywheel speed ok check"
+  private final double FLYWHEEL_ACCELERATION_TOLERANCE_MPSS = 0.5;
+  private final double FLYWHEEL_SPEED_TOLERANCE_MPS = 0.5;
+  private final double FLYWHEEL_SPEED_OK_DEBOUNCE_SECONDS = 0.2;
 
   // Location that the robot should shoot at for passing balls
-  private final Translation2d BLUE_BOTTOM_GROUND_TARGET = new Translation2d(1, 1);
-  private final Translation2d BLUE_TOP_GROUND_TARGET =
+  private static final Translation2d BLUE_BOTTOM_GROUND_TARGET = new Translation2d(1, 1);
+  private static final Translation2d BLUE_TOP_GROUND_TARGET =
       new Translation2d(
           BLUE_BOTTOM_GROUND_TARGET.getX(),
           FieldConstants.fieldWidth - BLUE_BOTTOM_GROUND_TARGET.getY());
-  private final Translation2d RED_BOTTOM_GROUND_TARGET =
+  private static final Translation2d RED_BOTTOM_GROUND_TARGET =
       new Translation2d(
           FieldConstants.fieldLength - BLUE_BOTTOM_GROUND_TARGET.getX(),
           BLUE_BOTTOM_GROUND_TARGET.getY());
-  private final Translation2d RED_TOP_GROUND_TARGET =
+  private static final Translation2d RED_TOP_GROUND_TARGET =
       new Translation2d(
           RED_BOTTOM_GROUND_TARGET.getX(),
           FieldConstants.fieldWidth - RED_BOTTOM_GROUND_TARGET.getY());
 
-  private final ShotMap hubShotMap;
-  private final ShotMap groundShotMap;
+  private final InterpolatingDoubleTreeMap flywheelVelToProjectileVelMap =
+      new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap projectileVelToFlywheelVelMap =
+      new InterpolatingDoubleTreeMap();
 
   public Shooter(
       HoodIO hoodIO,
@@ -79,9 +82,6 @@ public class Shooter extends SubsystemBase {
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
-
-    hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
-    groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
     addMapping(0, 0);
   }
@@ -101,24 +101,24 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Turret", turretInputs);
   }
 
-  public enum ShotTarget {
-    BLUE_HUB,
-    BLUE_BOTTOM_GROUND,
-    BLUE_TOP_GROUND,
-    RED_HUB,
-    RED_BOTTOM_GROUND,
-    RED_TOP_GROUND;
-  }
+  private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
+  private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
-  private Translation2d getTargetLocation(ShotTarget shotTarget) {
-    return switch (shotTarget) {
-      case BLUE_HUB -> FieldConstants.Hub.topCenterPoint.toTranslation2d();
-      case RED_HUB -> FieldConstants.Hub.oppTopCenterPoint.toTranslation2d();
-      case BLUE_BOTTOM_GROUND -> BLUE_BOTTOM_GROUND_TARGET;
-      case BLUE_TOP_GROUND -> BLUE_TOP_GROUND_TARGET;
-      case RED_BOTTOM_GROUND -> RED_BOTTOM_GROUND_TARGET;
-      case RED_TOP_GROUND -> RED_TOP_GROUND_TARGET;
-    };
+  public enum ShotTarget {
+    BLUE_HUB(hubShotMap, FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+    BLUE_BOTTOM_GROUND(groundShotMap, BLUE_BOTTOM_GROUND_TARGET),
+    BLUE_TOP_GROUND(groundShotMap, BLUE_TOP_GROUND_TARGET),
+    RED_HUB(hubShotMap, FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()),
+    RED_BOTTOM_GROUND(groundShotMap, RED_BOTTOM_GROUND_TARGET),
+    RED_TOP_GROUND(groundShotMap, RED_TOP_GROUND_TARGET);
+
+    final ShotMap map;
+    final Translation2d targetLocation;
+
+    ShotTarget(ShotMap map, Translation2d targetLocation) {
+      this.map = map;
+      this.targetLocation = targetLocation;
+    }
   }
 
   public Command shootAtHub() {
@@ -172,7 +172,7 @@ public class Shooter extends SubsystemBase {
     var robotCenterToShooter = shooterTranslation.minus(robotPose.getTranslation());
 
     // Get target location and delta pos from shooter to target
-    var targetLocation = getTargetLocation(shotTarget);
+    var targetLocation = shotTarget.targetLocation;
 
     // Rotation affects the velocity of the shooter, so account for that
     var shooterVx =
@@ -184,9 +184,11 @@ public class Shooter extends SubsystemBase {
 
     var projectileSpeedMetersPerSec =
         flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec);
+    var map = shotTarget.map;
 
     // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html
     // https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html
+    // TODO: Remove this when I get the latex doc done
     // Newton's method iteration for shoot on the move solving
     // Let τ be the time of flight of the projectile
     // Let r be the position of the robot's shooter
@@ -197,29 +199,27 @@ public class Shooter extends SubsystemBase {
     // Let D be the magnitude of d
     // Let k be the linear drag speed decay factor for when the shooter is moving
     //
-    // a(τ) = (1 - e^-kτ) / k
-    // d(τ) = g - (p + v * a(τ))
-    // D(τ) = |d(τ)| = √(d_x(τ)² + d_y(τ)²)
+    // a = (1 - e^-kτ) / k
+    // d = g - (p + v * a)
+    // D = |d(τ)| = √(d_x² + d_y²)
     //
-    // Let E(τ) = τ − τ(D(τ)) be the root-finding problem that Newton's method solves for.
-    // At E(τ*) = 0, τ* represents the time of flight of the projectile at the solution for the
-    // shot parameters, such that using d(τ*) for our shot distance calculations will make it
+    // Let E = τ − τ(D(τ)) be the root-finding problem that Newton's method solves for.
+    // At E = 0, τ represents the time of flight of the projectile at the solution for the
+    // shot parameters, such that using d(τ) for our shot distance calculations will make it
     // into the goal.
     //
     // Newton's method states:
-    // τ_(n+1) = τ_n - E(τ_n) / E'(τ_n)
+    // τ_(n+1) = τ_n - E_n / E'_n
     //
-    // a'(τ) = e^-kt
-    // E'(τ) = 1 - τ'(D) * dD/dτ = 1 + a'(τ) * τ'(D) * (d_x * v_x + d_y * v_y) / D
-
+    // a'_n = e^-kt
+    // E'_n = 1 - τ'_n * dD/dτ = 1 + a'_n * τ'_n * (d_xn * v_x + d_yn * v_y) / D_n
     final int iterations = 10;
     var iterationsPoses = new Pose2d[iterations + 2];
     iterationsPoses[0] =
         new Pose2d(shooterTranslation, targetLocation.minus(shooterTranslation).getAngle());
     // Initial guess using the stationary shot's time of flight
     var baseDistance = targetLocation.getDistance(shooterTranslation);
-    var timeOfFlight =
-        getResult(baseDistance, projectileSpeedMetersPerSec, shotTarget).timeOfFlightSeconds();
+    var timeOfFlight = map.get(baseDistance, projectileSpeedMetersPerSec).timeOfFlightSeconds();
     for (int i = 1; i <= iterations; i++) {
       var a =
           (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
@@ -233,13 +233,13 @@ public class Shooter extends SubsystemBase {
       var virtualShooterToTargetNorm = virtualShooterToTarget.getNorm(); // D(τ)
 
       var timeOfFlightDerivative =
-          getTimeOfFlightDerivative(
-              virtualShooterToTargetNorm, projectileSpeedMetersPerSec, shotTarget); // τ'(D(τ))
+          map.getTimeOfFlightDerivative(
+              virtualShooterToTargetNorm, projectileSpeedMetersPerSec); // τ'(D(τ))
       var a_prime = Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight); // a'(τ)
 
       var error =
           timeOfFlight
-              - getResult(virtualShooterToTargetNorm, projectileSpeedMetersPerSec, shotTarget)
+              - map.get(virtualShooterToTargetNorm, projectileSpeedMetersPerSec)
                   .timeOfFlightSeconds(); // E(τ)
       var error_prime =
           1
@@ -257,37 +257,13 @@ public class Shooter extends SubsystemBase {
     iterationsPoses[iterations + 1] =
         new Pose2d(finalVirtualShooterPos, finalVirtualShooterToTarget.getAngle());
     var finalVirtualShooterToTargetDistance = finalVirtualShooterToTarget.getNorm();
-    var result =
-        getResult(finalVirtualShooterToTargetDistance, projectileSpeedMetersPerSec, shotTarget);
+    var result = map.get(finalVirtualShooterToTargetDistance, projectileSpeedMetersPerSec);
     Logger.recordOutput("Shooter/Shot result/Iterations", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Result", result);
     Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTargetDistance);
     var clampedProjectileSpeed =
-        clampShotSpeedToBounds(
-            finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec, shotTarget);
+        map.clampSpeed(finalVirtualShooterToTarget.getNorm(), projectileSpeedMetersPerSec);
     Logger.recordOutput("Shooter/Shot result/Clamped projectile speed", clampedProjectileSpeed);
-
-    var minShotSpeedMetersPerSec = groundShotMap.getMinSpeed(finalVirtualShooterToTargetDistance);
-    var maxShotSpeedMetersPerSec = groundShotMap.getMaxSpeed(finalVirtualShooterToTargetDistance);
-    var tolerance = .5;
-    if (projectileSpeedMetersPerSec < minShotSpeedMetersPerSec - tolerance) {
-      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
-      isFlywheelSpeedOk = false;
-      lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
-    } else if (projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec + tolerance) {
-      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
-      isFlywheelSpeedOk = false;
-      lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
-    } else {
-      var flywheelAccelerationMetersPerSecSquared =
-          (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
-      if (flywheelAccelerationMetersPerSecSquared > -tolerance) {
-        flywheelIO.runVel(lastFlywheelVelRotPerSec);
-      } else {
-        lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
-      }
-      isFlywheelSpeedOk = true;
-    }
 
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
@@ -298,7 +274,6 @@ public class Shooter extends SubsystemBase {
             Units.inchesToMeters(18),
             new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()));
     Logger.recordOutput("Shooter/Shot result/Pose", shooterPose);
-
     if (Robot.isSimulation()) {
       Logger.recordOutput(
           "Shooter/Shot result/Trajectory",
@@ -308,50 +283,57 @@ public class Shooter extends SubsystemBase {
                   .plus(new Translation3d(shooterVx, shooterVy, 0))));
     }
 
-    hoodIO.runPitch(
-        result.pitchRad(), (result.pitchRad() - lastPitchRad) / Robot.defaultPeriodSecs);
-    lastPitchRad = result.pitchRad();
+    runTurret(
+        turretYawAbsolute,
+        robotPose.getRotation(),
+        fieldChassisSpeeds.omegaRadiansPerSecond,
+        result.pitchRad());
+    runFlywheel(map);
+  }
+
+  private final Debouncer flywheelSpeedOkDebouncer =
+      new Debouncer(FLYWHEEL_SPEED_OK_DEBOUNCE_SECONDS);
+
+  private void runFlywheel(ShotMap map) {
+    var projectileSpeedMetersPerSec =
+        flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec);
+    double minShotSpeedMetersPerSec = map.getMinSpeedMetersPerSec(projectileSpeedMetersPerSec);
+    double maxShotSpeedMetersPerSec = map.getMaxSpeedMetersPerSec(projectileSpeedMetersPerSec);
+    if (flywheelSpeedOkDebouncer.calculate(
+        projectileSpeedMetersPerSec < minShotSpeedMetersPerSec - FLYWHEEL_SPEED_TOLERANCE_MPS)) {
+      // If the flywheel speed is too slow, raise the speed
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(minShotSpeedMetersPerSec));
+      isFlywheelSpeedOk = false;
+      lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
+    } else if (flywheelSpeedOkDebouncer.calculate(
+        projectileSpeedMetersPerSec > maxShotSpeedMetersPerSec + FLYWHEEL_SPEED_TOLERANCE_MPS)) {
+      // If the flywheel speed is too fast, lower the speed
+      flywheelIO.runVel(projectileVelToFlywheelVelMap.get(maxShotSpeedMetersPerSec));
+      isFlywheelSpeedOk = false;
+      lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
+    } else {
+      // If the flywheel is decelerating, a ball is going through, so keep the target speed the
+      // same to let the PID apply a consistent torque to the flywheel
+      // If the flywheel isn't decelerating, we're at idle, maintain current target speed.
+      var flywheelAccelerationMetersPerSecSquared =
+          (flywheelInputs.velRotPerSec - lastFlywheelVelRotPerSec) / Robot.defaultPeriodSecs;
+      if (flywheelAccelerationMetersPerSecSquared > -FLYWHEEL_ACCELERATION_TOLERANCE_MPSS) {
+        flywheelIO.runVel(lastFlywheelVelRotPerSec);
+      } else {
+        lastFlywheelVelRotPerSec = flywheelInputs.velRotPerSec;
+      }
+      isFlywheelSpeedOk = true;
+    }
+  }
+
+  private void runTurret(
+      Rotation2d absoluteYaw, Rotation2d robotYaw, double robotOmegaRadPerSec, double pitchRad) {
     turretIO.runYaw(
-        // Convert from absolute yaw to robot-relative yaw
-        turretYawAbsolute.minus(robotPose.getRotation()).getRadians(),
+        absoluteYaw.minus(robotYaw).getRadians(),
         // Feedforward component also includes the robot's motion
-        (turretYawAbsolute.getRadians() - lastYawRad) / Robot.defaultPeriodSecs
-            - fieldChassisSpeeds.omegaRadiansPerSecond);
-    lastYawRad = turretYawAbsolute.getRadians();
-  }
-
-  private ShotMap.ShotResult getResult(
-      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
-    var shotMap =
-        switch (target) {
-          case BLUE_HUB, RED_HUB -> hubShotMap;
-          default -> groundShotMap;
-        };
-    return shotMap.get(
-        distanceMeters, clampShotSpeedToBounds(distanceMeters, shotSpeedMetersPerSec, target));
-  }
-
-  private double getTimeOfFlightDerivative(
-      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
-    var shotMap =
-        switch (target) {
-          case BLUE_HUB, RED_HUB -> hubShotMap;
-          default -> groundShotMap;
-        };
-    return shotMap.getTimeOfFlightDerivative(
-        distanceMeters, clampShotSpeedToBounds(distanceMeters, shotSpeedMetersPerSec, target));
-  }
-
-  private double clampShotSpeedToBounds(
-      double distanceMeters, double shotSpeedMetersPerSec, ShotTarget target) {
-    var shotMap =
-        switch (target) {
-          case BLUE_HUB, RED_HUB -> hubShotMap;
-          default -> groundShotMap;
-        };
-    return MathUtil.clamp(
-        shotSpeedMetersPerSec,
-        shotMap.getMinSpeed(distanceMeters),
-        shotMap.getMaxSpeed(distanceMeters));
+        (absoluteYaw.getRadians() - lastYawRad) / Robot.defaultPeriodSecs - robotOmegaRadPerSec);
+    lastYawRad = absoluteYaw.getRadians();
+    hoodIO.runPitch(pitchRad, (pitchRad - lastPitchRad) / Robot.defaultPeriodSecs);
+    lastPitchRad = pitchRad;
   }
 }
