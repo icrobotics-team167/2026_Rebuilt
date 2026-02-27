@@ -138,6 +138,7 @@ public class CommandsLogging {
     if (command instanceof SequentialCommandGroup sequence) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = (List<Command>) sequenceSubCommandsField.get(sequence);
 
         subCommandsNameBuilder.append("sequence(");
@@ -158,6 +159,7 @@ public class CommandsLogging {
     } else if (command instanceof ParallelCommandGroup parallel) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = (Map<Command, Boolean>) parallelSubCommandsField.get(parallel);
 
         subCommandsNameBuilder.append("parallel(");
@@ -178,6 +180,7 @@ public class CommandsLogging {
     } else if (command instanceof ParallelDeadlineGroup deadlineGroup) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands =
             ((Map<Command, Boolean>) deadlineSubCommandsField.get(deadlineGroup)).keySet();
 
@@ -206,6 +209,7 @@ public class CommandsLogging {
     } else if (command instanceof ParallelRaceGroup race) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = (Set<Command>) raceSubCommandsField.get(race);
 
         subCommandsNameBuilder.append("race(");
@@ -240,6 +244,7 @@ public class CommandsLogging {
     } else if (command instanceof SelectCommand<?> select) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = ((Map<?, Command>) selectSubCommandsField.get(select)).values();
 
         subCommandsNameBuilder.append("select(");
@@ -378,6 +383,7 @@ public class CommandsLogging {
     if (command instanceof SequentialCommandGroup sequence) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = (List<Command>) sequenceSubCommandsField.get(sequence);
         var index = (Integer) sequenceCommandIndexField.get(sequence);
 
@@ -389,6 +395,7 @@ public class CommandsLogging {
     } else if (command instanceof ParallelCommandGroup parallel) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = ((Map<Command, Boolean>) parallelSubCommandsField.get(parallel)).keySet();
 
         for (var subCommand : subCommands) {
@@ -404,6 +411,7 @@ public class CommandsLogging {
       try {
         var deadline = (Command) deadlineCommandField.get(deadlineGroup);
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands =
             ((Map<Command, Boolean>) deadlineSubCommandsField.get(deadlineGroup)).keySet();
 
@@ -420,6 +428,7 @@ public class CommandsLogging {
     } else if (command instanceof ParallelRaceGroup race) {
       try {
         //noinspection unchecked
+        @SuppressWarnings("unchecked")
         var subCommands = (Set<Command>) raceSubCommandsField.get(race);
 
         for (var subCommand : subCommands) {

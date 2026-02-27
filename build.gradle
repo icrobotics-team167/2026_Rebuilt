@@ -8,6 +8,9 @@ plugins {
     id "idea"
 }
 
+apply plugin: 'java'
+compileJava {options.encoding = "UTF-8"}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -242,5 +245,15 @@ spotless {
         trimTrailingWhitespace()
         leadingTabsToSpaces(2)
         endWithNewline()
+    }
+}
+
+if (hasProperty('compilerArgs')) {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            compilerArgs.split().each { arg ->
+                options.compilerArgs << arg
+            }
+        }
     }
 }
