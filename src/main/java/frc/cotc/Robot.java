@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
 import frc.cotc.intake.IntakePivotIO;
 import frc.cotc.intake.IntakePivotIOPhoenix;
@@ -142,6 +143,55 @@ public class Robot extends LoggedRobot {
               case REAL -> new IntakePivotIOPhoenix();
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
+
+    intakePivot.setDefaultCommand(intakePivot.extend());
+    controller.rightTrigger().whileTrue(intakeRoller.intake());
+
+    var beltFloor =
+        new BeltFloor(
+            switch (mode) {
+              case REAL -> new BeltFloorIOPhoenix();
+              case SIM, REPLAY -> new BeltFloorIO() {};
+            });
+    var raceway =
+        new Raceway(
+            switch (mode) {
+              case REAL -> new RacewayIOPhoenix();
+              case SIM, REPLAY -> new RacewayIO() {};
+            });
+    var turretFeeder =
+        new TurretFeeder(
+            switch (mode) {
+              case REAL -> new TurretFeederIOPhoenix();
+              case SIM, REPLAY -> new TurretFeederIO() {};
+            });
+
+    var delaySeconds = 0.5;
+    controller
+        .leftBumper()
+        .onTrue(
+            parallel(
+                    turretFeeder
+                        .runFeeder()
+                        .withDeadline(
+                            waitUntil(() -> !controller.leftBumper().getAsBoolean())
+                                .withName("Wait until bumper release")
+                                .andThen(waitSeconds(delaySeconds * 2).withName("Delay shutdown")))
+                        .withName("Start up/Shut down feeder"),
+                    waitSeconds(delaySeconds)
+                        .withName("Delay startup")
+                        .andThen(raceway.runRaceway())
+                        .withDeadline(
+                            waitUntil(() -> !controller.leftBumper().getAsBoolean())
+                                .withName("Wait until bumper release")
+                                .andThen(waitSeconds(delaySeconds).withName("Delay shutdown")))
+                        .withName("Start up/Shut down raceway"),
+                    waitSeconds(delaySeconds * 2)
+                        .withName("Delay startup")
+                        .andThen(beltFloor.runBelt())
+                        .onlyWhile(controller.leftBumper())
+                        .withName("Start up/Shut down belt"))
+                .withName("Start up/Shut down feed system"));
 
     swerve.setDefaultCommand(
         swerve.teleopDrive(
