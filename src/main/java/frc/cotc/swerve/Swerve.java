@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
+import frc.cotc.shooter.Shooter;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
@@ -145,6 +146,28 @@ public class Swerve extends SubsystemBase {
                   .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond));
         })
         .withName("Teleop Drive");
+  }
+
+  private final SwerveRequest.FieldCentricFacingAngle facingAngle =
+      new SwerveRequest.FieldCentricFacingAngle();
+
+  public Command aimAtTarget(
+      Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
+    return run(() -> {
+          var translational = translationalInput.get();
+          var x = translational.getX();
+          var y = translational.getY();
+          io.setControl(
+              facingAngle
+                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withTargetDirection(
+                      target
+                          .targetLocation
+                          .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation())
+                          .getAngle()));
+        })
+        .withName("Aim at target");
   }
 
   public Command alignToBump(DoubleSupplier vx) {

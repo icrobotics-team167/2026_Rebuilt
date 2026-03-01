@@ -202,7 +202,6 @@ public class Robot extends LoggedRobot {
             },
             swerve::getPose,
             swerve::getFieldSpeeds);
-    shooter.setDefaultCommand(shooter.shootAtHub());
 
     autos = new Autos(swerve);
 
