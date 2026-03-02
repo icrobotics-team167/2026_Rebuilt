@@ -11,7 +11,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignalCollection;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
@@ -39,6 +41,7 @@ import frc.cotc.shooter.TurretIOSim;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedPowerDistribution;
@@ -143,11 +146,31 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
 
-    swerve.setDefaultCommand(
-        swerve.teleopDrive(
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+    Supplier<Translation2d> translationalInputSupplier =
+        () -> {
+          var x = -controller.getLeftX();
+          var y = -controller.getLeftY();
+          var magnitude = Math.hypot(x, y);
+          if (magnitude > 1e-6) {
+            var normX = x / magnitude;
+            var normY = y / magnitude;
+            var deadbandedMagnitude = MathUtil.applyDeadband(Math.min(magnitude, 1), 0.05);
+            var squaredDeadbandedMagnitude = deadbandedMagnitude * deadbandedMagnitude;
+            return new Translation2d(
+                normX * squaredDeadbandedMagnitude, normY * squaredDeadbandedMagnitude);
+          } else {
+            return Translation2d.kZero;
+          }
+        };
+
+    DoubleSupplier omegaInputSupplier =
+        () -> {
+          var omega = -controller.getRightX();
+          var deadbandedOmegaMag = MathUtil.applyDeadband(Math.abs(omega), 0.05);
+          return omega * deadbandedOmegaMag;
+        };
+
+    swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
 
     new Trigger(
             () ->

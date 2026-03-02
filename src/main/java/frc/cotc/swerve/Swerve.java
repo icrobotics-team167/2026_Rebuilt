@@ -15,6 +15,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -30,6 +31,7 @@ import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
@@ -131,19 +133,22 @@ public class Swerve extends SubsystemBase {
 
   private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric();
 
-  public Command teleopDrive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier omega) {
-    return run(() ->
-            io.setControl(
-                fieldCentricDrive
-                    .withVelocityX(vx.getAsDouble() * maxLinearSpeedMetersPerSecond)
-                    .withVelocityY(vy.getAsDouble() * maxLinearSpeedMetersPerSecond)
-                    .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond)))
+  public Command teleopDrive(Supplier<Translation2d> translationalInput, DoubleSupplier omega) {
+    return run(() -> {
+          var translation = translationalInput.get();
+          var v = translation.getX();
+          var y = translation.getY();
+          io.setControl(
+              fieldCentricDrive
+                  .withVelocityX(v * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond));
+        })
         .withName("Teleop Drive");
   }
 
   public Command alignToBump(DoubleSupplier vx) {
     return teleopDrive(
-        vx,
         () -> {
           var bottomTrenchY = 2.5;
           var topTrenchY = FieldConstants.fieldWidth - bottomTrenchY;
@@ -153,7 +158,8 @@ public class Swerve extends SubsystemBase {
           } else {
             targetY = bottomTrenchY;
           }
-          return bumpAlignYController.calculate(getPose().getY(), targetY);
+          return new Translation2d(
+              vx.getAsDouble(), bumpAlignYController.calculate(getPose().getY(), targetY));
         },
         () -> bumpAlignThetaController.calculate(getPose().getRotation().getRadians(), 0));
   }
