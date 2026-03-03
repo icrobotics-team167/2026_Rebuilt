@@ -196,11 +196,6 @@ public class Robot extends LoggedRobot {
                         .withName("Start up/Shut down belt"))
                 .withName("Start up/Shut down feed system"));
 
-    swerve.setDefaultCommand(
-        swerve.teleopDrive(
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
           var x = -controller.getLeftX();
