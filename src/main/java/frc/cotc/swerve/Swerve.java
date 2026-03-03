@@ -173,6 +173,24 @@ public class Swerve extends SubsystemBase {
         .withName("Aim at target");
   }
 
+  public Command pass(Supplier<Translation2d> translationalInput) {
+    return run(() -> {
+          var translational = translationalInput.get();
+          var x = translational.getX();
+          var y = translational.getY();
+          io.setControl(
+              facingAngle
+                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withTargetDirection(
+                      Robot.isOnRed()
+                          ? Constants.robotToShooterTransform.getRotation().unaryMinus()
+                          : Rotation2d.k180deg.minus(
+                              Constants.robotToShooterTransform.getRotation())));
+        })
+        .withName("Pass");
+  }
+
   public Command alignToBump(DoubleSupplier vx) {
     return teleopDrive(
         () -> {

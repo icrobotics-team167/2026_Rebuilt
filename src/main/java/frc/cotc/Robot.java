@@ -260,6 +260,18 @@ public class Robot extends LoggedRobot {
             },
             swerve::getPose,
             swerve::getFieldSpeeds);
+    controller
+        .leftTrigger()
+        .whileTrue(
+            either(
+                    shooter.shootAt(Shooter.ShotTarget.RED_HUB),
+                    shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
+                    Robot::isOnRed)
+                .withName("Shoot at alliance hub"));
+    controller
+        .leftBumper()
+        .whileTrue(
+            parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
     autos = new Autos(swerve);
 
