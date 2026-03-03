@@ -15,7 +15,7 @@ import frc.cotc.Robot;
 
 public class TurretFeederIOPhoenix implements TurretFeederIO {
   private final TalonFX motor;
-  private final int TURRET_FEEDER_ID = 0; // TODO: Find this value
+  private final int TURRET_FEEDER_ID = 7;
   private final BaseStatusSignal statorSignal, supplySignal;
   private final double TURRET_FEEDER_DEFAULT_VOLTAGE = 12.0;
 

@@ -22,14 +22,13 @@ import edu.wpi.first.units.measure.Current;
 import frc.cotc.Robot;
 
 public class FlywheelIOPhoenix implements FlywheelIO {
-  private static final int MOTOR_0_ID = 0; // TODO: Update Can IDs
-  private static final int MOTOR_1_ID = 1;
+  private static final int MOTOR_0_ID = 2; // TODO: Update Can IDs
+  private static final int MOTOR_1_ID = 3;
 
   private final TalonFX motor0, motor1;
 
-  private final StatusSignal<AngularVelocity> velocity;
-  private final StatusSignal<Current> motor0StatorCurrent, motor1StatorCurrent;
-  private final StatusSignal<Current> motor0SupplyCurrent, motor1SupplyCurrent;
+  private final BaseStatusSignal velocity, motor0StatorCurrent, motor1StatorCurrent,
+    motor0SupplyCurrent, motor1SupplyCurrent;
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);

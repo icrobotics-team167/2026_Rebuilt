@@ -15,12 +15,12 @@ import frc.cotc.Robot;
 
 public class BeltFloorIOPhoenix implements BeltFloorIO {
   private final TalonFX motor;
-  private final int BELTFLOOR_ID = 0; // placeholder
-  private final double BELTFLOOR_DEFAULT_VOLTAGE = 12.0;
+  private final int BELT_FLOOR_ID = 1;
+  private final double BELT_FLOOR_DEFAULT_VOLTAGE = 12.0;
   private final BaseStatusSignal statorSignal, supplySignal, motorSpeedSignal;
 
   public BeltFloorIOPhoenix() {
-    motor = new TalonFX(BELTFLOOR_ID);
+    motor = new TalonFX(BELT_FLOOR_ID);
 
     var config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimit = 80;
@@ -37,12 +37,12 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
 
   @Override
   public void run() {
-    motor.setVoltage(BELTFLOOR_DEFAULT_VOLTAGE);
+    motor.setVoltage(BELT_FLOOR_DEFAULT_VOLTAGE);
   }
 
   @Override
   public void runReverse() {
-    motor.setVoltage(-BELTFLOOR_DEFAULT_VOLTAGE);
+    motor.setVoltage(-BELT_FLOOR_DEFAULT_VOLTAGE);
   }
 
   @Override

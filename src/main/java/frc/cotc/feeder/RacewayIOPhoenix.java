@@ -15,7 +15,7 @@ import frc.cotc.Robot;
 
 public class RacewayIOPhoenix implements RacewayIO {
   private final TalonFX motor;
-  private final int RACEWAY_ID = 0; // placeholder
+  private final int RACEWAY_ID = 0;
   private final double RACEWAY_DEFAULT_VOLTAGE = 12.0;
   private final BaseStatusSignal statorSignal, supplySignal;
 

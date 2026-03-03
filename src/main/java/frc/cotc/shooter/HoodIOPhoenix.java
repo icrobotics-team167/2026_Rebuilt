@@ -23,8 +23,8 @@ import frc.cotc.Robot;
 public class HoodIOPhoenix implements HoodIO {
   private final TalonFX motor;
 
-  private final int HOOD_MOTOR_ID = 0; // TODO: Get the actual ID
-  private final int HOOD_ENCODER_ID = 0; // TODO: Get the actual ID
+  private final int HOOD_MOTOR_ID = 15;
+  private final int HOOD_ENCODER_ID = 0;
 
   private final BaseStatusSignal posSignal, velSignal, statorSignal, supplySignal;
 

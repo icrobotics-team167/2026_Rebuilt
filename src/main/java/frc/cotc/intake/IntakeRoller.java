@@ -15,12 +15,9 @@ import org.littletonrobotics.junction.Logger;
 public class IntakeRoller extends SubsystemBase {
   private final IntakeRollerIO io;
   private final IntakeRollerIOInputsAutoLogged inputs = new IntakeRollerIOInputsAutoLogged();
-  private final DigitalInput beamBreakSensor;
-  private final int BEAM_BREAK_SENSOR_ID = 0; // Placeholder ID for beamBreakSensor
 
   public IntakeRoller(IntakeRollerIO io) {
     this.io = io;
-    beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_ID);
   }
 
   @Override
@@ -35,13 +32,5 @@ public class IntakeRoller extends SubsystemBase {
 
   public Command outtake() {
     return run(io::runReverse).finallyDo(io::stop);
-  }
-
-  public boolean hasGamePiece() {
-    return !beamBreakSensor.get();
-  }
-
-  public Command outtakeUntilGamepiece() {
-    return outtake().until(this::hasGamePiece).withName("Outtake Until Gamepiece");
   }
 }
