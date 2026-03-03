@@ -9,6 +9,8 @@ package frc.cotc;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import frc.cotc.swerve.TunerConstants;
 
@@ -27,4 +29,10 @@ public class Constants {
   public static final double frameLengthMeters = trackLengthMeters + offsetMeters * 2;
   public static final double bumperWidthMeters = frameWidthMeters + bumperThicknessMeters * 2;
   public static final double bumperLengthMeters = frameLengthMeters + bumperThicknessMeters * 2;
+
+  public static Transform2d robotToShooterTransform =
+      new Transform2d(
+          -frameLengthMeters / 2 + Units.inchesToMeters(6),
+          -frameWidthMeters / 2 + Units.inchesToMeters(6),
+          Rotation2d.kCCW_90deg);
 }

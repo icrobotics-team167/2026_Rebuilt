@@ -198,8 +198,8 @@ public class Robot extends LoggedRobot {
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
-          var x = -controller.getLeftX();
-          var y = -controller.getLeftY();
+          var x = -controller.getLeftY();
+          var y = -controller.getLeftX();
           var magnitude = Math.hypot(x, y);
           if (magnitude > 1e-6) {
             var normX = x / magnitude;
@@ -221,6 +221,14 @@ public class Robot extends LoggedRobot {
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    controller
+        .rightTrigger()
+        .whileTrue(
+            either(
+                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
+                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
+                    Robot::isOnRed)
+                .withName("Aim at target"));
 
     new Trigger(
             () ->
@@ -252,7 +260,18 @@ public class Robot extends LoggedRobot {
             },
             swerve::getPose,
             swerve::getFieldSpeeds);
-    shooter.setDefaultCommand(shooter.shootAtHub());
+    controller
+        .leftTrigger()
+        .whileTrue(
+            either(
+                    shooter.shootAt(Shooter.ShotTarget.RED_HUB),
+                    shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
+                    Robot::isOnRed)
+                .withName("Shoot at alliance hub"));
+    controller
+        .leftBumper()
+        .whileTrue(
+            parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
     autos = new Autos(swerve);
 
