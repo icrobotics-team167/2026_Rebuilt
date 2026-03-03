@@ -7,6 +7,8 @@
 
 package frc.cotc.feeder;
 
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,29 +37,20 @@ public class BeltFloor extends SubsystemBase {
   public Command runIntermittenly() {
     double interval = 1.0; // placeholder
 
-    return Commands.repeatingSequence(
-            runBelt().withTimeout(interval), stopBelt().withTimeout(interval))
+    return Commands.repeatingSequence(runBelt().withTimeout(interval), waitSeconds(interval))
         .withName("RunIntermittenly");
   }
 
   public Command runBelt() {
-    return run(io::run);
+    return run(io::run).withName("Run belt");
   }
 
   public Command runBeltReverse() {
-    return run(io::runReverse);
-  }
-
-  public Command stopBelt() {
-    return run(io::stop);
+    return run(io::runReverse).finallyDo(io::stop).withName("Run belt reverse");
   }
 
   public boolean isJam() {
     return debouncer.calculate(
         inputs.motorSpeed < JAM_SPEED && inputs.statorCurrentAmps > JAM_CURRENT);
-  }
-
-  public Command reverseJam() {
-    return run(() -> runBeltReverse()).finallyDo(() -> stopBelt()).withName("ReverseJam");
   }
 }
