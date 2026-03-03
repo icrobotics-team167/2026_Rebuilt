@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
@@ -112,7 +113,16 @@ public class Shooter extends SubsystemBase {
     RED_TOP_GROUND(groundShotMap, RED_TOP_GROUND_TARGET);
 
     public final ShotMap map;
-    public final Translation2d targetLocation;
+    private final Translation2d targetLocation;
+
+    private final double MAX_OFFSET = 0.2;
+
+    public Translation2d getTargetLocation() {
+      return targetLocation.plus(
+          new Translation2d(
+              MAX_OFFSET * Math.sin(5 * Timer.getTimestamp()),
+              MAX_OFFSET * Math.sin(8 * Timer.getTimestamp())));
+    }
 
     ShotTarget(ShotMap map, Translation2d targetLocation) {
       this.map = map;
@@ -242,8 +252,9 @@ public class Shooter extends SubsystemBase {
     //     fieldChassisSpeeds.omegaRadiansPerSecond);
     var map = shotTarget.map;
     var distanceMeters =
-        shotTarget.targetLocation.getDistance(
-            robotPose.plus(Constants.robotToShooterTransform).getTranslation());
+        shotTarget
+            .getTargetLocation()
+            .getDistance(robotPose.plus(Constants.robotToShooterTransform).getTranslation());
     var result =
         map.get(distanceMeters, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
 

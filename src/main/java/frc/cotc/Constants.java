@@ -30,5 +30,9 @@ public class Constants {
   public static final double bumperWidthMeters = frameWidthMeters + bumperThicknessMeters * 2;
   public static final double bumperLengthMeters = frameLengthMeters + bumperThicknessMeters * 2;
 
-  public static Transform2d robotToShooterTransform = new Transform2d(0.5, 0, Rotation2d.kZero);
+  public static Transform2d robotToShooterTransform =
+      new Transform2d(
+          -frameLengthMeters / 2 + Units.inchesToMeters(6),
+          -frameWidthMeters / 2 + Units.inchesToMeters(6),
+          Rotation2d.kCCW_90deg);
 }

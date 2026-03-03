@@ -149,7 +149,7 @@ public class Swerve extends SubsystemBase {
   }
 
   private final SwerveRequest.FieldCentricFacingAngle facingAngle =
-      new SwerveRequest.FieldCentricFacingAngle();
+      new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
 
   public Command aimAtTarget(
       Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
@@ -163,9 +163,12 @@ public class Swerve extends SubsystemBase {
                   .withVelocityY(y * maxLinearSpeedMetersPerSecond)
                   .withTargetDirection(
                       target
-                          .targetLocation
+                          .getTargetLocation()
                           .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation())
-                          .getAngle()));
+                          .getAngle()
+                          .minus(Constants.robotToShooterTransform.getRotation())));
+          Logger.recordOutput(
+              "Shooter/Target", new Pose2d(target.getTargetLocation(), Rotation2d.kZero));
         })
         .withName("Aim at target");
   }

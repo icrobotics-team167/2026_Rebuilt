@@ -198,8 +198,8 @@ public class Robot extends LoggedRobot {
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
-          var x = -controller.getLeftX();
-          var y = -controller.getLeftY();
+          var x = -controller.getLeftY();
+          var y = -controller.getLeftX();
           var magnitude = Math.hypot(x, y);
           if (magnitude > 1e-6) {
             var normX = x / magnitude;
@@ -221,6 +221,14 @@ public class Robot extends LoggedRobot {
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    controller
+        .rightTrigger()
+        .whileTrue(
+            either(
+                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
+                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
+                    Robot::isOnRed)
+                .withName("Aim at target"));
 
     new Trigger(
             () ->
