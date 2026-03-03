@@ -287,7 +287,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    Threads.setCurrentThreadPriority(true, 39);
+    Threads.setCurrentThreadPriority(true, 1);
 
     canivoreSignals.refreshAll();
     rioSignals.refreshAll();
