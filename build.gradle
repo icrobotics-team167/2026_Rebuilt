@@ -206,7 +206,8 @@ spotless {
     java {
         target fileTree(".") {
             include "**/*.java"
-            exclude "**/build/**", "**/build-*/**", "**/BuildConstants.java"
+            exclude "**/build/**", "**/build-*/**", "**/BuildConstants.java",
+                    "**/ChoreoTraj.java", "**/ChoreoVars.java"
         }
         googleJavaFormat()
         removeUnusedImports()

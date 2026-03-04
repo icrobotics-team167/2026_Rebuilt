@@ -39,8 +39,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50, statorSignal, supplySignal);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
     Robot.rioSignals.addSignals(statorSignal, supplySignal);
 
     motor.setPosition(encoder.getRawAngle() - ENCODER_OFFSET_ROTATIONS);

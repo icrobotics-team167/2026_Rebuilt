@@ -8,7 +8,6 @@
 package frc.cotc.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -17,8 +16,6 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
 import frc.cotc.Robot;
 
 public class FlywheelIOPhoenix implements FlywheelIO {
@@ -26,9 +23,11 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private static final int MOTOR_1_ID = 3;
 
   private final TalonFX motor0, motor1;
-
-  private final BaseStatusSignal velocity, motor0StatorCurrent, motor1StatorCurrent,
-    motor0SupplyCurrent, motor1SupplyCurrent;
+  private final BaseStatusSignal velocity,
+      motor0StatorCurrent,
+      motor1StatorCurrent,
+      motor0SupplyCurrent,
+      motor1SupplyCurrent;
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);

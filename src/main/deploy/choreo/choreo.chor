@@ -1,5 +1,5 @@
 {
- "name":"choreos",
+ "name":"choreo",
  "version":2,
  "type":"Swerve",
  "variables":{
@@ -9,22 +9,22 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"8.375 in",
+    "val":0.212725
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.375 in",
+    "val":0.339725
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"-8.375 in",
+    "val":-0.212725
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.375 in",
+    "val":0.339725
    }
   },
   "mass":{
@@ -36,16 +36,16 @@
    "val":6.0
   },
   "gearing":{
-   "exp":"6.5",
-   "val":6.5
+   "exp":"6.026785714285714",
+   "val":6.026785714285714
   },
   "radius":{
    "exp":"2 in",
    "val":0.0508
   },
   "vmax":{
-   "exp":"6000 RPM",
-   "val":628.3185307179587
+   "exp":"5200 RPM",
+   "val":544.5427266222308
   },
   "tmax":{
    "exp":"1.2 N * m",
@@ -57,16 +57,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"(11 + 12) in",
+    "val":0.5841999999999999
    },
    "side":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"(16 + 2.5) in",
+    "val":0.4699
    },
    "back":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"(11 + 2.5) in",
+    "val":0.3429
    }
   },
   "differentialTrackWidth":{
@@ -76,7 +76,7 @@
  },
  "generationFeatures":[],
  "codegen":{
-  "root":null,
+  "root":"../../java/frc/cotc/autos",
   "genVars":true,
   "genTrajData":true,
   "useChoreoLib":true

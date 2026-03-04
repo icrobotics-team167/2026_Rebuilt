@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.autos.Autos;
 import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
 import frc.cotc.intake.IntakePivotIO;
@@ -273,7 +274,7 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
-    autos = new Autos(swerve);
+    autos = new Autos(swerve, shooter, intakeRoller);
 
     RobotModeTriggers.autonomous()
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))

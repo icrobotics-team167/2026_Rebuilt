@@ -31,8 +31,7 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
 
     statorSignal = intakeMotor.getStatorCurrent(false);
     supplySignal = intakeMotor.getSupplyCurrent(false);
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50, statorSignal, supplySignal);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
     Robot.canivoreSignals.addSignals(statorSignal, supplySignal);
   }
 
