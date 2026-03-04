@@ -16,7 +16,8 @@ public interface IntakePivotIO {
 
   @AutoLog
   class IntakePivotIOInputs {
-    public double statorCurrentAmps = 0.0;
-    public double supplyCurrentAmps = 0.0;
+    double statorCurrentAmps = 0.0;
+    double supplyCurrentAmps = 0.0;
+    double velocityRotPerSec = 0.0;
   }
 }

@@ -9,6 +9,7 @@ package frc.cotc.intake;
 
 import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -28,11 +29,17 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command extend() {
-    return runAngle(0);
+    return run(() -> io.run(12)).until(this::isStalled).finallyDo(() -> io.run(0));
   }
 
   public Command retract() {
-    return runAngle(Math.PI / 2);
+    return run(() -> io.run(-12)).until(this::isStalled).finallyDo(() -> io.run(0));
+  }
+
+  private final Debouncer debouncer = new Debouncer(0.1);
+
+  private boolean isStalled() {
+    return debouncer.calculate(Math.abs(inputs.statorCurrentAmps) > 30 && Math.abs(inputs.velocityRotPerSec) < 30);
   }
 
   public Command agitate() {
@@ -40,11 +47,6 @@ public class IntakePivot extends SubsystemBase {
 
     return repeatingSequence(
             extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
-        .finallyDo(io::stop)
         .withName("Agitate");
-  }
-
-  private Command runAngle(double angleRad) {
-    return run(() -> io.run(angleRad)).finallyDo(io::stop);
   }
 }

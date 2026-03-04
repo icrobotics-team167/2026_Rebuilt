@@ -21,21 +21,22 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final TalonFX motor;
   private final int MOTOR_ID = 8;
 
-  private final BaseStatusSignal statorSignal, supplySignal;
+  private final BaseStatusSignal statorSignal, supplySignal, velocitySignal;
 
   public IntakePivotIOPhoenix() {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
 
-    config.CurrentLimits.StatorCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
-    Robot.rioSignals.addSignals(statorSignal, supplySignal);
+    velocitySignal = motor.getVelocity(false);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, velocitySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal, velocitySignal);
   }
 
   @Override
@@ -47,5 +48,6 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   public void updateInputs(IntakePivotIOInputs inputs) {
     inputs.statorCurrentAmps = statorSignal.getValueAsDouble();
     inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
+    inputs.velocityRotPerSec = velocitySignal.getValueAsDouble();
   }
 }
