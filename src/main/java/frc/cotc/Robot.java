@@ -243,10 +243,10 @@ public class Robot extends LoggedRobot {
                     shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
                     Robot::isOnRed)
                 .withName("Shoot at alliance hub"));
-    controller
-        .rightBumper()
-        .whileTrue(
-            parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
+    // controller
+    //     .rightBumper()
+    //     .whileTrue(
+    //         parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
     autos = new Autos(swerve, shooter, feeder, intakeRoller);
 
