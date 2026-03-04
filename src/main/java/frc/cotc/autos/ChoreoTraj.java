@@ -24,12 +24,40 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj RushMiddle = new ChoreoTraj(
-	    "RushMiddle",
+    public static final ChoreoTraj RushMiddleTop = new ChoreoTraj(
+	    "RushMiddleTop",
 	    OptionalInt.empty(),
-	    4.72862,
+	    4.46667,
 	    new Pose2d(3.688, 2.1, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 4, Rotation2d.fromRadians(-1.571))
+	    new Pose2d(2.376, 5.556, Rotation2d.fromRadians(-2.113))
+	);
+	public static final ChoreoTraj RushMiddleBottom = new ChoreoTraj(
+	    "RushMiddleBottom",
+	    OptionalInt.empty(),
+	    6.21491,
+	    new Pose2d(3.688, 5.95, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.228, 1.341, Rotation2d.fromRadians(-0.96))
+	);
+	public static final ChoreoTraj RushMiddleBottom$0 = new ChoreoTraj(
+	    "RushMiddleBottom",
+	    OptionalInt.of(0),
+	    4.41887,
+	    new Pose2d(3.688, 5.95, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.051, 2.36, Rotation2d.fromRadians(-1.047))
+	);
+	public static final ChoreoTraj RushMiddleBottom$1 = new ChoreoTraj(
+	    "RushMiddleBottom",
+	    OptionalInt.of(1),
+	    1.0670399999999995,
+	    new Pose2d(2.051, 2.36, Rotation2d.fromRadians(-1.047)),
+	    new Pose2d(0.621, 0.665, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj RushMiddleBottom$2 = new ChoreoTraj(
+	    "RushMiddleBottom",
+	    OptionalInt.of(2),
+	    0.7290000000000001,
+	    new Pose2d(0.621, 0.665, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.228, 1.341, Rotation2d.fromRadians(-0.96))
 	);
 
     /**
@@ -37,7 +65,11 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("RushMiddle", RushMiddle)
+    	Map.entry("RushMiddleTop", RushMiddleTop),
+		Map.entry("RushMiddleBottom", RushMiddleBottom),
+		Map.entry("RushMiddleBottom$0", RushMiddleBottom$0),
+		Map.entry("RushMiddleBottom$1", RushMiddleBottom$1),
+		Map.entry("RushMiddleBottom$2", RushMiddleBottom$2)
     );
 
     /**

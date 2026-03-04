@@ -218,6 +218,12 @@ public class Swerve extends SubsystemBase {
         .withName("Set to red");
   }
 
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+
+  public Command brake() {
+    return run(() -> io.setControl(brake)).withName("Brake");
+  }
+
   public void followPath(SwerveSample sample) {
     var pose = getPose();
 

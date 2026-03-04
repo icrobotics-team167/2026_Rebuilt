@@ -10,11 +10,13 @@ package frc.cotc.autos;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import choreo.auto.AutoFactory;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.cotc.Robot;
+import frc.cotc.feeder.Feeder;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.swerve.Swerve;
@@ -28,25 +30,31 @@ public class Autos {
   private final HashMap<String, Supplier<Command>> routines = new HashMap<>();
   private final String NONE_NAME = "Do Nothing";
 
-  private final Supplier<Command> shootCommand;
-  private final Supplier<Command> intakeCommand;
+  private final Supplier<Command> shootCommand, feedCommand, intakeCommand, aimCommand, stopCommand;
 
-  public Autos(Swerve swerve, Shooter shooter, IntakeRoller intakeRoller) {
+  public Autos(Swerve swerve, Shooter shooter, Feeder feeder, IntakeRoller intakeRoller) {
     chooser = new LoggedDashboardChooser<>("Auto Chooser");
     chooser.addDefaultOption(NONE_NAME, NONE_NAME);
     routines.put(NONE_NAME, Commands::none);
 
     shootCommand =
         () ->
-            Robot.isOnRed()
-                ? shooter.shootAt(Shooter.ShotTarget.RED_HUB)
-                : shooter.shootAt(Shooter.ShotTarget.BLUE_HUB);
+            shooter.shootAt(
+                Robot.isOnRed() ? Shooter.ShotTarget.RED_HUB : Shooter.ShotTarget.BLUE_HUB);
+    feedCommand = feeder::feed;
     intakeCommand = intakeRoller::intake;
+    aimCommand =
+        () ->
+            swerve.aimAtTarget(
+                () -> Translation2d.kZero,
+                Robot.isOnRed() ? Shooter.ShotTarget.RED_HUB : Shooter.ShotTarget.BLUE_HUB);
+    stopCommand = swerve::brake;
 
     autoFactory =
         new AutoFactory(swerve::getPose, swerve::resetPose, swerve::followPath, true, swerve);
 
-    addRoutine("Rush middle", this::rushMiddle);
+    addRoutine("Rush middle top", this::rushMiddleTop);
+    addRoutine("Rush middle bottom", this::rushMiddleBottom);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -92,18 +100,46 @@ public class Autos {
     routines.put(name, generator);
   }
 
-  private Command rushMiddle() {
-    var routine = autoFactory.newRoutine("Rush Middle");
-    var trajectory = ChoreoTraj.RushMiddle.asAutoTraj(routine);
+  private Command rushMiddleTop() {
+    var routine = autoFactory.newRoutine("Rush Middle Top");
+    var trajectory = ChoreoTraj.RushMiddleTop.asAutoTraj(routine);
 
     routine
         .active()
         .onTrue(
-            sequence(trajectory.resetOdometry(), trajectory.cmd(), parallel(shootCommand.get())));
+            sequence(
+                trajectory.resetOdometry(),
+                trajectory.cmd(),
+                parallel(shootCommand.get(), aimCommand.get(), feedCommand.get())));
 
     trajectory
         .atTime("Start intaking")
         .onTrue(intakeCommand.get().until(trajectory.atTime("Stop " + "intaking")));
+
+    return routine.cmd();
+  }
+
+  private Command rushMiddleBottom() {
+    var routine = autoFactory.newRoutine("Rush Middle Bottom");
+    var segment0 = ChoreoTraj.RushMiddleBottom$0.asAutoTraj(routine);
+    var segment1 = ChoreoTraj.RushMiddleBottom$1.asAutoTraj(routine);
+    var segment2 = ChoreoTraj.RushMiddleBottom$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                segment0.resetOdometry(),
+                segment0.cmd(),
+                parallel(shootCommand.get(), aimCommand.get(), feedCommand.get()).withTimeout(4),
+                segment1.cmd(),
+                stopCommand.get().withTimeout(2),
+                segment2.cmd(),
+                parallel(shootCommand.get(), aimCommand.get(), feedCommand.get())));
+
+    segment1
+        .atTime("Start intaking")
+        .onTrue(intakeCommand.get().until(segment1.atTime("Stop " + "intaking")));
 
     return routine.cmd();
   }

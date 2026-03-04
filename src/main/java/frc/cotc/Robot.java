@@ -151,51 +151,22 @@ public class Robot extends LoggedRobot {
     intakePivot.setDefaultCommand(intakePivot.extend());
     controller.rightTrigger().whileTrue(intakeRoller.intake());
 
-    var beltFloor =
-        new BeltFloor(
+    var feeder =
+        new Feeder(
             switch (mode) {
               case REAL -> new BeltFloorIOPhoenix();
               case SIM, REPLAY -> new BeltFloorIO() {};
-            });
-    var raceway =
-        new Raceway(
+            },
             switch (mode) {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
-            });
-    var turretFeeder =
-        new TurretFeeder(
+            },
             switch (mode) {
               case REAL -> new TurretFeederIOPhoenix();
               case SIM, REPLAY -> new TurretFeederIO() {};
             });
 
-    var delaySeconds = 0.5;
-    controller
-        .leftBumper()
-        .onTrue(
-            parallel(
-                    turretFeeder
-                        .runFeeder()
-                        .withDeadline(
-                            waitUntil(() -> !controller.leftBumper().getAsBoolean())
-                                .withName("Wait until bumper release")
-                                .andThen(waitSeconds(delaySeconds * 2).withName("Delay shutdown")))
-                        .withName("Start up/Shut down feeder"),
-                    waitSeconds(delaySeconds)
-                        .withName("Delay startup")
-                        .andThen(raceway.runRaceway())
-                        .withDeadline(
-                            waitUntil(() -> !controller.leftBumper().getAsBoolean())
-                                .withName("Wait until bumper release")
-                                .andThen(waitSeconds(delaySeconds).withName("Delay shutdown")))
-                        .withName("Start up/Shut down raceway"),
-                    waitSeconds(delaySeconds * 2)
-                        .withName("Delay startup")
-                        .andThen(beltFloor.runBelt())
-                        .onlyWhile(controller.leftBumper())
-                        .withName("Start up/Shut down belt"))
-                .withName("Start up/Shut down feed system"));
+    controller.leftBumper().whileTrue(feeder.feed());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -270,11 +241,11 @@ public class Robot extends LoggedRobot {
                     Robot::isOnRed)
                 .withName("Shoot at alliance hub"));
     controller
-        .leftBumper()
+        .rightBumper()
         .whileTrue(
             parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
-    autos = new Autos(swerve, shooter, intakeRoller);
+    autos = new Autos(swerve, shooter, feeder, intakeRoller);
 
     RobotModeTriggers.autonomous()
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
