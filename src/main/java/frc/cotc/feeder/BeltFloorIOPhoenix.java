@@ -8,6 +8,7 @@
 package frc.cotc.feeder;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -20,7 +21,7 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
   private final BaseStatusSignal statorSignal, supplySignal, motorSpeedSignal;
 
   public BeltFloorIOPhoenix() {
-    motor = new TalonFX(BELT_FLOOR_ID);
+    motor = new TalonFX(BELT_FLOOR_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimit = 80;
@@ -32,7 +33,7 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
     supplySignal = motor.getSupplyCurrent(false);
     motorSpeedSignal = motor.getAcceleration(false);
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, motorSpeedSignal);
-    Robot.canivoreSignals.addSignals(statorSignal, supplySignal, motorSpeedSignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal, motorSpeedSignal);
   }
 
   @Override

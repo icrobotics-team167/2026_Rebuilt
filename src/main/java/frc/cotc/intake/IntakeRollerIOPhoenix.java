@@ -8,6 +8,7 @@
 package frc.cotc.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -22,7 +23,7 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
   private final BaseStatusSignal statorSignal, supplySignal;
 
   public IntakeRollerIOPhoenix() {
-    intakeMotor = new TalonFX(INTAKE_ID);
+    intakeMotor = new TalonFX(INTAKE_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.CurrentLimits.StatorCurrentLimit = 80;
@@ -32,7 +33,7 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
     statorSignal = intakeMotor.getStatorCurrent(false);
     supplySignal = intakeMotor.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
-    Robot.canivoreSignals.addSignals(statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal);
   }
 
   @Override

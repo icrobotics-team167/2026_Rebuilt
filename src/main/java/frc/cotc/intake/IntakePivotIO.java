@@ -12,14 +12,11 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakePivotIO {
   default void updateInputs(IntakePivotIOInputs inputs) {}
 
-  default void run(double thetaRad) {}
-
-  default void stop() {}
+  default void run(double volts) {}
 
   @AutoLog
   class IntakePivotIOInputs {
     public double statorCurrentAmps = 0.0;
     public double supplyCurrentAmps = 0.0;
-    public double thetaRad = 0.0;
   }
 }

@@ -9,6 +9,7 @@ package frc.cotc;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.MathUtil;
@@ -65,6 +66,8 @@ public class Robot extends LoggedRobot {
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
   public static final StatusSignalCollection rioSignals = new StatusSignalCollection();
+
+  public static final CANBus rioBus = CANBus.roboRIO();
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {

@@ -34,8 +34,8 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   private final VoltageOut stopRequest = new VoltageOut(0);
 
   public FlywheelIOPhoenix() {
-    motor0 = new TalonFX(MOTOR_0_ID);
-    motor1 = new TalonFX(MOTOR_1_ID);
+    motor0 = new TalonFX(MOTOR_0_ID, Robot.rioBus);
+    motor1 = new TalonFX(MOTOR_1_ID, Robot.rioBus);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.CurrentLimits.StatorCurrentLimit = 240;
@@ -68,7 +68,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
         motor0SupplyCurrent,
         motor1SupplyCurrent);
 
-    Robot.canivoreSignals.addSignals(
+    Robot.rioSignals.addSignals(
         velocity,
         motor0StatorCurrent,
         motor1StatorCurrent,

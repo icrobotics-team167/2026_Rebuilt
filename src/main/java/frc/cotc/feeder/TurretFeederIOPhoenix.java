@@ -8,6 +8,7 @@
 package frc.cotc.feeder;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -20,7 +21,7 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
   private final double TURRET_FEEDER_DEFAULT_VOLTAGE = 12.0;
 
   public TurretFeederIOPhoenix() {
-    motor = new TalonFX(TURRET_FEEDER_ID);
+    motor = new TalonFX(TURRET_FEEDER_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
 
@@ -32,7 +33,7 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
-    Robot.canivoreSignals.addSignals(statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal);
   }
 
   @Override
