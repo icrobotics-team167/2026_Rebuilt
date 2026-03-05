@@ -29,18 +29,18 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command extend() {
-    return run(() -> io.run(6)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
+    return run(() -> io.run(12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
   }
 
   public Command retract() {
-    return run(() -> io.run(-6)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
+    return run(() -> io.run(-12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
   }
 
   private final Debouncer debouncer = new Debouncer(0.3);
 
   private boolean isStalled() {
     return debouncer.calculate(
-        Math.abs(inputs.statorCurrentAmps) > 40 && Math.abs(inputs.velocityRotPerSec) < 30);
+        Math.abs(inputs.statorCurrentAmps) > 40 && Math.abs(inputs.velocityRotPerSec) < 20);
   }
 
   public Command agitate() {
