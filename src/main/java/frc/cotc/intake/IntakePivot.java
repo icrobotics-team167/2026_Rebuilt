@@ -39,7 +39,8 @@ public class IntakePivot extends SubsystemBase {
   private final Debouncer debouncer = new Debouncer(0.1);
 
   private boolean isStalled() {
-    return debouncer.calculate(Math.abs(inputs.statorCurrentAmps) > 30 && Math.abs(inputs.velocityRotPerSec) < 30);
+    return debouncer.calculate(
+        Math.abs(inputs.statorCurrentAmps) > 30 && Math.abs(inputs.velocityRotPerSec) < 30);
   }
 
   public Command agitate() {
