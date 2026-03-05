@@ -190,14 +190,6 @@ public class Robot extends LoggedRobot {
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    controller
-        .rightTrigger()
-        .whileTrue(
-            either(
-                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
-                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
-                    Robot::isOnRed)
-                .withName("Aim at target"));
 
     new Trigger(
             () ->
@@ -232,11 +224,17 @@ public class Robot extends LoggedRobot {
     controller
         .leftTrigger()
         .whileTrue(
-            either(
-                    shooter.shootAt(Shooter.ShotTarget.RED_HUB),
-                    shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
-                    Robot::isOnRed)
-                .withName("Shoot at alliance hub"));
+            parallel(
+                either(
+                        shooter.shootAt(Shooter.ShotTarget.RED_HUB),
+                        shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
+                        Robot::isOnRed)
+                    .withName("Shoot at alliance hub"),
+                either(
+                        swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
+                        swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
+                        Robot::isOnRed)
+                    .withName("Aim at target")));
     // controller
     //     .rightBumper()
     //     .whileTrue(
