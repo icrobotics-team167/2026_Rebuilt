@@ -29,11 +29,11 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command extend() {
-    return run(() -> io.run(12)).until(this::isStalled).finallyDo(() -> io.run(0));
+    return run(() -> io.run(6)).until(this::isStalled).finallyDo(() -> io.run(0));
   }
 
   public Command retract() {
-    return run(() -> io.run(-12)).until(this::isStalled).finallyDo(() -> io.run(0));
+    return run(() -> io.run(-6)).until(this::isStalled).finallyDo(() -> io.run(0));
   }
 
   private final Debouncer debouncer = new Debouncer(0.1);
