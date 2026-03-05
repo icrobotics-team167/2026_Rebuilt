@@ -43,10 +43,10 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
     config.Slot0.kV = 12.0 / 130.0;
-    config.Slot0.kP = 20;
+    config.Slot0.kP = 0;
 
     // Left Side
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motor0.getConfigurator().apply(config);
     motor1.getConfigurator().apply(config);
 
