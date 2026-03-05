@@ -108,7 +108,7 @@ public class Shooter extends SubsystemBase {
   private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
   public Command idleRun() {
-    return run(() -> flywheelIO.runVel(10));
+    return run(() -> flywheelIO.runVel(100));
   }
 
   public enum ShotTarget {
