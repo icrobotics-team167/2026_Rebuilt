@@ -148,22 +148,21 @@ public class Robot extends LoggedRobot {
     intakePivot.setDefaultCommand(intakePivot.extend());
     controller.rightTrigger().whileTrue(intakeRoller.intake());
 
-    var feeder =
-        new Feeder(
-            switch (mode) {
-              case REAL -> new BeltFloorIOPhoenix();
-              case SIM, REPLAY -> new BeltFloorIO() {};
-            },
-            switch (mode) {
-              case REAL -> new RacewayIOPhoenix();
-              case SIM, REPLAY -> new RacewayIO() {};
-            },
-            switch (mode) {
-              case REAL -> new TurretFeederIOPhoenix();
-              case SIM, REPLAY -> new TurretFeederIO() {};
-            });
-
-    controller.leftBumper().whileTrue(feeder.feed());
+    var beltFloor = new BeltFloor(switch (mode) {
+      case REAL -> new BeltFloorIOPhoenix();
+      case SIM, REPLAY -> new BeltFloorIO() {};
+    });
+    var turretFeeder = new TurretFeeder(switch (mode) {
+      case REAL -> new TurretFeederIOPhoenix();
+      case SIM, REPLAY -> new TurretFeederIO() {};
+    });
+    var raceway = new  Raceway(switch (mode) {
+      case REAL -> new RacewayIOPhoenix();
+      case SIM, REPLAY -> new RacewayIO() {};
+    });
+    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    raceway.setDefaultCommand(raceway.runRaceway());
+    controller.leftBumper().whileTrue(beltFloor.runBelt());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {

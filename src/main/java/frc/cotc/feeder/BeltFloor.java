@@ -42,7 +42,7 @@ public class BeltFloor extends SubsystemBase {
   }
 
   public Command runBelt() {
-    return run(io::run).withName("Run belt");
+    return run(io::run).finallyDo(io::stop).withName("Run belt");
   }
 
   public Command runBeltReverse() {
