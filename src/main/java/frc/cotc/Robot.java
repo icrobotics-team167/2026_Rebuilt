@@ -144,7 +144,7 @@ public class Robot extends LoggedRobot {
             });
 
     intakePivot.setDefaultCommand(intakePivot.extend());
-    controller.rightTrigger().whileTrue(intakeRoller.intake());
+    controller.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
         new BeltFloor(
@@ -166,7 +166,7 @@ public class Robot extends LoggedRobot {
             });
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     raceway.setDefaultCommand(raceway.runRaceway());
-    controller.leftBumper().whileTrue(beltFloor.runBelt());
+    controller.rightTrigger().whileTrue(beltFloor.runBelt());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -226,7 +226,7 @@ public class Robot extends LoggedRobot {
             swerve::getFieldSpeeds);
     shooter.setDefaultCommand(shooter.idleRun());
     controller
-        .leftTrigger()
+        .x()
         .whileTrue(
             parallel(
                 either(
