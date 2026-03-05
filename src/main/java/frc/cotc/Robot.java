@@ -55,7 +55,7 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
-  private final Autos autos;
+  // private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -148,18 +148,24 @@ public class Robot extends LoggedRobot {
     intakePivot.setDefaultCommand(intakePivot.extend());
     controller.rightTrigger().whileTrue(intakeRoller.intake());
 
-    var beltFloor = new BeltFloor(switch (mode) {
-      case REAL -> new BeltFloorIOPhoenix();
-      case SIM, REPLAY -> new BeltFloorIO() {};
-    });
-    var turretFeeder = new TurretFeeder(switch (mode) {
-      case REAL -> new TurretFeederIOPhoenix();
-      case SIM, REPLAY -> new TurretFeederIO() {};
-    });
-    var raceway = new  Raceway(switch (mode) {
-      case REAL -> new RacewayIOPhoenix();
-      case SIM, REPLAY -> new RacewayIO() {};
-    });
+    var beltFloor =
+        new BeltFloor(
+            switch (mode) {
+              case REAL -> new BeltFloorIOPhoenix();
+              case SIM, REPLAY -> new BeltFloorIO() {};
+            });
+    var turretFeeder =
+        new TurretFeeder(
+            switch (mode) {
+              case REAL -> new TurretFeederIOPhoenix();
+              case SIM, REPLAY -> new TurretFeederIO() {};
+            });
+    var raceway =
+        new Raceway(
+            switch (mode) {
+              case REAL -> new RacewayIOPhoenix();
+              case SIM, REPLAY -> new RacewayIO() {};
+            });
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     raceway.setDefaultCommand(raceway.runRaceway());
     controller.leftBumper().whileTrue(beltFloor.runBelt());
@@ -240,11 +246,11 @@ public class Robot extends LoggedRobot {
     //     .whileTrue(
     //         parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
-    autos = new Autos(swerve, shooter, feeder, intakeRoller);
+    // autos = new Autos(swerve, shooter, feeder, intakeRoller);
 
-    RobotModeTriggers.autonomous()
-        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-        .onFalse(runOnce(autos::clear));
+    // RobotModeTriggers.autonomous()
+    //     .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+    //     .onFalse(runOnce(autos::clear));
   }
 
   @Override
