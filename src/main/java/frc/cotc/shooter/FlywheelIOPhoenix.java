@@ -42,7 +42,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.CurrentLimits.StatorCurrentLimit = 120;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.Slot0.kV = 12.0 / 130.0;
+    config.Slot0.kV = 12.0 / 110.0;
     config.Slot0.kP = 0;
 
     // Left Side
