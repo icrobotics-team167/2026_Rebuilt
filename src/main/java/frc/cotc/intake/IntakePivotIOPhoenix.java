@@ -8,13 +8,9 @@
 package frc.cotc.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.revrobotics.encoder.SplineEncoder;
-import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 
 public class IntakePivotIOPhoenix implements IntakePivotIO {
