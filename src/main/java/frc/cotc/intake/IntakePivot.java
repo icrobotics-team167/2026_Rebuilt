@@ -36,11 +36,11 @@ public class IntakePivot extends SubsystemBase {
     return run(() -> io.run(-6)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
   }
 
-  private final Debouncer debouncer = new Debouncer(0.2);
+  private final Debouncer debouncer = new Debouncer(0.3);
 
   private boolean isStalled() {
     return debouncer.calculate(
-        Math.abs(inputs.statorCurrentAmps) > 30 && Math.abs(inputs.velocityRotPerSec) < 30);
+        Math.abs(inputs.statorCurrentAmps) > 40 && Math.abs(inputs.velocityRotPerSec) < 30);
   }
 
   public Command agitate() {
