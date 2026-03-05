@@ -104,22 +104,22 @@ public class Shooter extends SubsystemBase {
     // Logger.processInputs("Shooter/Turret", turretInputs);
   }
 
-  private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
-  private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
+  // private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
+  // private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
   public Command idleRun() {
     return run(() -> flywheelIO.runVel(50));
   }
 
   public enum ShotTarget {
-    BLUE_HUB(hubShotMap, FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+    BLUE_HUB(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
     // BLUE_BOTTOM_GROUND(groundShotMap, BLUE_BOTTOM_GROUND_TARGET),
     // BLUE_TOP_GROUND(groundShotMap, BLUE_TOP_GROUND_TARGET),
-    RED_HUB(hubShotMap, FieldConstants.Hub.oppTopCenterPoint.toTranslation2d());
+    RED_HUB(FieldConstants.Hub.oppTopCenterPoint.toTranslation2d());
     // RED_BOTTOM_GROUND(groundShotMap, RED_BOTTOM_GROUND_TARGET),
     // RED_TOP_GROUND(groundShotMap, RED_TOP_GROUND_TARGET);
 
-    public final ShotMap map;
+    // public final ShotMap map;
     private final Translation2d targetLocation;
 
     private final double MAX_OFFSET = 0.2;
@@ -131,8 +131,8 @@ public class Shooter extends SubsystemBase {
               MAX_OFFSET * Math.sin(8 * Timer.getTimestamp())));
     }
 
-    ShotTarget(ShotMap map, Translation2d targetLocation) {
-      this.map = map;
+    ShotTarget(Translation2d targetLocation) {
+      // this.map = map;
       this.targetLocation = targetLocation;
     }
   }
@@ -144,19 +144,19 @@ public class Shooter extends SubsystemBase {
         .withName("Shoot at " + shotTarget.name());
   }
 
-  public Command pass() {
-    return run(
-        () -> {
-          var blueTargetX = 1.0;
-          var targetX = Robot.isOnRed() ? FieldConstants.fieldLength - blueTargetX : blueTargetX;
-          var distance = Math.abs(targetX - robotPoseSupplier.get().getX());
-          var result =
-              groundShotMap.get(
-                  distance, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
-          // runHood(result.pitchRad());
-          runFlywheel(groundShotMap, distance);
-        });
-  }
+  // public Command pass() {
+  //   return run(
+  //       () -> {
+  //         var blueTargetX = 1.0;
+  //         var targetX = Robot.isOnRed() ? FieldConstants.fieldLength - blueTargetX : blueTargetX;
+  //         var distance = Math.abs(targetX - robotPoseSupplier.get().getX());
+  //         var result =
+  //             groundShotMap.get(
+  //                 distance, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+  //         // runHood(result.pitchRad());
+  //         runFlywheel(groundShotMap, distance);
+  //       });
+  // }
 
   // public boolean canShoot() {
   //   return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
