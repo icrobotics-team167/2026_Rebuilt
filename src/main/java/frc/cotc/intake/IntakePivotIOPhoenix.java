@@ -24,8 +24,8 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     var config = new TalonFXConfiguration();
 
     config.CurrentLimits.StatorCurrentLimit = 60;
-    config.CurrentLimits.SupplyCurrentLimit = 20;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motor.getConfigurator().apply(config);
 
     statorSignal = motor.getStatorCurrent(false);

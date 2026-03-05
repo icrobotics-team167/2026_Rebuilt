@@ -9,12 +9,13 @@ package frc.cotc.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.cotc.Robot;
 
@@ -38,19 +39,19 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     motor1 = new TalonFX(MOTOR_1_ID, Robot.rioBus);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.CurrentLimits.StatorCurrentLimit = 240;
+    config.CurrentLimits.StatorCurrentLimit = 120;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.Slot0.kV = 0.12;
-    config.Slot0.kP = 0.10;
+    config.Slot0.kV = 12.0 / 130.0;
+    config.Slot0.kP = 20;
 
-    //  Left Side
+    // Left Side
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor0.getConfigurator().apply(config);
     motor1.getConfigurator().apply(config);
 
     //  All motors follow motor 0
-    motor1.setControl(new StrictFollower(MOTOR_0_ID));
+    motor1.setControl(new Follower(MOTOR_0_ID, MotorAlignmentValue.Opposed));
 
     velocity = motor0.getVelocity(false);
 

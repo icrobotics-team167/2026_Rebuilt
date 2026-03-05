@@ -12,7 +12,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,11 +22,11 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
-  private final HoodIO hoodIO;
+  // private final HoodIO hoodIO;
   private final FlywheelIO flywheelIO;
-  private final TurretIO turretIO;
+  // private final TurretIO turretIO;
 
-  private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+  // private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private final FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
   private final TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
 
@@ -74,14 +73,14 @@ public class Shooter extends SubsystemBase {
       new InterpolatingDoubleTreeMap();
 
   public Shooter(
-      HoodIO hoodIO,
+      // HoodIO hoodIO,
       FlywheelIO flywheelIO,
-      TurretIO turretIO,
+      // TurretIO turretIO,
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier) {
-    this.hoodIO = hoodIO;
+    // this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
-    this.turretIO = turretIO;
+    // this.turretIO = turretIO;
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
@@ -97,12 +96,12 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    hoodIO.updateInputs(hoodInputs);
-    Logger.processInputs("Shooter/Hood", hoodInputs);
+    // hoodIO.updateInputs(hoodInputs);
+    // Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
-    turretIO.updateInputs(turretInputs);
-    Logger.processInputs("Shooter/Turret", turretInputs);
+    // turretIO.updateInputs(turretInputs);
+    // Logger.processInputs("Shooter/Turret", turretInputs);
   }
 
   private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
@@ -150,16 +149,16 @@ public class Shooter extends SubsystemBase {
           var result =
               groundShotMap.get(
                   distance, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
-          runHood(result.pitchRad());
+          // runHood(result.pitchRad());
           runFlywheel(groundShotMap, distance);
         });
   }
 
-  public boolean canShoot() {
-    return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
-        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1))
-        && isFlywheelSpeedOk;
-  }
+  // public boolean canShoot() {
+  //   return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
+  //       && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1))
+  //       && isFlywheelSpeedOk;
+  // }
 
   private double lastPitchRad;
   private double lastYawRad;
@@ -320,16 +319,17 @@ public class Shooter extends SubsystemBase {
     }
   }
 
-  private void runTurret(Rotation2d absoluteYaw, Rotation2d robotYaw, double robotOmegaRadPerSec) {
-    turretIO.runYaw(
-        absoluteYaw.minus(robotYaw).getRadians(),
-        // Feedforward component also includes the robot's motion
-        (absoluteYaw.getRadians() - lastYawRad) / Robot.defaultPeriodSecs - robotOmegaRadPerSec);
-    lastYawRad = absoluteYaw.getRadians();
-  }
+  // private void runTurret(Rotation2d absoluteYaw, Rotation2d robotYaw, double robotOmegaRadPerSec)
+  // {
+  //   turretIO.runYaw(
+  //       absoluteYaw.minus(robotYaw).getRadians(),
+  //       // Feedforward component also includes the robot's motion
+  //       (absoluteYaw.getRadians() - lastYawRad) / Robot.defaultPeriodSecs - robotOmegaRadPerSec);
+  //   lastYawRad = absoluteYaw.getRadians();
+  // }
 
-  private void runHood(double pitchRad) {
-    hoodIO.runPitch(pitchRad, (pitchRad - lastPitchRad) / Robot.defaultPeriodSecs);
-    lastPitchRad = pitchRad;
-  }
+  // private void runHood(double pitchRad) {
+  //   hoodIO.runPitch(pitchRad, (pitchRad - lastPitchRad) / Robot.defaultPeriodSecs);
+  //   lastPitchRad = pitchRad;
+  // }
 }
