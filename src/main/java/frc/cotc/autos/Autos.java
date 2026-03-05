@@ -30,6 +30,7 @@ public class Autos {
   private final HashMap<String, Supplier<Command>> routines = new HashMap<>();
   private final String NONE_NAME = "Do Nothing";
 
+  private final Swerve swerve;
   private final Supplier<Command> shootCommand, feedCommand, intakeCommand, aimCommand, stopCommand;
 
   public Autos(Swerve swerve, Shooter shooter, Feeder feeder, IntakeRoller intakeRoller) {
@@ -37,6 +38,7 @@ public class Autos {
     chooser.addDefaultOption(NONE_NAME, NONE_NAME);
     routines.put(NONE_NAME, Commands::none);
 
+    this.swerve = swerve;
     shootCommand =
         () ->
             shooter.shootAt(
@@ -55,6 +57,7 @@ public class Autos {
 
     addRoutine("Rush middle top", this::rushMiddleTop);
     addRoutine("Rush middle bottom", this::rushMiddleBottom);
+    addRoutine("Move", this::move);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -142,5 +145,12 @@ public class Autos {
         .onTrue(intakeCommand.get().until(segment1.atTime("Stop " + "intaking")));
 
     return routine.cmd();
+  }
+
+  private Command move() {
+    return swerve
+        .teleopDrive(() -> new Translation2d(-.1, 0), () -> 0)
+        .withTimeout(2)
+        .andThen(parallel(shootCommand.get(), aimCommand.get(), feedCommand.get()));
   }
 }
