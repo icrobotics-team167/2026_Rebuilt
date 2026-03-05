@@ -33,19 +33,19 @@ public class AprilTagPoseEstimator {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     cameraTransforms.put(
-        "FrontLeft",
+        "BackLeft",
         new Transform3d(
-            Units.inchesToMeters(22.0 / 2 - 1.5),
-            Units.inchesToMeters(32.0 / 2 + .125),
-            Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-45))));
+            -Units.inchesToMeters(22.0 / 2 - 1.5),
+            Units.inchesToMeters(32.0 / 2 - 1.5),
+            Units.inchesToMeters(28.75),
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(135))));
     cameraTransforms.put(
-        "FrontRight",
+        "BackRight",
         new Transform3d(
-            Units.inchesToMeters(22.0 / 2 - 1.5),
-            -Units.inchesToMeters(32.0 / 2 + .125),
-            Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(45))));
+            -Units.inchesToMeters(22.0 / 2 - 1.5),
+            -Units.inchesToMeters(32.0 / 2 - 1.5),
+            Units.inchesToMeters(18.75),
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-135))));
   }
 
   private final PhotonPoseEstimator poseEstimator;
@@ -107,13 +107,15 @@ public class AprilTagPoseEstimator {
                   return;
                 }
 
+                var translationalStdDev = name.equals("BackLeft") ? 1.5 : 0.9;
+                var angularStdDev = name.equals("BackLeft") ? 2 : 0.9;
                 estimateConsumer.accept(
                     poseEstimate.estimatedPose.toPose2d(),
                     result.getTimestampSeconds(),
                     VecBuilder.fill(
-                        0.9 / poseEstimate.targetsUsed.size(),
-                        0.9 / poseEstimate.targetsUsed.size(),
-                        0.9 / poseEstimate.targetsUsed.size()));
+                        translationalStdDev / poseEstimate.targetsUsed.size(),
+                        translationalStdDev / poseEstimate.targetsUsed.size(),
+                        angularStdDev / poseEstimate.targetsUsed.size()));
               });
     }
   }
