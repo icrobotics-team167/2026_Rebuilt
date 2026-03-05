@@ -34,6 +34,9 @@ public class Shooter extends SubsystemBase {
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier;
 
+  private final InterpolatingDoubleTreeMap distanceToFlywheelSpeedMap =
+      new InterpolatingDoubleTreeMap();
+
   // The shooter will lag behind the target position, so try to look a little further into the
   // future to compensate
   // TODO: Tune
@@ -83,7 +86,8 @@ public class Shooter extends SubsystemBase {
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
 
-    addMapping(0, 0);
+    // addMapping(0, 0);
+
   }
 
   private void addMapping(double flywheelVelRotPerSec, double projectileVelMetersPerSec) {
@@ -264,16 +268,21 @@ public class Shooter extends SubsystemBase {
     //     turretYawAbsolute,
     //     robotPose.getRotation(),
     //     fieldChassisSpeeds.omegaRadiansPerSecond);
-    var map = shotTarget.map;
+    // var map = shotTarget.map;
     var distanceMeters =
         shotTarget
             .getTargetLocation()
             .getDistance(robotPose.plus(Constants.robotToShooterTransform).getTranslation());
-    var result =
-        map.get(distanceMeters, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
-
-    runHood(result.pitchRad());
-    runFlywheel(map, distanceMeters);
+    // var result =
+    //     map.get(distanceMeters, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+    //
+    // runHood(result.pitchRad());
+    // runFlywheel(map, distanceMeters);
+    var flywheelSpeed = distanceToFlywheelSpeedMap.get(distanceMeters);
+    flywheelIO.runVel(flywheelSpeed);
+    isFlywheelSpeedOk =
+        flywheelSpeedOkDebouncer.calculate(
+            MathUtil.isNear(flywheelSpeed, flywheelInputs.velRotPerSec, 50));
   }
 
   private final Debouncer flywheelSpeedOkDebouncer =
