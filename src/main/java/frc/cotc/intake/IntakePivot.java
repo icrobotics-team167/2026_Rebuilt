@@ -36,7 +36,7 @@ public class IntakePivot extends SubsystemBase {
     return run(() -> io.run(-12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
   }
 
-  private final Debouncer debouncer = new Debouncer(0.3);
+  private final Debouncer debouncer = new Debouncer(0.5);
 
   private boolean isStalled() {
     return debouncer.calculate(
