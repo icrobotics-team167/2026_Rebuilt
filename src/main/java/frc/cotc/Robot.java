@@ -221,6 +221,7 @@ public class Robot extends LoggedRobot {
             // },
             swerve::getPose,
             swerve::getFieldSpeeds);
+    shooter.setDefaultCommand(shooter.idleRun());
     controller
         .leftTrigger()
         .whileTrue(

@@ -107,6 +107,10 @@ public class Shooter extends SubsystemBase {
   private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
   private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
+  public Command idleRun() {
+    return run(() -> flywheelIO.runVel(10));
+  }
+
   public enum ShotTarget {
     BLUE_HUB(hubShotMap, FieldConstants.Hub.topCenterPoint.toTranslation2d()),
     // BLUE_BOTTOM_GROUND(groundShotMap, BLUE_BOTTOM_GROUND_TARGET),
