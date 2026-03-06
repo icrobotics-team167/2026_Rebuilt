@@ -25,8 +25,8 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
     intakeMotor = new TalonFX(INTAKE_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.CurrentLimits.StatorCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimit = 40;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 60;
     intakeMotor.getConfigurator().apply(config);
 
     statorSignal = intakeMotor.getStatorCurrent(false);
