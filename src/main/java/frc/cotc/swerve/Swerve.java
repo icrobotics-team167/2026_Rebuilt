@@ -132,19 +132,27 @@ public class Swerve extends SubsystemBase {
                   Math.hypot(
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
+  private final double slowModeMultiplier = 0.25;
+  private double speedMultiplier = 1;
+
+  public Command slowTeleopDrive() {
+    return Commands.startEnd(() -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = 1);
+  }
+
   private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric();
 
   public Command teleopDrive(Supplier<Translation2d> translationalInput, DoubleSupplier omega) {
     return run(() -> {
           var translation =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
-          var v = translation.getX();
+          var x = translation.getX();
           var y = translation.getY();
           io.setControl(
               fieldCentricDrive
-                  .withVelocityX(v * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
-                  .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond));
+                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withRotationalRate(
+                      omega.getAsDouble() * speedMultiplier * maxAngularSpeedRadiansPerSecond));
         })
         .withName("Teleop Drive");
   }
@@ -161,8 +169,8 @@ public class Swerve extends SubsystemBase {
           var y = translational.getY();
           io.setControl(
               facingAngle
-                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
                   .withTargetDirection(
                       target
                           .getTargetLocation()
@@ -183,8 +191,8 @@ public class Swerve extends SubsystemBase {
           var y = translational.getY();
           io.setControl(
               facingAngle
-                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
                   .withTargetDirection(
                       Robot.isOnRed()
                           ? Constants.robotToShooterTransform.getRotation().unaryMinus()

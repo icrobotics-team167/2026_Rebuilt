@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.cotc.Robot;
 import frc.cotc.feeder.BeltFloor;
-import frc.cotc.feeder.Feeder;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.swerve.Swerve;

@@ -196,6 +196,7 @@ public class Robot extends LoggedRobot {
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    controller.leftBumper().whileTrue(swerve.slowTeleopDrive());
 
     new Trigger(
             () ->
