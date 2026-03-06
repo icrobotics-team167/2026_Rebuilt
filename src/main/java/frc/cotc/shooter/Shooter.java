@@ -109,7 +109,7 @@ public class Shooter extends SubsystemBase {
   // private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
   // private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
-  private double targetRps = 30;
+  private double targetRps = 45;
 
   public Command incrementIdleVel() {
     return Commands.runOnce(() -> targetRps += 1);
@@ -118,7 +118,7 @@ public class Shooter extends SubsystemBase {
   public Command decrementIdleVel() {
     return Commands.runOnce(
         () -> {
-          if (targetRps > 15) {
+          if (targetRps > 30) {
             targetRps -= 1;
           }
         });
