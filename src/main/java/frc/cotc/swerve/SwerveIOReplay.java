@@ -53,15 +53,17 @@ public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain impleme
     // - Ben CTRE (Paraphrased)
     if (!poseEstInit) {
       poseEstimator.resetPosition(
-          inputs.rawHeadingQueue[0], inputs.modulePositionsQueue[0], inputs.poseQueue[0]);
+          inputs.rawHeadingQueue[inputs.rawHeadingQueue.length - 1],
+          inputs.modulePositionsQueue[inputs.modulePositionsQueue.length - 1],
+          inputs.poseQueue[inputs.poseQueue.length - 1]);
       poseEstInit = true;
-    }
-
-    // Apply all the logged odometry updates
-    for (int i = 0; i < inputs.timestampQueue.length; ++i) {
-      // Apply update
-      poseEstimator.updateWithTime(
-          inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
+    } else {
+      // Apply all the logged odometry updates
+      for (int i = 0; i < inputs.timestampQueue.length; ++i) {
+        // Apply update
+        poseEstimator.updateWithTime(
+            inputs.timestampQueue[i], inputs.rawHeadingQueue[i], inputs.modulePositionsQueue[i]);
+      }
     }
 
     pose = poseEstimator.getEstimatedPosition();
