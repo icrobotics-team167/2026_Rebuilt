@@ -136,7 +136,8 @@ public class Swerve extends SubsystemBase {
 
   public Command teleopDrive(Supplier<Translation2d> translationalInput, DoubleSupplier omega) {
     return run(() -> {
-          var translation = translationalInput.get();
+          var translation =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var v = translation.getX();
           var y = translation.getY();
           io.setControl(
@@ -154,7 +155,8 @@ public class Swerve extends SubsystemBase {
   public Command aimAtTarget(
       Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
     return run(() -> {
-          var translational = translationalInput.get();
+          var translational =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translational.getX();
           var y = translational.getY();
           io.setControl(
@@ -175,7 +177,8 @@ public class Swerve extends SubsystemBase {
 
   public Command pass(Supplier<Translation2d> translationalInput) {
     return run(() -> {
-          var translational = translationalInput.get();
+          var translational =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translational.getX();
           var y = translational.getY();
           io.setControl(

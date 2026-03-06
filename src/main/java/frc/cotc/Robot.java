@@ -228,17 +228,17 @@ public class Robot extends LoggedRobot {
     controller
         .x()
         .whileTrue(
-            parallel(
-                either(
-                        shooter.shootAt(Shooter.ShotTarget.RED_HUB),
-                        shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
-                        Robot::isOnRed)
-                    .withName("Shoot at alliance hub"),
-                either(
-                        swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
-                        swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
-                        Robot::isOnRed)
-                    .withName("Aim at target")));
+            // parallel(
+            // either(
+            //         shooter.shootAt(Shooter.ShotTarget.RED_HUB),
+            //         shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
+            //         Robot::isOnRed)
+            //     .withName("Shoot at alliance hub"),
+            either(
+                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
+                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
+                    Robot::isOnRed)
+                .withName("Aim at target"));
     // controller
     //     .rightBumper()
     //     .whileTrue(
