@@ -229,7 +229,7 @@ public class Robot extends LoggedRobot {
             // },
             swerve::getPose,
             swerve::getFieldSpeeds);
-    // shooter.setDefaultCommand(shooter.idleRun());
+    shooter.setDefaultCommand(shooter.idleRun());
     primary
         .x()
         .whileTrue(
