@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -257,6 +258,15 @@ public class Robot extends LoggedRobot {
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
         .onFalse(runOnce(autos::clear));
     RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
+
+    secondary
+        .back()
+        .and(secondary.start())
+        .debounce(.5)
+        .toggleOnTrue(
+            idle(raceway, turretFeeder, shooter)
+                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+                .withName("Disable Shooter"));
   }
 
   @Override
