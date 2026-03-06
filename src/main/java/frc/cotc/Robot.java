@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
@@ -249,6 +250,7 @@ public class Robot extends LoggedRobot {
     // RobotModeTriggers.autonomous()
     //     .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
     //     .onFalse(runOnce(autos::clear));
+    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
   }
 
   @Override
@@ -273,6 +275,11 @@ public class Robot extends LoggedRobot {
         "LoggedRobot/MemoryUsageMB",
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6);
     Logger.recordOutput("IsOnRed", isOnRed());
+    var shiftInfo = Shifts.getOfficialShiftInfo();
+    Logger.recordOutput("ShiftInfo/CurrentShift", shiftInfo.currentShift());
+    Logger.recordOutput("ShiftInfo/Active", shiftInfo.active());
+    Logger.recordOutput("ShiftInfo/ElapsedTime", shiftInfo.elapsedTime());
+    Logger.recordOutput("ShiftInfo/RemainingTime", shiftInfo.remainingTime());
     if (groundTruthPoseSupplier != null) {
       Logger.recordOutput("Swerve/Ground Truth Pose", groundTruthPoseSupplier.get());
     }
