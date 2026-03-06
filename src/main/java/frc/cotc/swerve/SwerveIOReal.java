@@ -50,9 +50,9 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       connectedSignals[i * 3 + 1] = getModule(i).getSteerMotor().getVersion(false);
       connectedSignals[i * 3 + 2] = getModule(i).getEncoder().getVersion(false);
 
-      currentSignals[i * 4] = getModule(i).getDriveMotor().getTorqueCurrent(false);
+      currentSignals[i * 4] = getModule(i).getDriveMotor().getStatorCurrent(false);
       currentSignals[i * 4 + 1] = getModule(i).getDriveMotor().getSupplyCurrent(false);
-      currentSignals[i * 4 + 2] = getModule(i).getSteerMotor().getTorqueCurrent(false);
+      currentSignals[i * 4 + 2] = getModule(i).getSteerMotor().getStatorCurrent(false);
       currentSignals[i * 4 + 3] = getModule(i).getSteerMotor().getSupplyCurrent(false);
     }
     Robot.canivoreSignals.addSignals(connectedSignals);
