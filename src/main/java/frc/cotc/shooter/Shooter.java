@@ -103,27 +103,29 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
     // turretIO.updateInputs(turretInputs);
     // Logger.processInputs("Shooter/Turret", turretInputs);
+    Logger.recordOutput("Shooter/Target flywheel vel rps", targetRps);
   }
 
   // private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
   // private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
-  private double idleVel = 50;
+  private double targetRps = 30;
 
   public Command incrementIdleVel() {
-    return Commands.runOnce(() -> idleVel += 5);
+    return Commands.runOnce(() -> targetRps += 1);
   }
 
   public Command decrementIdleVel() {
-    return Commands.runOnce(() -> idleVel -= 5);
+    return Commands.runOnce(
+        () -> {
+          if (targetRps > 15) {
+            targetRps -= 1;
+          }
+        });
   }
 
   public Command idleRun() {
-    return run(
-        () -> {
-          flywheelIO.runVel(idleVel);
-          Logger.recordOutput("Shooter/Flywheel vel", idleVel);
-        });
+    return run(() -> flywheelIO.runVel(targetRps));
   }
 
   public enum ShotTarget {
