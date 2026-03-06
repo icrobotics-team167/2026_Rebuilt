@@ -14,6 +14,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
@@ -107,8 +108,21 @@ public class Shooter extends SubsystemBase {
   // private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
   // private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
+  private double idleVel = 50;
+
+  public Command incrementIdleVel() {
+    return Commands.runOnce(() -> idleVel += 5);
+  }
+
+  public Command decrementIdleVel() {
+    return Commands.runOnce(() -> idleVel -= 5);
+  }
+
   public Command idleRun() {
-    return run(() -> flywheelIO.runVel(50));
+    return run(() -> {
+      flywheelIO.runVel(idleVel);
+      Logger.recordOutput("Shooter/Flywheel vel", idleVel);
+    });
   }
 
   public enum ShotTarget {

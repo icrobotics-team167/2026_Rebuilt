@@ -129,7 +129,8 @@ public class Robot extends LoggedRobot {
             },
             new AprilTagPoseEstimator("BackLeft"),
             new AprilTagPoseEstimator("BackRight"));
-    var controller = new CommandXboxController(0);
+    var primary = new CommandXboxController(0);
+    var secondary = new CommandXboxController(1);
 
     var intakeRoller =
         new IntakeRoller(
@@ -146,8 +147,8 @@ public class Robot extends LoggedRobot {
             });
 
     intakePivot.setDefaultCommand(intakePivot.extend());
-    controller.a().whileTrue(intakePivot.retract());
-    controller.leftTrigger().whileTrue(intakeRoller.intake());
+    primary.a().toggleOnTrue(intakePivot.retract());
+    primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
         new BeltFloor(
@@ -169,12 +170,12 @@ public class Robot extends LoggedRobot {
             });
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     raceway.setDefaultCommand(raceway.runRaceway());
-    controller.rightTrigger().whileTrue(beltFloor.runBelt());
+    primary.rightTrigger().whileTrue(beltFloor.runBelt());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
-          var x = -controller.getLeftY();
-          var y = -controller.getLeftX();
+          var x = -primary.getLeftY();
+          var y = -primary.getLeftX();
           var magnitude = Math.hypot(x, y);
           if (magnitude > 1e-6) {
             var normX = x / magnitude;
@@ -190,13 +191,13 @@ public class Robot extends LoggedRobot {
 
     DoubleSupplier omegaInputSupplier =
         () -> {
-          var omega = -controller.getRightX();
+          var omega = -primary.getRightX();
           var deadbandedOmegaMag = MathUtil.applyDeadband(Math.abs(omega), 0.05);
           return omega * deadbandedOmegaMag;
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    controller.leftBumper().whileTrue(swerve.slowTeleopDrive());
+    primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
 
     new Trigger(
             () ->
@@ -229,7 +230,7 @@ public class Robot extends LoggedRobot {
             swerve::getPose,
             swerve::getFieldSpeeds);
     shooter.setDefaultCommand(shooter.idleRun());
-    controller
+    primary
         .x()
         .whileTrue(
             // parallel(
@@ -243,6 +244,8 @@ public class Robot extends LoggedRobot {
                     swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
                     Robot::isOnRed)
                 .withName("Aim at target"));
+    secondary.povUp().onTrue(shooter.incrementIdleVel());
+    secondary.povDown().onTrue(shooter.decrementIdleVel());
     // controller
     //     .rightBumper()
     //     .whileTrue(

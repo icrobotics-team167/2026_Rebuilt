@@ -43,15 +43,13 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
     config.Slot0.kV = 12.0 / 110.0;
-    config.Slot0.kP = 0;
+    config.Slot0.kP = 12.0;
 
     // Left Side
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motor0.getConfigurator().apply(config);
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor1.getConfigurator().apply(config);
-
-    //  All motors follow motor 0
-    motor1.setControl(new Follower(MOTOR_0_ID, MotorAlignmentValue.Opposed));
 
     velocity = motor0.getVelocity(false);
 
@@ -76,8 +74,6 @@ public class FlywheelIOPhoenix implements FlywheelIO {
         motor0SupplyCurrent,
         motor1SupplyCurrent);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(100.0, motor0.getMotorVoltage(false));
-
     ParentDevice.optimizeBusUtilizationForAll();
   }
 
@@ -95,6 +91,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
   @Override
   public void runVel(double velRotPerSec) {
     motor0.setControl(velocityRequest.withVelocity(velRotPerSec));
+    motor1.setControl(velocityRequest.withVelocity(velRotPerSec));
   }
 
   @Override

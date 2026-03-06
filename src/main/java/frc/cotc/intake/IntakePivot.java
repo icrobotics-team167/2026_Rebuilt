@@ -24,8 +24,8 @@ public class IntakePivot extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs); // 1, Get new data from hardware
-    Logger.processInputs("Intake", inputs);
+    io.updateInputs(inputs);
+    Logger.processInputs("IntakePivot", inputs);
   }
 
   public Command extend() {
@@ -33,7 +33,7 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command retract() {
-    return run(() -> io.run(-12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
+    return run(() -> io.run(-12)).until(this::isStalled).andThen(run(() -> io.run(-1)));
   }
 
   private final Debouncer debouncer = new Debouncer(0.5);

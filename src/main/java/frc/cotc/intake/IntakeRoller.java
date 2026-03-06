@@ -22,7 +22,7 @@ public class IntakeRoller extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs); // 1, Get new data from hardware
-    Logger.processInputs("Intake", inputs);
+    Logger.processInputs("IntakeRoller", inputs);
   }
 
   public Command intake() {
