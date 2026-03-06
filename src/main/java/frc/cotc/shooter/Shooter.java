@@ -86,6 +86,7 @@ public class Shooter extends SubsystemBase {
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
 
+    distanceToFlywheelSpeedMap.put(0.0, 0.0);
     // addMapping(0, 0);
 
   }
@@ -109,17 +110,17 @@ public class Shooter extends SubsystemBase {
   // private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
   // private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
-  private double targetRps = 45;
+  private double targetRps = 35;
 
   public Command incrementIdleVel() {
-    return Commands.runOnce(() -> targetRps += 1);
+    return Commands.runOnce(() -> targetRps += .5);
   }
 
   public Command decrementIdleVel() {
     return Commands.runOnce(
         () -> {
           if (targetRps > 30) {
-            targetRps -= 1;
+            targetRps -= .5;
           }
         });
   }
