@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.cotc.Robot;
+import frc.cotc.feeder.BeltFloor;
 import frc.cotc.feeder.Feeder;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.shooter.Shooter;
@@ -33,7 +34,7 @@ public class Autos {
   private final Swerve swerve;
   private final Supplier<Command> shootCommand, feedCommand, intakeCommand, aimCommand, stopCommand;
 
-  public Autos(Swerve swerve, Shooter shooter, Feeder feeder, IntakeRoller intakeRoller) {
+  public Autos(Swerve swerve, Shooter shooter, BeltFloor beltFloor, IntakeRoller intakeRoller) {
     chooser = new LoggedDashboardChooser<>("Auto Chooser");
     chooser.addDefaultOption(NONE_NAME, NONE_NAME);
     routines.put(NONE_NAME, Commands::none);
@@ -43,7 +44,7 @@ public class Autos {
         () ->
             shooter.shootAt(
                 Robot.isOnRed() ? Shooter.ShotTarget.RED_HUB : Shooter.ShotTarget.BLUE_HUB);
-    feedCommand = feeder::feed;
+    feedCommand = beltFloor::runBelt;
     intakeCommand = intakeRoller::intake;
     aimCommand =
         () ->

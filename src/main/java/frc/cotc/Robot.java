@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.autos.Autos;
 import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
 import frc.cotc.intake.IntakePivotIO;
@@ -54,7 +55,7 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
-  // private final Autos autos;
+  private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -145,6 +146,7 @@ public class Robot extends LoggedRobot {
             });
 
     intakePivot.setDefaultCommand(intakePivot.extend());
+    controller.a().whileTrue(intakePivot.retract());
     controller.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
@@ -245,17 +247,17 @@ public class Robot extends LoggedRobot {
     //     .whileTrue(
     //         parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
-    // autos = new Autos(swerve, shooter, feeder, intakeRoller);
+    autos = new Autos(swerve, shooter, beltFloor, intakeRoller);
 
-    // RobotModeTriggers.autonomous()
-    //     .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-    //     .onFalse(runOnce(autos::clear));
+    RobotModeTriggers.autonomous()
+        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+        .onFalse(runOnce(autos::clear));
     RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
   }
 
   @Override
   public void disabledPeriodic() {
-    // autos.update();
+    autos.update();
   }
 
   @Override
