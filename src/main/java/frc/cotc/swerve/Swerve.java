@@ -109,9 +109,9 @@ public class Swerve extends SubsystemBase {
     visionPoses.clear();
 
     for (int i = 0; i < 4; i++) {
-      deviceDisconnectAlerts[i * 3].set(inputs.driveMotorConnected[i]);
-      deviceDisconnectAlerts[i * 3 + 1].set(inputs.steerMotorConnected[i]);
-      deviceDisconnectAlerts[i * 3 + 2].set(inputs.encoderConnected[i]);
+      deviceDisconnectAlerts[i * 3].set(!inputs.driveMotorConnected[i]);
+      deviceDisconnectAlerts[i * 3 + 1].set(!inputs.steerMotorConnected[i]);
+      deviceDisconnectAlerts[i * 3 + 2].set(!inputs.encoderConnected[i]);
     }
 
     Logger.recordOutput("Swerve/Pose", io.getPose());
