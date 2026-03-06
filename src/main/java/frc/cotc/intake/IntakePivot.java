@@ -33,7 +33,7 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command retract() {
-    return run(() -> io.run(-12)).until(this::isStalled).andThen(run(() -> io.run(-1)));
+    return run(() -> io.run(-8)).until(this::isStalled).andThen(run(() -> io.run(-1)));
   }
 
   private final Debouncer debouncer = new Debouncer(0.5);
