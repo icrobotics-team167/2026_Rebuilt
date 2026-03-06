@@ -88,9 +88,9 @@ public class AprilTagPoseEstimator {
 
     // odometry check (inspired by 2025 vision)
     return currentPoseEstimate == null
-        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
+        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.5
             || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
-                > 2);
+                > 20);
   }
 
   public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimate) {
