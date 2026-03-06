@@ -126,7 +126,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command idleRun() {
-    return run(() -> flywheelIO.runVel(targetRps));
+    return run(() -> flywheelIO.runVel(targetRps)).finallyDo(flywheelIO::stop);
   }
 
   public enum ShotTarget {
