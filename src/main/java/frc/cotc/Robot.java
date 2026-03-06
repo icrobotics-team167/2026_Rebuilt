@@ -148,7 +148,16 @@ public class Robot extends LoggedRobot {
             });
 
     intakePivot.setDefaultCommand(intakePivot.extend());
-    primary.a().toggleOnTrue(intakePivot.retract());
+    primary
+        .a()
+        .toggleOnTrue(
+            intakePivot
+                .retract()
+                .alongWith(
+                    intakeRoller
+                        .idle()
+                        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+                        .asProxy()));
     primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
