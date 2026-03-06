@@ -146,9 +146,9 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
 
-    intakePivot.setDefaultCommand(intakePivot.extend());
-    primary.a().toggleOnTrue(intakePivot.retract());
-    primary.leftTrigger().whileTrue(intakeRoller.intake());
+    // intakePivot.setDefaultCommand(intakePivot.extend());
+    // primary.a().toggleOnTrue(intakePivot.retract());
+    // primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
         new BeltFloor(
@@ -168,9 +168,9 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    raceway.setDefaultCommand(raceway.runRaceway());
-    primary.rightTrigger().whileTrue(beltFloor.runBelt());
+    // turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    // raceway.setDefaultCommand(raceway.runRaceway());
+    // primary.rightTrigger().whileTrue(beltFloor.runBelt());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -229,23 +229,23 @@ public class Robot extends LoggedRobot {
             // },
             swerve::getPose,
             swerve::getFieldSpeeds);
-    shooter.setDefaultCommand(shooter.idleRun());
-    primary
-        .x()
-        .whileTrue(
-            // parallel(
-            // either(
-            //         shooter.shootAt(Shooter.ShotTarget.RED_HUB),
-            //         shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
-            //         Robot::isOnRed)
-            //     .withName("Shoot at alliance hub"),
-            either(
-                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
-                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
-                    Robot::isOnRed)
-                .withName("Aim at target"));
-    secondary.povUp().onTrue(shooter.incrementIdleVel());
-    secondary.povDown().onTrue(shooter.decrementIdleVel());
+    // shooter.setDefaultCommand(shooter.idleRun());
+    // primary
+    //     .x()
+    //     .whileTrue(
+    //         // parallel(
+    //         // either(
+    //         //         shooter.shootAt(Shooter.ShotTarget.RED_HUB),
+    //         //         shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
+    //         //         Robot::isOnRed)
+    //         //     .withName("Shoot at alliance hub"),
+    //         either(
+    //                 swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
+    //                 swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
+    //                 Robot::isOnRed)
+    //             .withName("Aim at target"));
+    // secondary.povUp().onTrue(shooter.incrementIdleVel());
+    // secondary.povDown().onTrue(shooter.decrementIdleVel());
     // controller
     //     .rightBumper()
     //     .whileTrue(

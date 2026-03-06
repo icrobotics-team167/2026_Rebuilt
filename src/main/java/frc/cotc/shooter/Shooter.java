@@ -119,10 +119,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command idleRun() {
-    return run(() -> {
-      flywheelIO.runVel(idleVel);
-      Logger.recordOutput("Shooter/Flywheel vel", idleVel);
-    });
+    return run(
+        () -> {
+          flywheelIO.runVel(idleVel);
+          Logger.recordOutput("Shooter/Flywheel vel", idleVel);
+        });
   }
 
   public enum ShotTarget {
