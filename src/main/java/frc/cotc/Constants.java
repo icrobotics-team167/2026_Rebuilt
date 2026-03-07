@@ -32,7 +32,7 @@ public class Constants {
 
   public static Transform2d robotToShooterTransform =
       new Transform2d(
-          -frameLengthMeters / 2 + Units.inchesToMeters(6.5),
+          -Units.inchesToMeters(5.5),
           -frameWidthMeters / 2 + Units.inchesToMeters(6),
           Rotation2d.kCCW_90deg);
 }
