@@ -160,6 +160,8 @@ public class Swerve extends SubsystemBase {
   private final SwerveRequest.FieldCentricFacingAngle facingAngle =
       new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
 
+  private final PIDController distanceController = new PIDController(6, 0, 0);
+
   public Command aimAtTarget(
       Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
     return run(() -> {
@@ -167,16 +169,20 @@ public class Swerve extends SubsystemBase {
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translational.getX();
           var y = translational.getY();
+
+          var currentPoseToGoal = target.getTargetLocation().minus(getPose().getTranslation());
+          var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
+          var distanceToGoalMeters = currentPoseToGoal.getNorm();
+          var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 0);
           io.setControl(
               facingAngle
-                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withVelocityX(-distanceControllerOutput * currentPoseToGoalAngle.getCos() + x)
+                  .withVelocityY(-distanceControllerOutput * currentPoseToGoalAngle.getSin() + y)
                   .withTargetDirection(
-                      target
-                          .getTargetLocation()
-                          .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation())
-                          .getAngle()
-                          .minus(Constants.robotToShooterTransform.getRotation())));
+                      currentPoseToGoalAngle.minus(Constants.robotToShooterTransform.getRotation()))
+                  .withTargetRateFeedforward(
+                      (currentPoseToGoalAngle.getCos() * y + currentPoseToGoalAngle.getSin() * x)
+                          / distanceToGoalMeters));
           Logger.recordOutput(
               "Shooter/Target", new Pose2d(target.getTargetLocation(), Rotation2d.kZero));
         })

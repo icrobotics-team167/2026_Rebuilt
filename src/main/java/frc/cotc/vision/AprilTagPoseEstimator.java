@@ -103,8 +103,8 @@ public class AprilTagPoseEstimator {
                   return;
                 }
 
-                var translationalStdDev = name.equals("BackLeft") ? 1.5 : 0.9;
-                var angularStdDev = name.equals("BackLeft") ? 2 : 0.9;
+                var translationalStdDev = name.equals("BackLeft") ? 2 : 1.5;
+                var angularStdDev = name.equals("BackLeft") ? 2.5 : 1.5;
                 estimateConsumer.accept(
                     poseEstimate.estimatedPose.toPose2d(),
                     result.getTimestampSeconds(),
