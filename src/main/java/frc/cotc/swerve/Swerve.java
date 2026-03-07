@@ -260,6 +260,7 @@ public class Swerve extends SubsystemBase {
     targetSpeeds.omegaRadiansPerSecond +=
         pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading);
 
+    Logger.recordOutput("Swerve/Choreo target", sample.getPose());
     io.setControl(
         m_pathApplyFieldSpeeds
             .withSpeeds(targetSpeeds)

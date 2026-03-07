@@ -181,7 +181,9 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new RacewayIO() {};
             });
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    primary.rightTrigger().whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
+    Supplier<Command> feedCommandSupplier =
+        () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
+    primary.rightTrigger().whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -262,7 +264,7 @@ public class Robot extends LoggedRobot {
     //     .whileTrue(
     //         parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
-    autos = new Autos(swerve, shooter, beltFloor, intakeRoller);
+    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
 
     RobotModeTriggers.autonomous()
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))

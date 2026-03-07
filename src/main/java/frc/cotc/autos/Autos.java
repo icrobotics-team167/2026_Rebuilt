@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.cotc.Robot;
-import frc.cotc.feeder.BeltFloor;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.swerve.Swerve;
@@ -31,19 +30,16 @@ public class Autos {
   private final String NONE_NAME = "Do Nothing";
 
   private final Swerve swerve;
-  private final Supplier<Command> shootCommand, feedCommand, intakeCommand, aimCommand, stopCommand;
+  private final Supplier<Command> feedCommand, intakeCommand, aimCommand, stopCommand;
 
-  public Autos(Swerve swerve, Shooter shooter, BeltFloor beltFloor, IntakeRoller intakeRoller) {
+  public Autos(
+      Swerve swerve, Shooter shooter, Supplier<Command> feedCommand, IntakeRoller intakeRoller) {
     chooser = new LoggedDashboardChooser<>("Auto Chooser");
     chooser.addDefaultOption(NONE_NAME, NONE_NAME);
     routines.put(NONE_NAME, Commands::none);
 
     this.swerve = swerve;
-    shootCommand =
-        () ->
-            shooter.shootAt(
-                Robot.isOnRed() ? Shooter.ShotTarget.RED_HUB : Shooter.ShotTarget.BLUE_HUB);
-    feedCommand = beltFloor::runBelt;
+    this.feedCommand = feedCommand;
     intakeCommand = intakeRoller::intake;
     aimCommand =
         () ->
@@ -55,9 +51,9 @@ public class Autos {
     autoFactory =
         new AutoFactory(swerve::getPose, swerve::resetPose, swerve::followPath, true, swerve);
 
-    addRoutine("Rush middle top", this::rushMiddleTop);
-    addRoutine("Rush middle bottom", this::rushMiddleBottom);
-    addRoutine("Move", this::move);
+    addRoutine("Depot Left", this::depotLeft);
+    addRoutine("Outpost Right", this::outpostRight);
+    addRoutine("Center", this::center);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -103,30 +99,29 @@ public class Autos {
     routines.put(name, generator);
   }
 
-  private Command rushMiddleTop() {
-    var routine = autoFactory.newRoutine("Rush Middle Top");
-    var trajectory = ChoreoTraj.RushMiddleTop.asAutoTraj(routine);
+  private Command depotLeft() {
+    var routine = autoFactory.newRoutine("Depot Left");
+    var segment0 = ChoreoTraj.DepotLeft$0.asAutoTraj(routine);
+    var segment1 = ChoreoTraj.DepotLeft$1.asAutoTraj(routine);
 
     routine
         .active()
         .onTrue(
             sequence(
-                trajectory.resetOdometry(),
-                trajectory.cmd(),
-                parallel(shootCommand.get(), aimCommand.get(), feedCommand.get())));
-
-    trajectory
-        .atTime("Start intaking")
-        .onTrue(intakeCommand.get().until(trajectory.atTime("Stop " + "intaking")));
+                segment0.resetOdometry(),
+                segment0.cmd().deadlineFor(intakeCommand.get().asProxy()),
+                segment1.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    waitSeconds(1).withName("Delay").andThen(feedCommand.get().asProxy()))));
 
     return routine.cmd();
   }
 
-  private Command rushMiddleBottom() {
-    var routine = autoFactory.newRoutine("Rush Middle Bottom");
-    var segment0 = ChoreoTraj.RushMiddleBottom$0.asAutoTraj(routine);
-    var segment1 = ChoreoTraj.RushMiddleBottom$1.asAutoTraj(routine);
-    var segment2 = ChoreoTraj.RushMiddleBottom$2.asAutoTraj(routine);
+  private Command outpostRight() {
+    var routine = autoFactory.newRoutine("Outpost Right");
+    var segment0 = ChoreoTraj.OutpostRight$0.asAutoTraj(routine);
+    var segment1 = ChoreoTraj.OutpostRight$1.asAutoTraj(routine);
 
     routine
         .active()
@@ -134,23 +129,29 @@ public class Autos {
             sequence(
                 segment0.resetOdometry(),
                 segment0.cmd(),
-                parallel(shootCommand.get(), aimCommand.get(), feedCommand.get()).withTimeout(4),
+                swerve.brake().withTimeout(5),
                 segment1.cmd(),
-                stopCommand.get().withTimeout(2),
-                segment2.cmd(),
-                parallel(shootCommand.get(), aimCommand.get(), feedCommand.get())));
-
-    segment1
-        .atTime("Start intaking")
-        .onTrue(intakeCommand.get().until(segment1.atTime("Stop " + "intaking")));
+                parallel(
+                    aimCommand.get(),
+                    waitSeconds(1).withName("Delay").andThen(feedCommand.get().asProxy()))));
 
     return routine.cmd();
   }
 
-  private Command move() {
-    return swerve
-        .teleopDrive(() -> new Translation2d(-.1, 0), () -> 0)
-        .withTimeout(2)
-        .andThen(parallel(shootCommand.get(), aimCommand.get(), feedCommand.get()));
+  private Command center() {
+    var routine = autoFactory.newRoutine("Center");
+    var trajectory = ChoreoTraj.Center.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory.resetOdometry(),
+                trajectory.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    waitSeconds(1).withName("Delay").andThen(feedCommand.get().asProxy()))));
+
+    return routine.cmd();
   }
 }

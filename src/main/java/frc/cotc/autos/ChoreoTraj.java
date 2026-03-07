@@ -24,40 +24,54 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj RushMiddleTop = new ChoreoTraj(
-	    "RushMiddleTop",
+    public static final ChoreoTraj DepotLeft = new ChoreoTraj(
+	    "DepotLeft",
 	    OptionalInt.empty(),
-	    4.46667,
-	    new Pose2d(3.688, 2.1, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.376, 5.556, Rotation2d.fromRadians(-2.113))
+	    2.87394,
+	    new Pose2d(3.729, 5.964, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2.99, 5.285, Rotation2d.fromRadians(-2.308))
 	);
-	public static final ChoreoTraj RushMiddleBottom = new ChoreoTraj(
-	    "RushMiddleBottom",
-	    OptionalInt.empty(),
-	    6.21491,
-	    new Pose2d(3.688, 5.95, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.228, 1.341, Rotation2d.fromRadians(-0.96))
-	);
-	public static final ChoreoTraj RushMiddleBottom$0 = new ChoreoTraj(
-	    "RushMiddleBottom",
+	public static final ChoreoTraj DepotLeft$0 = new ChoreoTraj(
+	    "DepotLeft",
 	    OptionalInt.of(0),
-	    4.41887,
-	    new Pose2d(3.688, 5.95, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.051, 2.36, Rotation2d.fromRadians(-1.047))
+	    1.65395,
+	    new Pose2d(3.729, 5.964, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(0.591, 5.964, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj RushMiddleBottom$1 = new ChoreoTraj(
-	    "RushMiddleBottom",
+	public static final ChoreoTraj DepotLeft$1 = new ChoreoTraj(
+	    "DepotLeft",
 	    OptionalInt.of(1),
-	    1.0670399999999995,
-	    new Pose2d(2.051, 2.36, Rotation2d.fromRadians(-1.047)),
-	    new Pose2d(0.621, 0.665, Rotation2d.fromRadians(3.142))
+	    1.2199900000000001,
+	    new Pose2d(0.591, 5.964, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2.99, 5.285, Rotation2d.fromRadians(-2.308))
 	);
-	public static final ChoreoTraj RushMiddleBottom$2 = new ChoreoTraj(
-	    "RushMiddleBottom",
-	    OptionalInt.of(2),
-	    0.7290000000000001,
-	    new Pose2d(0.621, 0.665, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.228, 1.341, Rotation2d.fromRadians(-0.96))
+	public static final ChoreoTraj OutpostRight = new ChoreoTraj(
+	    "OutpostRight",
+	    OptionalInt.empty(),
+	    3.26868,
+	    new Pose2d(3.675, 1.738, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.109))
+	);
+	public static final ChoreoTraj OutpostRight$0 = new ChoreoTraj(
+	    "OutpostRight",
+	    OptionalInt.of(0),
+	    1.84601,
+	    new Pose2d(3.675, 1.738, Rotation2d.fromRadians(0)),
+	    new Pose2d(0.615, 0.658, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj OutpostRight$1 = new ChoreoTraj(
+	    "OutpostRight",
+	    OptionalInt.of(1),
+	    1.4226699999999999,
+	    new Pose2d(0.615, 0.658, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.109))
+	);
+	public static final ChoreoTraj Center = new ChoreoTraj(
+	    "Center",
+	    OptionalInt.empty(),
+	    0.83295,
+	    new Pose2d(3.668, 4.019, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.567, 4.002, Rotation2d.fromRadians(-1.571))
 	);
 
     /**
@@ -65,11 +79,13 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("RushMiddleTop", RushMiddleTop),
-		Map.entry("RushMiddleBottom", RushMiddleBottom),
-		Map.entry("RushMiddleBottom$0", RushMiddleBottom$0),
-		Map.entry("RushMiddleBottom$1", RushMiddleBottom$1),
-		Map.entry("RushMiddleBottom$2", RushMiddleBottom$2)
+    	Map.entry("DepotLeft", DepotLeft),
+		Map.entry("DepotLeft$0", DepotLeft$0),
+		Map.entry("DepotLeft$1", DepotLeft$1),
+		Map.entry("OutpostRight", OutpostRight),
+		Map.entry("OutpostRight$0", OutpostRight$0),
+		Map.entry("OutpostRight$1", OutpostRight$1),
+		Map.entry("Center", Center)
     );
 
     /**
