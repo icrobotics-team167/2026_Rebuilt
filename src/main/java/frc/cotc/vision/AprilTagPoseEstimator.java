@@ -38,7 +38,7 @@ public class AprilTagPoseEstimator {
             -Units.inchesToMeters(22.0 / 2 - 1.5),
             Units.inchesToMeters(32.0 / 2 - 1.5),
             Units.inchesToMeters(28.75),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(135))));
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(140))));
     cameraTransforms.put(
         "BackRight",
         new Transform3d(
