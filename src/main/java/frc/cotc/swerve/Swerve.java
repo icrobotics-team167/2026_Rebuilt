@@ -173,7 +173,7 @@ public class Swerve extends SubsystemBase {
           var currentShooterPose = getPose().plus(Constants.robotToShooterTransform);
 
           var currentPoseToGoal =
-              target.getBaseTargetLocation().minus(currentShooterPose.getTranslation());
+              target.getBaseTargetLocation().minus(getPose().getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
           var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.4);
