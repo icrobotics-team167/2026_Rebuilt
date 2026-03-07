@@ -142,11 +142,15 @@ public class Shooter extends SubsystemBase {
 
     private final double MAX_OFFSET = 0.2;
 
-    public Translation2d getTargetLocation() {
+    public Translation2d getWiggledTargetLocation() {
       return targetLocation.plus(
           new Translation2d(
               MAX_OFFSET * Math.sin(5 * Timer.getTimestamp()),
               MAX_OFFSET * Math.sin(8 * Timer.getTimestamp())));
+    }
+
+    public Translation2d getBaseTargetLocation() {
+      return targetLocation;
     }
 
     ShotTarget(Translation2d targetLocation) {
@@ -292,7 +296,7 @@ public class Shooter extends SubsystemBase {
     // var map = shotTarget.map;
     var distanceMeters =
         shotTarget
-            .getTargetLocation()
+            .getWiggledTargetLocation()
             .getDistance(robotPose.plus(Constants.robotToShooterTransform).getTranslation());
     // var result =
     //     map.get(distanceMeters, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
