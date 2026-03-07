@@ -140,7 +140,7 @@ public class Shooter extends SubsystemBase {
     // public final ShotMap map;
     private final Translation2d targetLocation;
 
-    private final double MAX_OFFSET = 0.1;
+    private final double MAX_OFFSET = 0.0;
 
     public Translation2d getWiggledTargetLocation() {
       return targetLocation.plus(
