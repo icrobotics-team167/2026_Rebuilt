@@ -147,17 +147,17 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
 
-    intakePivot.setDefaultCommand(intakePivot.extend());
-    primary
-        .a()
-        .toggleOnTrue(
-            intakePivot
-                .retract()
-                .alongWith(
-                    intakeRoller
-                        .idle()
-                        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-                        .asProxy()));
+    // intakePivot.setDefaultCommand(intakePivot.extend());
+    // primary
+    //     .a()
+    //     .toggleOnTrue(
+    //         intakePivot
+    //             .retract()
+    //             .alongWith(
+    //                 intakeRoller
+    //                     .idle()
+    //                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+    //                     .asProxy()));
     primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
