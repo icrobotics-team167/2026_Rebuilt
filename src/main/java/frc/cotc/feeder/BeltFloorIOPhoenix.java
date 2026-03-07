@@ -17,7 +17,7 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
   private final TalonFX motor;
   private final int BELT_FLOOR_ID = 1;
   private final double BELT_FLOOR_DEFAULT_VOLTAGE = 12.0;
-  private final BaseStatusSignal statorSignal, supplySignal, motorSpeedSignal;
+  private final BaseStatusSignal statorSignal, supplySignal, motorVelocitySignal;
 
   public BeltFloorIOPhoenix() {
     motor = new TalonFX(BELT_FLOOR_ID, Robot.rioBus);
@@ -30,9 +30,9 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
-    motorSpeedSignal = motor.getAcceleration(false);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, motorSpeedSignal);
-    Robot.rioSignals.addSignals(statorSignal, supplySignal, motorSpeedSignal);
+    motorVelocitySignal = motor.getVelocity(false);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, motorVelocitySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal, motorVelocitySignal);
   }
 
   @Override
@@ -54,6 +54,6 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
   public void updateInputs(BeltFloorIOInputs inputs) {
     inputs.statorCurrentAmps = statorSignal.getValueAsDouble();
     inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
-    inputs.motorSpeed = Math.abs(motorSpeedSignal.getValueAsDouble());
+    inputs.motorVelocity = motorVelocitySignal.getValueAsDouble();
   }
 }

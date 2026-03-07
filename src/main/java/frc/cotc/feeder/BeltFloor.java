@@ -51,6 +51,6 @@ public class BeltFloor extends SubsystemBase {
 
   public boolean isJam() {
     return debouncer.calculate(
-        inputs.motorSpeed < JAM_SPEED && inputs.statorCurrentAmps > JAM_CURRENT);
+        inputs.motorVelocity < JAM_SPEED && inputs.statorCurrentAmps > JAM_CURRENT);
   }
 }
