@@ -48,22 +48,22 @@ public record ChoreoTraj(
 	public static final ChoreoTraj OutpostRight = new ChoreoTraj(
 	    "OutpostRight",
 	    OptionalInt.empty(),
-	    3.26868,
-	    new Pose2d(3.675, 1.738, Rotation2d.fromRadians(0)),
+	    3.43448,
+	    new Pose2d(3.675, 2.4, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.109))
 	);
 	public static final ChoreoTraj OutpostRight$0 = new ChoreoTraj(
 	    "OutpostRight",
 	    OptionalInt.of(0),
-	    1.84601,
-	    new Pose2d(3.675, 1.738, Rotation2d.fromRadians(0)),
-	    new Pose2d(0.615, 0.658, Rotation2d.fromRadians(3.142))
+	    1.94192,
+	    new Pose2d(3.675, 2.4, Rotation2d.fromRadians(0)),
+	    new Pose2d(0.469, 0.555, Rotation2d.fromRadians(1.571))
 	);
 	public static final ChoreoTraj OutpostRight$1 = new ChoreoTraj(
 	    "OutpostRight",
 	    OptionalInt.of(1),
-	    1.4226699999999999,
-	    new Pose2d(0.615, 0.658, Rotation2d.fromRadians(3.142)),
+	    1.49256,
+	    new Pose2d(0.469, 0.555, Rotation2d.fromRadians(1.571)),
 	    new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.109))
 	);
 	public static final ChoreoTraj Center = new ChoreoTraj(

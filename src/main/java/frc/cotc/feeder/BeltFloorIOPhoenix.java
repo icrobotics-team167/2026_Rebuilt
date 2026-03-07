@@ -24,7 +24,7 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
 
     var config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = false;
-    config.CurrentLimits.SupplyCurrentLimit = 10;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
