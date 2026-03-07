@@ -176,7 +176,7 @@ public class Swerve extends SubsystemBase {
               target.getBaseTargetLocation().minus(currentShooterPose.getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
-          var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.2);
+          var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.4);
           io.setControl(
               facingAngle
                   .withVelocityX(-distanceControllerOutput * currentPoseToGoalAngle.getCos() + x)
