@@ -24,8 +24,8 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
 
     var config = new TalonFXConfiguration();
 
-    config.CurrentLimits.StatorCurrentLimit = 60;
-    config.CurrentLimits.SupplyCurrentLimit = 30;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 15;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 

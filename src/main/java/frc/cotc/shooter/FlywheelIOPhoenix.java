@@ -37,8 +37,8 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     motor1 = new TalonFX(MOTOR_1_ID, Robot.rioBus);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.CurrentLimits.StatorCurrentLimit = 120;
-    config.CurrentLimits.SupplyCurrentLimit = 70;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 60;
 
     config.Slot0.kV = 12.0 / 110.0;
     config.Slot0.kP = .5;

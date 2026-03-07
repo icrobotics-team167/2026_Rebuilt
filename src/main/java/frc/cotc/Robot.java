@@ -115,6 +115,8 @@ public class Robot extends LoggedRobot {
       }
     }
 
+    RobotController.setBrownoutVoltage(6);
+
     Logger.start();
 
     CommandScheduler.getInstance().onCommandInitialize(CommandsLogging::commandStarted);
@@ -147,17 +149,17 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
 
-    // intakePivot.setDefaultCommand(intakePivot.extend());
-    // primary
-    //     .a()
-    //     .toggleOnTrue(
-    //         intakePivot
-    //             .retract()
-    //             .alongWith(
-    //                 intakeRoller
-    //                     .idle()
-    //                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-    //                     .asProxy()));
+    intakePivot.setDefaultCommand(intakePivot.extend());
+    primary
+        .a()
+        .toggleOnTrue(
+            intakePivot
+                .retract()
+                .alongWith(
+                    intakeRoller
+                        .idle()
+                        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+                        .asProxy()));
     primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
@@ -179,8 +181,7 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new RacewayIO() {};
             });
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    raceway.setDefaultCommand(raceway.runRaceway());
-    primary.rightTrigger().whileTrue(beltFloor.runBelt());
+    primary.rightTrigger().whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {

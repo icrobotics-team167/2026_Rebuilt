@@ -23,8 +23,8 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
     motor = new TalonFX(BELT_FLOOR_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
-    config.CurrentLimits.StatorCurrentLimit = 60;
-    config.CurrentLimits.SupplyCurrentLimit = 30;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 10;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
