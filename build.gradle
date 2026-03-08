@@ -198,6 +198,7 @@ task(eventDeploy) {
     }
 }
 createVersionFile.dependsOn(eventDeploy)
+eventDeploy.dependsOn(spotlessApply)
 
 // Spotless formatting
 project.compileJava.dependsOn(spotlessApply)
