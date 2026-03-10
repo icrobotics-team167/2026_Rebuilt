@@ -14,58 +14,45 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import frc.cotc.Robot;
 
 public class IntakeRollerIOPhoenix implements IntakeRollerIO {
-  private final TalonFX intakeMotor1;
-  private final TalonFX intakeMotor2;
-  private final int INTAKE_ID_1 = 0; // Placeholder ID for intakeMotor1
-  private final int INTAKE_ID_2 = 1; // Placeholder ID for intakeMotor2
+  private final TalonFX intakeMotor;
+  private final int INTAKE_ID = 9;
   private final double INTAKE_DEFAULT_VOLTAGE = 12.0;
   private final double OUTAKE_DEFAULT_VOLTAGE = -12.0;
 
-  private final BaseStatusSignal statorSignal1, supplySignal1, statorSignal2, supplySignal2;
+  private final BaseStatusSignal statorSignal, supplySignal;
 
   public IntakeRollerIOPhoenix() {
-    intakeMotor1 = new TalonFX(INTAKE_ID_1);
-    intakeMotor2 = new TalonFX(INTAKE_ID_2);
+    intakeMotor = new TalonFX(INTAKE_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.CurrentLimits.StatorCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
-    intakeMotor1.getConfigurator().apply(config);
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    intakeMotor2.getConfigurator().apply(config);
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
+    intakeMotor.getConfigurator().apply(config);
 
-    statorSignal1 = intakeMotor2.getStatorCurrent(false);
-    statorSignal2 = intakeMotor2.getStatorCurrent(false);
-    supplySignal1 = intakeMotor2.getSupplyCurrent(false);
-    supplySignal2 = intakeMotor2.getSupplyCurrent(false);
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50, statorSignal1, statorSignal2, supplySignal1, supplySignal2);
-    Robot.canivoreSignals.addSignals(statorSignal1, statorSignal2, supplySignal1, supplySignal2);
+    statorSignal = intakeMotor.getStatorCurrent(false);
+    supplySignal = intakeMotor.getSupplyCurrent(false);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal);
   }
 
   @Override
   public void run() {
-    intakeMotor1.setVoltage(INTAKE_DEFAULT_VOLTAGE);
-    intakeMotor2.setVoltage(INTAKE_DEFAULT_VOLTAGE);
+    intakeMotor.setVoltage(INTAKE_DEFAULT_VOLTAGE);
   }
 
   @Override
   public void runReverse() {
-    intakeMotor1.setVoltage(OUTAKE_DEFAULT_VOLTAGE);
-    intakeMotor2.setVoltage(OUTAKE_DEFAULT_VOLTAGE);
+    intakeMotor.setVoltage(OUTAKE_DEFAULT_VOLTAGE);
   }
 
   @Override
   public void updateInputs(IntakeRollerIOInputs inputs) {
-    inputs.statorCurrentAmps1 = statorSignal1.getValueAsDouble();
-    inputs.statorCurrentAmps2 = statorSignal2.getValueAsDouble();
-    inputs.supplyCurrentAmps1 = supplySignal1.getValueAsDouble();
-    inputs.supplyCurrentAmps2 = supplySignal2.getValueAsDouble();
+    inputs.statorCurrentAmps = statorSignal.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
   }
 
   @Override
   public void stop() {
-    intakeMotor1.setVoltage(0);
-    intakeMotor2.setVoltage(0);
+    intakeMotor.setVoltage(0);
   }
 }

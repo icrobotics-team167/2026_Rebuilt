@@ -13,16 +13,16 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.util.CircularBuffer;
 import frc.cotc.Robot;
-import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 /** Implementation for a real swerve drivetrain using Phoenix swerve. */
 public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final ReentrantLock queueLock = new ReentrantLock();
   /* double buffer setup */
-  private ArrayList<SwerveDriveState> stateQueue = new ArrayList<>();
-  private ArrayList<SwerveDriveState> tmpStateQueue = new ArrayList<>();
+  private CircularBuffer<SwerveDriveState> stateQueue = new CircularBuffer<>(50);
+  private CircularBuffer<SwerveDriveState> tmpStateQueue = new CircularBuffer<>(50);
 
   private Pose2d pose = new Pose2d();
 
@@ -41,7 +41,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
   SwerveIOReal(SwerveModuleConstants<?, ?, ?>... modules) {
     super(TunerConstants.DrivetrainConstants, modules);
 
-    stateQueue.add(getStateCopy());
+    stateQueue.addLast(getStateCopy());
     registerTelemetry(this::updateTelemetry);
 
     connectedSignals = new BaseStatusSignal[3 * 4];
@@ -50,9 +50,9 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       connectedSignals[i * 3 + 1] = getModule(i).getSteerMotor().getVersion(false);
       connectedSignals[i * 3 + 2] = getModule(i).getEncoder().getVersion(false);
 
-      currentSignals[i * 4] = getModule(i).getDriveMotor().getTorqueCurrent(false);
+      currentSignals[i * 4] = getModule(i).getDriveMotor().getStatorCurrent(false);
       currentSignals[i * 4 + 1] = getModule(i).getDriveMotor().getSupplyCurrent(false);
-      currentSignals[i * 4 + 2] = getModule(i).getSteerMotor().getTorqueCurrent(false);
+      currentSignals[i * 4 + 2] = getModule(i).getSteerMotor().getStatorCurrent(false);
       currentSignals[i * 4 + 3] = getModule(i).getSteerMotor().getSupplyCurrent(false);
     }
     Robot.canivoreSignals.addSignals(connectedSignals);
@@ -66,7 +66,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       // Loctite™️
       queueLock.lock();
       // Add the latest state to the queue
-      stateQueue.add(state.clone());
+      stateQueue.addLast(state.clone());
     } finally {
       queueLock.unlock();
     }
@@ -99,7 +99,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
       inputs.timestampQueue[i] = state.Timestamp;
     }
 
-    if (!stateQueue.isEmpty()) {
+    if (stateQueue.size() != 0) {
       // Grab the newsest state
       final var state = stateQueue.get(stateQueue.size() - 1);
 

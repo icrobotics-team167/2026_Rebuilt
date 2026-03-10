@@ -23,14 +23,14 @@ import frc.cotc.Robot;
 public class HoodIOPhoenix implements HoodIO {
   private final TalonFX motor;
 
-  private final int HOOD_MOTOR_ID = 0; // TODO: Get the actual ID
-  private final int HOOD_ENCODER_ID = 0; // TODO: Get the actual ID
+  private final int HOOD_MOTOR_ID = 15;
+  private final int HOOD_ENCODER_ID = 0;
 
   private final BaseStatusSignal posSignal, velSignal, statorSignal, supplySignal;
 
   public HoodIOPhoenix() {
-    motor = new TalonFX(HOOD_MOTOR_ID);
-    var encoder = new CANcoder(HOOD_ENCODER_ID);
+    motor = new TalonFX(HOOD_MOTOR_ID, Robot.rioBus);
+    var encoder = new CANcoder(HOOD_ENCODER_ID, Robot.rioBus);
 
     var motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -50,7 +50,7 @@ public class HoodIOPhoenix implements HoodIO {
     supplySignal = motor.getSupplyCurrent(false);
 
     BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, velSignal, statorSignal, supplySignal);
-    Robot.canivoreSignals.addSignals(posSignal, velSignal, statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(posSignal, velSignal, statorSignal, supplySignal);
     ParentDevice.optimizeBusUtilizationForAll(5, motor, encoder);
   }
 

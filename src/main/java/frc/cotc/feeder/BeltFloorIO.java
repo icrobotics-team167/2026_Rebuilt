@@ -22,6 +22,6 @@ public interface BeltFloorIO {
   public class BeltFloorIOInputs {
     public double statorCurrentAmps = 0.0;
     public double supplyCurrentAmps = 0.0;
-    public double motorSpeed = 0.0;
+    public double motorVelocity = 0.0;
   }
 }

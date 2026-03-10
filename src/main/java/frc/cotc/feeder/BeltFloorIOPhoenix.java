@@ -15,34 +15,34 @@ import frc.cotc.Robot;
 
 public class BeltFloorIOPhoenix implements BeltFloorIO {
   private final TalonFX motor;
-  private final int BELTFLOOR_ID = 0; // placeholder
-  private final double BELTFLOOR_DEFAULT_VOLTAGE = 12.0;
-  private final BaseStatusSignal statorSignal, supplySignal, motorSpeedSignal;
+  private final int BELT_FLOOR_ID = 1;
+  private final double BELT_FLOOR_DEFAULT_VOLTAGE = 12.0;
+  private final BaseStatusSignal statorSignal, supplySignal, motorVelocitySignal;
 
   public BeltFloorIOPhoenix() {
-    motor = new TalonFX(BELTFLOOR_ID);
+    motor = new TalonFX(BELT_FLOOR_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
-    config.CurrentLimits.StatorCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
-    motorSpeedSignal = motor.getAcceleration(false);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, motorSpeedSignal);
-    Robot.canivoreSignals.addSignals(statorSignal, supplySignal, motorSpeedSignal);
+    motorVelocitySignal = motor.getVelocity(false);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, motorVelocitySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal, motorVelocitySignal);
   }
 
   @Override
   public void run() {
-    motor.setVoltage(BELTFLOOR_DEFAULT_VOLTAGE);
+    motor.setVoltage(BELT_FLOOR_DEFAULT_VOLTAGE);
   }
 
   @Override
   public void runReverse() {
-    motor.setVoltage(-BELTFLOOR_DEFAULT_VOLTAGE);
+    motor.setVoltage(-BELT_FLOOR_DEFAULT_VOLTAGE);
   }
 
   @Override
@@ -54,6 +54,6 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
   public void updateInputs(BeltFloorIOInputs inputs) {
     inputs.statorCurrentAmps = statorSignal.getValueAsDouble();
     inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
-    inputs.motorSpeed = Math.abs(motorSpeedSignal.getValueAsDouble());
+    inputs.motorVelocity = motorVelocitySignal.getValueAsDouble();
   }
 }

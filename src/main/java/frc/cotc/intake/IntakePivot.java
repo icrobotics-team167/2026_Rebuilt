@@ -9,6 +9,7 @@ package frc.cotc.intake;
 
 import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -23,16 +24,23 @@ public class IntakePivot extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs); // 1, Get new data from hardware
-    Logger.processInputs("Intake", inputs);
+    io.updateInputs(inputs);
+    Logger.processInputs("IntakePivot", inputs);
   }
 
   public Command extend() {
-    return runAngle(0);
+    return run(() -> io.run(12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
   }
 
   public Command retract() {
-    return runAngle(Math.PI / 2);
+    return run(() -> io.run(-4)).until(this::isStalled).andThen(run(() -> io.run(-1)));
+  }
+
+  private final Debouncer debouncer = new Debouncer(0.5);
+
+  private boolean isStalled() {
+    return debouncer.calculate(
+        Math.abs(inputs.statorCurrentAmps) > 40 && Math.abs(inputs.velocityRotPerSec) < 20);
   }
 
   public Command agitate() {
@@ -40,11 +48,6 @@ public class IntakePivot extends SubsystemBase {
 
     return repeatingSequence(
             extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
-        .finallyDo(io::stop)
         .withName("Agitate");
-  }
-
-  private Command runAngle(double angleRad) {
-    return run(() -> io.run(angleRad)).finallyDo(io::stop);
   }
 }

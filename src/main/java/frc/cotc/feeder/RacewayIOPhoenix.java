@@ -15,24 +15,24 @@ import frc.cotc.Robot;
 
 public class RacewayIOPhoenix implements RacewayIO {
   private final TalonFX motor;
-  private final int RACEWAY_ID = 0; // placeholder
+  private final int RACEWAY_ID = 0;
   private final double RACEWAY_DEFAULT_VOLTAGE = 12.0;
   private final BaseStatusSignal statorSignal, supplySignal;
 
   public RacewayIOPhoenix() {
-    motor = new TalonFX(RACEWAY_ID);
+    motor = new TalonFX(RACEWAY_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
 
-    config.CurrentLimits.StatorCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
-    Robot.canivoreSignals.addSignals(statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal);
   }
 
   @Override

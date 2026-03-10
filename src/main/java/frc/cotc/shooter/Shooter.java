@@ -12,9 +12,9 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
@@ -23,16 +23,19 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
-  private final HoodIO hoodIO;
+  // private final HoodIO hoodIO;
   private final FlywheelIO flywheelIO;
-  private final TurretIO turretIO;
+  // private final TurretIO turretIO;
 
-  private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+  // private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private final FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
   private final TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
 
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier;
+
+  private final InterpolatingDoubleTreeMap distanceToFlywheelSpeedMap =
+      new InterpolatingDoubleTreeMap();
 
   // The shooter will lag behind the target position, so try to look a little further into the
   // future to compensate
@@ -71,19 +74,21 @@ public class Shooter extends SubsystemBase {
       new InterpolatingDoubleTreeMap();
 
   public Shooter(
-      HoodIO hoodIO,
+      // HoodIO hoodIO,
       FlywheelIO flywheelIO,
-      TurretIO turretIO,
+      // TurretIO turretIO,
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> fieldChassisSpeedsSupplier) {
-    this.hoodIO = hoodIO;
+    // this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
-    this.turretIO = turretIO;
+    // this.turretIO = turretIO;
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.fieldChassisSpeedsSupplier = fieldChassisSpeedsSupplier;
 
-    addMapping(0, 0);
+    distanceToFlywheelSpeedMap.put(0.0, 0.0);
+    // addMapping(0, 0);
+
   }
 
   private void addMapping(double flywheelVelRotPerSec, double projectileVelMetersPerSec) {
@@ -93,39 +98,63 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    hoodIO.updateInputs(hoodInputs);
-    Logger.processInputs("Shooter/Hood", hoodInputs);
+    // hoodIO.updateInputs(hoodInputs);
+    // Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
-    turretIO.updateInputs(turretInputs);
-    Logger.processInputs("Shooter/Turret", turretInputs);
+    // turretIO.updateInputs(turretInputs);
+    // Logger.processInputs("Shooter/Turret", turretInputs);
+    Logger.recordOutput("Shooter/Target flywheel vel rps", targetRps);
   }
 
-  private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
-  private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
+  // private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
+  // private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
+
+  private double targetRps = 35.5;
+
+  public Command incrementIdleVel() {
+    return Commands.runOnce(() -> targetRps += .5);
+  }
+
+  public Command decrementIdleVel() {
+    return Commands.runOnce(
+        () -> {
+          if (targetRps > 30) {
+            targetRps -= .5;
+          }
+        });
+  }
+
+  public Command idleRun() {
+    return run(() -> flywheelIO.runVel(targetRps)).finallyDo(flywheelIO::stop);
+  }
 
   public enum ShotTarget {
-    BLUE_HUB(hubShotMap, FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+    BLUE_HUB(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
     // BLUE_BOTTOM_GROUND(groundShotMap, BLUE_BOTTOM_GROUND_TARGET),
     // BLUE_TOP_GROUND(groundShotMap, BLUE_TOP_GROUND_TARGET),
-    RED_HUB(hubShotMap, FieldConstants.Hub.oppTopCenterPoint.toTranslation2d());
+    RED_HUB(FieldConstants.Hub.oppTopCenterPoint.toTranslation2d());
     // RED_BOTTOM_GROUND(groundShotMap, RED_BOTTOM_GROUND_TARGET),
     // RED_TOP_GROUND(groundShotMap, RED_TOP_GROUND_TARGET);
 
-    public final ShotMap map;
+    // public final ShotMap map;
     private final Translation2d targetLocation;
 
-    private final double MAX_OFFSET = 0.2;
+    private final double MAX_OFFSET = 0.0;
 
-    public Translation2d getTargetLocation() {
+    public Translation2d getWiggledTargetLocation() {
       return targetLocation.plus(
           new Translation2d(
               MAX_OFFSET * Math.sin(5 * Timer.getTimestamp()),
               MAX_OFFSET * Math.sin(8 * Timer.getTimestamp())));
     }
 
-    ShotTarget(ShotMap map, Translation2d targetLocation) {
-      this.map = map;
+    public Translation2d getBaseTargetLocation() {
+      return targetLocation;
+    }
+
+    ShotTarget(Translation2d targetLocation) {
+      // this.map = map;
       this.targetLocation = targetLocation;
     }
   }
@@ -137,25 +166,25 @@ public class Shooter extends SubsystemBase {
         .withName("Shoot at " + shotTarget.name());
   }
 
-  public Command pass() {
-    return run(
-        () -> {
-          var blueTargetX = 1.0;
-          var targetX = Robot.isOnRed() ? FieldConstants.fieldLength - blueTargetX : blueTargetX;
-          var distance = Math.abs(targetX - robotPoseSupplier.get().getX());
-          var result =
-              groundShotMap.get(
-                  distance, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
-          runHood(result.pitchRad());
-          runFlywheel(groundShotMap, distance);
-        });
-  }
+  // public Command pass() {
+  //   return run(
+  //       () -> {
+  //         var blueTargetX = 1.0;
+  //         var targetX = Robot.isOnRed() ? FieldConstants.fieldLength - blueTargetX : blueTargetX;
+  //         var distance = Math.abs(targetX - robotPoseSupplier.get().getX());
+  //         var result =
+  //             groundShotMap.get(
+  //                 distance, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+  //         // runHood(result.pitchRad());
+  //         runFlywheel(groundShotMap, distance);
+  //       });
+  // }
 
-  public boolean canShoot() {
-    return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
-        && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1))
-        && isFlywheelSpeedOk;
-  }
+  // public boolean canShoot() {
+  //   return MathUtil.isNear(lastPitchRad, hoodInputs.thetaRad, Units.degreesToRadians(1))
+  //       && MathUtil.isNear(lastYawRad, turretInputs.thetaRad, Units.degreesToRadians(1))
+  //       && isFlywheelSpeedOk;
+  // }
 
   private double lastPitchRad;
   private double lastYawRad;
@@ -264,16 +293,21 @@ public class Shooter extends SubsystemBase {
     //     turretYawAbsolute,
     //     robotPose.getRotation(),
     //     fieldChassisSpeeds.omegaRadiansPerSecond);
-    var map = shotTarget.map;
+    // var map = shotTarget.map;
     var distanceMeters =
         shotTarget
-            .getTargetLocation()
+            .getWiggledTargetLocation()
             .getDistance(robotPose.plus(Constants.robotToShooterTransform).getTranslation());
-    var result =
-        map.get(distanceMeters, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
-
-    runHood(result.pitchRad());
-    runFlywheel(map, distanceMeters);
+    // var result =
+    //     map.get(distanceMeters, flywheelVelToProjectileVelMap.get(flywheelInputs.velRotPerSec));
+    //
+    // runHood(result.pitchRad());
+    // runFlywheel(map, distanceMeters);
+    var flywheelSpeed = distanceToFlywheelSpeedMap.get(distanceMeters);
+    flywheelIO.runVel(flywheelSpeed);
+    isFlywheelSpeedOk =
+        flywheelSpeedOkDebouncer.calculate(
+            MathUtil.isNear(flywheelSpeed, flywheelInputs.velRotPerSec, 50));
   }
 
   private final Debouncer flywheelSpeedOkDebouncer =
@@ -311,16 +345,17 @@ public class Shooter extends SubsystemBase {
     }
   }
 
-  private void runTurret(Rotation2d absoluteYaw, Rotation2d robotYaw, double robotOmegaRadPerSec) {
-    turretIO.runYaw(
-        absoluteYaw.minus(robotYaw).getRadians(),
-        // Feedforward component also includes the robot's motion
-        (absoluteYaw.getRadians() - lastYawRad) / Robot.defaultPeriodSecs - robotOmegaRadPerSec);
-    lastYawRad = absoluteYaw.getRadians();
-  }
+  // private void runTurret(Rotation2d absoluteYaw, Rotation2d robotYaw, double robotOmegaRadPerSec)
+  // {
+  //   turretIO.runYaw(
+  //       absoluteYaw.minus(robotYaw).getRadians(),
+  //       // Feedforward component also includes the robot's motion
+  //       (absoluteYaw.getRadians() - lastYawRad) / Robot.defaultPeriodSecs - robotOmegaRadPerSec);
+  //   lastYawRad = absoluteYaw.getRadians();
+  // }
 
-  private void runHood(double pitchRad) {
-    hoodIO.runPitch(pitchRad, (pitchRad - lastPitchRad) / Robot.defaultPeriodSecs);
-    lastPitchRad = pitchRad;
-  }
+  // private void runHood(double pitchRad) {
+  //   hoodIO.runPitch(pitchRad, (pitchRad - lastPitchRad) / Robot.defaultPeriodSecs);
+  //   lastPitchRad = pitchRad;
+  // }
 }

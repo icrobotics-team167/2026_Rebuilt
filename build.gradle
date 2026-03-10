@@ -198,6 +198,7 @@ task(eventDeploy) {
     }
 }
 createVersionFile.dependsOn(eventDeploy)
+eventDeploy.dependsOn(spotlessApply)
 
 // Spotless formatting
 project.compileJava.dependsOn(spotlessApply)
@@ -206,7 +207,8 @@ spotless {
     java {
         target fileTree(".") {
             include "**/*.java"
-            exclude "**/build/**", "**/build-*/**", "**/BuildConstants.java"
+            exclude "**/build/**", "**/build-*/**", "**/BuildConstants.java",
+                    "**/ChoreoTraj.java", "**/ChoreoVars.java"
         }
         googleJavaFormat()
         removeUnusedImports()

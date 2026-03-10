@@ -15,24 +15,24 @@ import frc.cotc.Robot;
 
 public class TurretFeederIOPhoenix implements TurretFeederIO {
   private final TalonFX motor;
-  private final int TURRET_FEEDER_ID = 0; // TODO: Find this value
+  private final int TURRET_FEEDER_ID = 7;
   private final BaseStatusSignal statorSignal, supplySignal;
   private final double TURRET_FEEDER_DEFAULT_VOLTAGE = 12.0;
 
   public TurretFeederIOPhoenix() {
-    motor = new TalonFX(TURRET_FEEDER_ID);
+    motor = new TalonFX(TURRET_FEEDER_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
 
-    config.CurrentLimits.StatorCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
-    Robot.canivoreSignals.addSignals(statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(statorSignal, supplySignal);
   }
 
   @Override

@@ -33,19 +33,19 @@ public class AprilTagPoseEstimator {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     cameraTransforms.put(
-        "FrontLeft",
+        "BackLeft",
         new Transform3d(
-            Units.inchesToMeters(22.0 / 2 - 1.5),
-            Units.inchesToMeters(32.0 / 2 + .125),
-            Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-45))));
+            -Units.inchesToMeters(22.0 / 2 - 2),
+            Units.inchesToMeters(32.0 / 2 - 2),
+            Units.inchesToMeters(28.75),
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(130))));
     cameraTransforms.put(
-        "FrontRight",
+        "BackRight",
         new Transform3d(
-            Units.inchesToMeters(22.0 / 2 - 1.5),
-            -Units.inchesToMeters(32.0 / 2 + .125),
-            Units.inchesToMeters(8.375),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(45))));
+            -Units.inchesToMeters(22.0 / 2 - 2),
+            -Units.inchesToMeters(32.0 / 2 - 2),
+            Units.inchesToMeters(18.75),
+            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-135))));
   }
 
   private final PhotonPoseEstimator poseEstimator;
@@ -86,11 +86,7 @@ public class AprilTagPoseEstimator {
     if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
     if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
 
-    // odometry check (inspired by 2025 vision)
-    return currentPoseEstimate == null
-        || !(pose2d.getTranslation().getDistance(currentPoseEstimate.getTranslation()) > 0.25
-            || pose2d.getRotation().getDegrees() - currentPoseEstimate.getRotation().getDegrees()
-                > 2);
+    return true;
   }
 
   public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimate) {
@@ -107,13 +103,15 @@ public class AprilTagPoseEstimator {
                   return;
                 }
 
+                var translationalStdDev = name.equals("BackLeft") ? 2 : 1.5;
+                var angularStdDev = name.equals("BackLeft") ? 2.5 : 1.5;
                 estimateConsumer.accept(
                     poseEstimate.estimatedPose.toPose2d(),
                     result.getTimestampSeconds(),
                     VecBuilder.fill(
-                        0.9 / poseEstimate.targetsUsed.size(),
-                        0.9 / poseEstimate.targetsUsed.size(),
-                        0.9 / poseEstimate.targetsUsed.size()));
+                        translationalStdDev / poseEstimate.targetsUsed.size(),
+                        translationalStdDev / poseEstimate.targetsUsed.size(),
+                        angularStdDev / poseEstimate.targetsUsed.size()));
               });
     }
   }

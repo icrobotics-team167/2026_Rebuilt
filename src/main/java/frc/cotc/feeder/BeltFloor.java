@@ -42,7 +42,7 @@ public class BeltFloor extends SubsystemBase {
   }
 
   public Command runBelt() {
-    return run(io::run).withName("Run belt");
+    return run(io::run).finallyDo(io::stop).withName("Run belt");
   }
 
   public Command runBeltReverse() {
@@ -51,6 +51,6 @@ public class BeltFloor extends SubsystemBase {
 
   public boolean isJam() {
     return debouncer.calculate(
-        inputs.motorSpeed < JAM_SPEED && inputs.statorCurrentAmps > JAM_CURRENT);
+        inputs.motorVelocity < JAM_SPEED && inputs.statorCurrentAmps > JAM_CURRENT);
   }
 }

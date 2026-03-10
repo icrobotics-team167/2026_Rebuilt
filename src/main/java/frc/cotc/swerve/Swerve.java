@@ -109,9 +109,9 @@ public class Swerve extends SubsystemBase {
     visionPoses.clear();
 
     for (int i = 0; i < 4; i++) {
-      deviceDisconnectAlerts[i * 3].set(inputs.driveMotorConnected[i]);
-      deviceDisconnectAlerts[i * 3 + 1].set(inputs.steerMotorConnected[i]);
-      deviceDisconnectAlerts[i * 3 + 2].set(inputs.encoderConnected[i]);
+      deviceDisconnectAlerts[i * 3].set(!inputs.driveMotorConnected[i]);
+      deviceDisconnectAlerts[i * 3 + 1].set(!inputs.steerMotorConnected[i]);
+      deviceDisconnectAlerts[i * 3 + 2].set(!inputs.encoderConnected[i]);
     }
 
     Logger.recordOutput("Swerve/Pose", io.getPose());
@@ -132,18 +132,27 @@ public class Swerve extends SubsystemBase {
                   Math.hypot(
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
+  private final double slowModeMultiplier = 0.25;
+  private double speedMultiplier = 1;
+
+  public Command slowTeleopDrive() {
+    return Commands.startEnd(() -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = 1);
+  }
+
   private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric();
 
   public Command teleopDrive(Supplier<Translation2d> translationalInput, DoubleSupplier omega) {
     return run(() -> {
-          var translation = translationalInput.get();
-          var v = translation.getX();
+          var translation =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
+          var x = translation.getX();
           var y = translation.getY();
           io.setControl(
               fieldCentricDrive
-                  .withVelocityX(v * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
-                  .withRotationalRate(omega.getAsDouble() * maxAngularSpeedRadiansPerSecond));
+                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withRotationalRate(
+                      omega.getAsDouble() * speedMultiplier * maxAngularSpeedRadiansPerSecond));
         })
         .withName("Teleop Drive");
   }
@@ -151,37 +160,55 @@ public class Swerve extends SubsystemBase {
   private final SwerveRequest.FieldCentricFacingAngle facingAngle =
       new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
 
+  private final PIDController distanceController = new PIDController(5, 0, 0);
+
   public Command aimAtTarget(
       Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
     return run(() -> {
-          var translational = translationalInput.get();
+          var translational =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translational.getX();
           var y = translational.getY();
+
+          var currentPoseToGoal =
+              target
+                  .getBaseTargetLocation()
+                  .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation());
+          var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
+          var distanceToGoalMeters = currentPoseToGoal.getNorm();
+          var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.3);
           io.setControl(
               facingAngle
-                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withVelocityX(-distanceControllerOutput * currentPoseToGoalAngle.getCos() + x)
+                  .withVelocityY(-distanceControllerOutput * currentPoseToGoalAngle.getSin() + y)
                   .withTargetDirection(
-                      target
-                          .getTargetLocation()
-                          .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation())
-                          .getAngle()
-                          .minus(Constants.robotToShooterTransform.getRotation())));
+                      (target
+                              .getWiggledTargetLocation()
+                              .minus(
+                                  getPose()
+                                      .plus(Constants.robotToShooterTransform)
+                                      .getTranslation())
+                              .getAngle())
+                          .minus(Constants.robotToShooterTransform.getRotation()))
+                  .withTargetRateFeedforward(
+                      (currentPoseToGoalAngle.getCos() * y + currentPoseToGoalAngle.getSin() * x)
+                          / distanceToGoalMeters));
           Logger.recordOutput(
-              "Shooter/Target", new Pose2d(target.getTargetLocation(), Rotation2d.kZero));
+              "Shooter/Target", new Pose2d(target.getWiggledTargetLocation(), Rotation2d.kZero));
         })
         .withName("Aim at target");
   }
 
   public Command pass(Supplier<Translation2d> translationalInput) {
     return run(() -> {
-          var translational = translationalInput.get();
+          var translational =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translational.getX();
           var y = translational.getY();
           io.setControl(
               facingAngle
-                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
                   .withTargetDirection(
                       Robot.isOnRed()
                           ? Constants.robotToShooterTransform.getRotation().unaryMinus()
@@ -218,6 +245,12 @@ public class Swerve extends SubsystemBase {
         .withName("Set to red");
   }
 
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+
+  public Command brake() {
+    return run(() -> io.setControl(brake)).withName("Brake");
+  }
+
   public void followPath(SwerveSample sample) {
     var pose = getPose();
 
@@ -227,6 +260,7 @@ public class Swerve extends SubsystemBase {
     targetSpeeds.omegaRadiansPerSecond +=
         pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading);
 
+    Logger.recordOutput("Swerve/Choreo target", sample.getPose());
     io.setControl(
         m_pathApplyFieldSpeeds
             .withSpeeds(targetSpeeds)
