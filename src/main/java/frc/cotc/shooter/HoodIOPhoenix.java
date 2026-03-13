@@ -27,7 +27,7 @@ public class HoodIOPhoenix implements HoodIO {
   private final int HOOD_MOTOR_ID = 15;
   private final int HOOD_ENCODER_ID = 0;
 
-  private final double GEAR_RAITO = 154.0 / 5;
+  private final double GEAR_RATIO = 154.0 / 5;
 
   private final BaseStatusSignal posSignal, velSignal, statorSignal, supplySignal;
 
@@ -40,7 +40,7 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
-    motorConfig.Feedback.SensorToMechanismRatio = GEAR_RAITO;
+    motorConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
     motor.getConfigurator().apply(motorConfig);
