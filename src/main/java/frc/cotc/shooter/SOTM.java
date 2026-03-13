@@ -63,7 +63,11 @@ public class SOTM {
     }
   }
 
-  public record SOTMResult(double pitchRad, Rotation2d yaw, double shotSpeedMetersPerSecond) {}
+  public record SOTMResult(
+      double pitchRad,
+      Rotation2d yaw,
+      double shotSpeedMetersPerSecond,
+      double maxMoveSpeedMetersPerSecond) {}
 
   public static SOTMResult calculate(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
@@ -91,13 +95,16 @@ public class SOTM {
 
     var map = shotTarget.map;
 
-    final int iterations = 10;
+    final int iterations = 5;
     var iterationsPoses = new Pose2d[iterations + 2];
+    var iterationToFs = new double[iterations + 2];
     iterationsPoses[0] =
         new Pose2d(shooterTranslation, targetLocation.minus(shooterTranslation).getAngle());
     // Initial guess using the stationary shot's time of flight
     var baseDistance = targetLocation.getDistance(shooterTranslation);
-    var timeOfFlight = map.get(baseDistance).timeOfFlightSeconds();
+    var initialGuess = map.get(baseDistance);
+    var timeOfFlight = initialGuess.timeOfFlightSeconds();
+    iterationToFs[0] = timeOfFlight;
     for (int i = 1; i <= iterations; i++) {
       var a =
           (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
@@ -123,6 +130,7 @@ public class SOTM {
                       + virtualShooterToTarget.getY() * shooterVy)
                   / virtualShooterToTargetNorm; // E'(τ)
       timeOfFlight -= error / error_prime;
+      iterationToFs[i] = timeOfFlight;
     }
     var finalVirtualShooterPos =
         shooterTranslation.plus(
@@ -132,7 +140,17 @@ public class SOTM {
         new Pose2d(finalVirtualShooterPos, finalVirtualShooterToTarget.getAngle());
     var finalVirtualShooterToTargetDistance = finalVirtualShooterToTarget.getNorm();
     var result = map.get(finalVirtualShooterToTargetDistance);
-    Logger.recordOutput("Shooter/Shot result/Iterations", iterationsPoses);
+    iterationToFs[iterations + 1] = result.timeOfFlightSeconds();
+    Logger.recordOutput("Shooter/Shot result/Iteration Poses", iterationsPoses);
+    Logger.recordOutput("Shooter/Shot result/Iteration ToF seconds", iterationToFs);
+
+    var shotStability =
+        Math.abs(
+            (iterationToFs[iterations] - iterationToFs[iterations - 1])
+                / (iterationToFs[iterations - 1] - iterationToFs[iterations - 2]));
+    Logger.recordOutput("Shooter/Shot result/Shot stability", shotStability);
+    Logger.recordOutput(
+        "Shooter/Shot result/Final virtual shooter pose", iterationsPoses[iterations + 1]);
     Logger.recordOutput("Shooter/Shot result/Result", result);
     Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTargetDistance);
 
@@ -145,9 +163,14 @@ public class SOTM {
               new Translation3d(
                   shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(18)),
               new Translation3d(
-                  result.speedMetersPerSec(),
-                  new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))));
+                      result.speedMetersPerSec(),
+                      new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))
+                  .plus(new Translation3d(shooterVx, shooterVy, 0))));
     }
-    return new SOTMResult(result.pitchRad(), turretYawAbsolute, result.speedMetersPerSec());
+    return new SOTMResult(
+        result.pitchRad(),
+        turretYawAbsolute,
+        result.speedMetersPerSec(),
+        initialGuess.speedMetersPerSec() * Math.sin(initialGuess.pitchRad()) / 2);
   }
 }

@@ -147,6 +147,8 @@ def solve(
 
     p = X[:3, :]
 
+    v_x = X[3, :]
+    v_y = X[4, :]
     v_z = X[5, :]
 
     v0_wrt_shooter = X[3:, :1] - shooter_wrt_field[3:, :]
@@ -190,7 +192,7 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    problem.subject_to(v_z[-1] < -1)
+    problem.subject_to(v_z[-1] <= -1 * hypot(v_x[-1], v_y[-1]))
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -231,8 +233,6 @@ def solve(
     )
     problem.subject_to(pitch <= max_pitch)
     problem.subject_to(pitch >= min_pitch)
-    if last_solve is not None:
-        problem.subject_to(pitch > last_solve[2])
 
     # Require initial velocity is less than max shooter velocity
     problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)

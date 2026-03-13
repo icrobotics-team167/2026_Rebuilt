@@ -185,14 +185,13 @@ public class Swerve extends SubsystemBase {
               facingAngle
                   .withVelocityX(
                       x
-                          * sotmResult.shotSpeedMetersPerSecond()
-                          * Math.cos(sotmResult.pitchRad())
-                          * 0.7)
+                          * Math.min(
+                              maxLinearSpeedMetersPerSecond,
+                              sotmResult.maxMoveSpeedMetersPerSecond()))
                   .withVelocityY(
                       y
-                          * sotmResult.shotSpeedMetersPerSecond()
-                          * Math.cos(sotmResult.pitchRad())
-                          * 0.7)
+                          * Math.min(
+                              maxLinearSpeedMetersPerSecond, sotmResult.shotSpeedMetersPerSecond()))
                   .withTargetDirection(
                       sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
