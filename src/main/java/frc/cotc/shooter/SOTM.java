@@ -9,12 +9,11 @@ package frc.cotc.shooter;
 
 import static frc.cotc.Constants.robotToShooterTransform;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import frc.cotc.FieldConstants;
+import frc.cotc.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class SOTM {
@@ -138,6 +137,17 @@ public class SOTM {
     Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTargetDistance);
 
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
+
+    if (Robot.isSimulation()) {
+      Logger.recordOutput(
+          "Shooter/Shot result/Trajectory",
+          TrajectoryCalc.simulateShot(
+              new Translation3d(
+                  shooterTranslation.getX(), shooterTranslation.getY(), Units.inchesToMeters(18)),
+              new Translation3d(
+                  result.speedMetersPerSec(),
+                  new Rotation3d(0, -result.pitchRad(), turretYawAbsolute.getRadians()))));
+    }
     return new SOTMResult(result.pitchRad(), turretYawAbsolute, result.speedMetersPerSec());
   }
 }

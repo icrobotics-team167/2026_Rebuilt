@@ -64,6 +64,9 @@ public class Robot extends LoggedRobot {
 
   public static SOTM.ShotTarget shotTarget = SOTM.ShotTarget.BLUE_HUB;
 
+  private final Swerve swerve;
+  private final Shooter shooter;
+
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
     // If this is erroring, hit build
@@ -123,7 +126,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().onCommandFinish(CommandsLogging::commandEnded);
     CommandScheduler.getInstance().onCommandInterrupt(CommandsLogging::logInterrupts);
 
-    var swerve =
+    swerve =
         new Swerve(
             switch (mode) {
               case REAL -> new SwerveIOReal();
@@ -223,7 +226,7 @@ public class Robot extends LoggedRobot {
                     && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
         .onTrue(swerve.setToRed());
 
-    var shooter =
+    shooter =
         new Shooter(
             switch (mode) {
               case REAL -> new HoodIOPhoenix();
@@ -236,13 +239,8 @@ public class Robot extends LoggedRobot {
               case REPLAY -> new FlywheelIO() {};
             });
 
-    CommandScheduler.getInstance().schedule(run(() -> {
-      var result = SOTM.calculate(swerve.getPose(), swerve.getFieldSpeeds(), shotTarget);
-      Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
-      swerve.setSOTMResult(result);
-      shooter.setSOTMResult(result);
-    }));
     shooter.setDefaultCommand(shooter.idleRun());
+    primary.b().whileTrue(swerve.aimAtTarget(translationalInputSupplier));
     // controller
     //     .rightBumper()
     //     .whileTrue(
@@ -276,6 +274,10 @@ public class Robot extends LoggedRobot {
 
     canivoreSignals.refreshAll();
     rioSignals.refreshAll();
+    var result = SOTM.calculate(swerve.getPose(), swerve.getFieldSpeeds(), shotTarget);
+    Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
+    swerve.setSOTMResult(result);
+    shooter.setSOTMResult(result);
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
     // running already-scheduled commands, removing finished or interrupted commands, and running
     // subsystem periodic() methods. This must be called from the robot's periodic block in order

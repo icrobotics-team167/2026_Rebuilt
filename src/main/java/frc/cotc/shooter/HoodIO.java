@@ -20,5 +20,5 @@ public interface HoodIO {
 
   default void updateInputs(HoodIOInputs inputs) {}
 
-  default void runPitch(double thetaRad, double omegaRadPerSec) {}
+  default void runPitch(double thetaRad) {}
 }

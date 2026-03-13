@@ -39,10 +39,8 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void runPitch(double thetaRad, double omegaRadPerSec) {
+  public void runPitch(double thetaRad) {
     sim.setInputVoltage(
-        pid.calculate(sim.getAngleRads(), thetaRad)
-            + omegaRadPerSec / kvRadPerSecPerVolt
-            + kG * Math.cos(sim.getAngleRads()));
+        pid.calculate(sim.getAngleRads(), thetaRad) + kG * Math.cos(sim.getAngleRads()));
   }
 }

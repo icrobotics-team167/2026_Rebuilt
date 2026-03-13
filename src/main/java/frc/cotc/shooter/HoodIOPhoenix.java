@@ -65,10 +65,7 @@ public class HoodIOPhoenix implements HoodIO {
   private final PositionVoltage controlSignal = new PositionVoltage(0);
 
   @Override
-  public void runPitch(double thetaRad, double omegaRadPerSec) {
-    motor.setControl(
-        controlSignal
-            .withPosition(Units.radiansToRotations(thetaRad))
-            .withVelocity(Units.radiansToRotations(omegaRadPerSec)));
+  public void runPitch(double thetaRad) {
+    motor.setControl(controlSignal.withPosition(Units.radiansToRotations(thetaRad)));
   }
 }

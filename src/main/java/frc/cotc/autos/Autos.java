@@ -41,11 +41,7 @@ public class Autos {
     this.swerve = swerve;
     this.feedCommand = feedCommand;
     intakeCommand = intakeRoller::intake;
-    aimCommand =
-        () ->
-            swerve.aimAtTarget(
-                () -> Translation2d.kZero,
-                Robot.isOnRed() ? Shooter.ShotTarget.RED_HUB : Shooter.ShotTarget.BLUE_HUB);
+    aimCommand = () -> swerve.aimAtTarget(() -> Translation2d.kZero);
     stopCommand = swerve::brake;
 
     autoFactory =

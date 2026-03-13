@@ -19,7 +19,8 @@ public class Shooter extends SubsystemBase {
   private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private final FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
-  private final InterpolatingDoubleTreeMap flywheelSpeedToProjectileSpeedMap = new InterpolatingDoubleTreeMap();
+  private final InterpolatingDoubleTreeMap flywheelSpeedToProjectileSpeedMap =
+      new InterpolatingDoubleTreeMap();
   private final InterpolatingDoubleTreeMap projectileSpeedToFlywheelSpeedMap =
       new InterpolatingDoubleTreeMap();
 
@@ -28,7 +29,6 @@ public class Shooter extends SubsystemBase {
     this.flywheelIO = flywheelIO;
 
     addMapping(0, 0);
-
   }
 
   private void addMapping(double flywheelSpeedRotPerSec, double projectileSpeedMetersPerSec) {
@@ -42,7 +42,8 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
-    Logger.recordOutput("Shooter/Actual projectile speed meters per sec", (flywheelInputs.velRotPerSec));
+    Logger.recordOutput(
+        "Shooter/Actual projectile speed meters per sec", (flywheelInputs.velRotPerSec));
     Logger.recordOutput("Shooter/Target projectile speed meters per sec", targetSpeedMetersPerSec);
   }
 
@@ -50,10 +51,11 @@ public class Shooter extends SubsystemBase {
   private double targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
 
   public Command idleRun() {
-    return run(() -> {
-      targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
-      flywheelIO.runVel(targetSpeedMetersPerSec);
-    });
+    return run(
+        () -> {
+          targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
+          flywheelIO.runVel(targetSpeedMetersPerSec);
+        });
   }
 
   private SOTM.SOTMResult sotmResult;
@@ -63,10 +65,12 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command sotm() {
-    return run(() -> {
-      if (sotmResult == null) return;
-      hoodIO.runPitch(sotmResult.pitchRad());
-      flywheelIO.runVel(projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond()));
-    });
+    return run(
+        () -> {
+          if (sotmResult == null) return;
+          hoodIO.runPitch(sotmResult.pitchRad());
+          flywheelIO.runVel(
+              projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond()));
+        });
   }
 }

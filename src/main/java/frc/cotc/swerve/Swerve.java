@@ -158,9 +158,9 @@ public class Swerve extends SubsystemBase {
   }
 
   private final SwerveRequest.FieldCentricFacingAngle facingAngle =
-      new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
-
-  private final PIDController distanceController = new PIDController(5, 0, 0);
+      new SwerveRequest.FieldCentricFacingAngle()
+          .withHeadingPID(8, 0, 0)
+          .withCenterOfRotation(Constants.robotToShooterTransform.getTranslation());
 
   private SOTM.SOTMResult sotmResult;
 
@@ -181,11 +181,18 @@ public class Swerve extends SubsystemBase {
                   getPose().plus(Constants.robotToShooterTransform).getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
-          var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.3);
           io.setControl(
               facingAngle
-                  .withVelocityX(-distanceControllerOutput * currentPoseToGoalAngle.getCos() + x)
-                  .withVelocityY(-distanceControllerOutput * currentPoseToGoalAngle.getSin() + y)
+                  .withVelocityX(
+                      x
+                          * sotmResult.shotSpeedMetersPerSecond()
+                          * Math.cos(sotmResult.pitchRad())
+                          * 0.7)
+                  .withVelocityY(
+                      y
+                          * sotmResult.shotSpeedMetersPerSecond()
+                          * Math.cos(sotmResult.pitchRad())
+                          * 0.7)
                   .withTargetDirection(
                       sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
