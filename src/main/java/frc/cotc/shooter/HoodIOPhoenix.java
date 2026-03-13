@@ -27,6 +27,8 @@ public class HoodIOPhoenix implements HoodIO {
   private final int HOOD_MOTOR_ID = 15;
   private final int HOOD_ENCODER_ID = 0;
 
+  private final double ROTOR_TO_SENSOR_RATIO =
+      (154.0 / 10.0) * (28.0 / 30.0) * (30.0 / 18.0) * (18.0 / 10.0) / (308.0 / 10.0);
   private final double GEAR_RATIO = 154.0 / 5;
 
   private final BaseStatusSignal posSignal, statorSignal, supplySignal;
@@ -41,7 +43,7 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
     motorConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
-    motorConfig.Feedback.RotorToSensorRatio = (154.0 / 10.0) * (28.0 / 30.0) * (30.0 / 18.0) * (18.0 / 10.0) / (308.0 / 10.0);
+    motorConfig.Feedback.RotorToSensorRatio = ROTOR_TO_SENSOR_RATIO;
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
     motor.getConfigurator().apply(motorConfig);
@@ -70,8 +72,6 @@ public class HoodIOPhoenix implements HoodIO {
 
   @Override
   public void runPitch(double thetaRad) {
-    motor.setControl(
-        controlSignal
-            .withPosition(Units.radiansToRotations(thetaRad))
+    motor.setControl(controlSignal.withPosition(Units.radiansToRotations(thetaRad)));
   }
 }
