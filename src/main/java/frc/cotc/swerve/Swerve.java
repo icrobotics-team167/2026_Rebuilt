@@ -173,14 +173,19 @@ public class Swerve extends SubsystemBase {
           if (sotmResult == null) return;
           var translational =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
-          var x = translational.getX();
-          var y = translational.getY();
 
           var currentPoseToGoal =
               Robot.shotTarget.targetLocation.minus(
                   getPose().plus(Constants.robotToShooterTransform).getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
+
+          var targetRelativeSpeed = translational.rotateBy(currentPoseToGoalAngle.unaryMinus());
+          if (targetRelativeSpeed.getX() < -0.25) {
+            translational = translational.times(-0.25 / targetRelativeSpeed.getX());
+          }
+          var x = translational.getX();
+          var y = translational.getY();
           io.setControl(
               facingAngle
                   .withVelocityX(
@@ -191,7 +196,8 @@ public class Swerve extends SubsystemBase {
                   .withVelocityY(
                       y
                           * Math.min(
-                              maxLinearSpeedMetersPerSecond, sotmResult.shotSpeedMetersPerSecond()))
+                              maxLinearSpeedMetersPerSecond,
+                              sotmResult.maxMoveSpeedMetersPerSecond()))
                   .withTargetDirection(
                       sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
@@ -199,25 +205,6 @@ public class Swerve extends SubsystemBase {
                           / distanceToGoalMeters));
         })
         .withName("Aim at target");
-  }
-
-  public Command pass(Supplier<Translation2d> translationalInput) {
-    return run(() -> {
-          var translational =
-              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
-          var x = translational.getX();
-          var y = translational.getY();
-          io.setControl(
-              facingAngle
-                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
-                  .withTargetDirection(
-                      Robot.isOnRed()
-                          ? Constants.robotToShooterTransform.getRotation().unaryMinus()
-                          : Rotation2d.k180deg.minus(
-                              Constants.robotToShooterTransform.getRotation())));
-        })
-        .withName("Pass");
   }
 
   public Command alignToBump(DoubleSupplier vx) {
