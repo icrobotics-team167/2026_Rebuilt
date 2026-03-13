@@ -35,7 +35,7 @@ public class HoodIOPhoenix implements HoodIO {
     var encoder = new CANcoder(HOOD_ENCODER_ID, Robot.rioBus);
 
     var motorConfig = new TalonFXConfiguration();
-    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
