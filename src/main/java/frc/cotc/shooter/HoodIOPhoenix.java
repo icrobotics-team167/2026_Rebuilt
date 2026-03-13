@@ -17,6 +17,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 
@@ -35,7 +36,7 @@ public class HoodIOPhoenix implements HoodIO {
     var encoder = new CANcoder(HOOD_ENCODER_ID, Robot.rioBus);
 
     var motorConfig = new TalonFXConfiguration();
-    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
@@ -45,6 +46,7 @@ public class HoodIOPhoenix implements HoodIO {
     motor.getConfigurator().apply(motorConfig);
 
     var encoderConfig = new CANcoderConfiguration();
+    encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     encoder.getConfigurator().apply(encoderConfig);
 
     posSignal = encoder.getAbsolutePosition(false);
