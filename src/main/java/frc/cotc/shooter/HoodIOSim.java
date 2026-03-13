@@ -17,7 +17,7 @@ public class HoodIOSim implements HoodIO {
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
           LinearSystemId.createSingleJointedArmSystem(DCMotor.getKrakenX44(1), .25, 30),
-          DCMotor.getKrakenX44(1).withReduction(30),
+          DCMotor.getKrakenX44(1).withReduction(154.0 / 5),
           0,
           0,
           0,
@@ -27,7 +27,7 @@ public class HoodIOSim implements HoodIO {
 
   private final PIDController pid = new PIDController(1, 0, 1);
   private final double kvRadPerSecPerVolt =
-      DCMotor.getKrakenX44(1).withReduction(30).KvRadPerSecPerVolt;
+      DCMotor.getKrakenX44(1).withReduction(154.0 / 5).KvRadPerSecPerVolt;
   private final double kG = 1.0; // placeholder
 
   @Override
