@@ -26,7 +26,7 @@ public class SOTM {
   // Shooting on the move will induce drag on the projectile, so compensate for that
   // Time in inverse seconds for the shot's velocity to decay by 1/e times (decay to ~36.8%)
   // TODO: Tune
-  private static final double DRAG_CONSTANT_INVERSE_SECONDS = 0.15;
+  private static final double DRAG_CONSTANT_INVERSE_SECONDS = 0.1;
 
   // Location that the robot should shoot at for passing balls
   private static final Translation2d BLUE_BOTTOM_GROUND_TARGET = new Translation2d(1, 1);

@@ -240,7 +240,32 @@ public class Robot extends LoggedRobot {
             });
 
     shooter.setDefaultCommand(shooter.idleRun());
-    primary.b().whileTrue(swerve.aimAtTarget(translationalInputSupplier));
+    primary
+        .b()
+        .whileTrue(
+            parallel(
+                runOnce(
+                    () ->
+                        shotTarget =
+                            Robot.isOnRed() ? SOTM.ShotTarget.RED_HUB : SOTM.ShotTarget.BLUE_HUB),
+                swerve.aimAtTarget(translationalInputSupplier),
+                shooter.sotm()));
+    primary
+        .y()
+        .whileTrue(
+            parallel(
+                run(
+                    () ->
+                        shotTarget =
+                            swerve.getPose().getY() > FieldConstants.fieldWidth / 2
+                                ? (Robot.isOnRed()
+                                    ? SOTM.ShotTarget.RED_TOP_GROUND
+                                    : SOTM.ShotTarget.BLUE_TOP_GROUND)
+                                : (Robot.isOnRed()
+                                    ? SOTM.ShotTarget.RED_BOTTOM_GROUND
+                                    : SOTM.ShotTarget.BLUE_BOTTOM_GROUND)),
+                swerve.aimAtTarget(translationalInputSupplier),
+                shooter.sotm()));
     // controller
     //     .rightBumper()
     //     .whileTrue(
