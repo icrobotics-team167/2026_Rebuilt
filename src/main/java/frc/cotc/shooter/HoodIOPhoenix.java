@@ -29,7 +29,7 @@ public class HoodIOPhoenix implements HoodIO {
 
   private final double GEAR_RATIO = 154.0 / 5;
 
-  private final BaseStatusSignal posSignal, velSignal, statorSignal, supplySignal;
+  private final BaseStatusSignal posSignal, statorSignal, supplySignal;
 
   public HoodIOPhoenix() {
     motor = new TalonFX(HOOD_MOTOR_ID, Robot.rioBus);
@@ -41,6 +41,7 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
     motorConfig.Feedback.SensorToMechanismRatio = GEAR_RATIO;
+    motorConfig.Feedback.RotorToSensorRatio = (154.0 / 10.0) * (28.0 / 30.0) * (30.0 / 18.0) * (18.0 / 10.0) / (308.0 / 10.0);
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
     motor.getConfigurator().apply(motorConfig);
@@ -50,19 +51,17 @@ public class HoodIOPhoenix implements HoodIO {
     encoder.getConfigurator().apply(encoderConfig);
 
     posSignal = encoder.getAbsolutePosition(false);
-    velSignal = motor.getVelocity(false);
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, velSignal, statorSignal, supplySignal);
-    Robot.rioSignals.addSignals(posSignal, velSignal, statorSignal, supplySignal);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, statorSignal, supplySignal);
+    Robot.rioSignals.addSignals(posSignal, statorSignal, supplySignal);
     ParentDevice.optimizeBusUtilizationForAll(5, motor, encoder);
   }
 
   @Override
   public void updateInputs(HoodIOInputs hoodIOInputs) {
     hoodIOInputs.thetaRad = Units.rotationsToRadians(posSignal.getValueAsDouble());
-    hoodIOInputs.omegaRadPerSec = Units.rotationsToRadians(velSignal.getValueAsDouble());
     hoodIOInputs.motorStatorCurrentAmps = statorSignal.getValueAsDouble();
     hoodIOInputs.motorSupplyCurrentAmps = supplySignal.getValueAsDouble();
   }
@@ -70,10 +69,9 @@ public class HoodIOPhoenix implements HoodIO {
   private final PositionVoltage controlSignal = new PositionVoltage(0);
 
   @Override
-  public void runPitch(double thetaRad, double omegaRadPerSec) {
+  public void runPitch(double thetaRad) {
     motor.setControl(
         controlSignal
             .withPosition(Units.radiansToRotations(thetaRad))
-            .withVelocity(Units.radiansToRotations(omegaRadPerSec)));
   }
 }
