@@ -14,6 +14,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -32,10 +33,7 @@ import frc.cotc.intake.IntakePivotIOPhoenix;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.intake.IntakeRollerIO;
 import frc.cotc.intake.IntakeRollerIOPhoenix;
-import frc.cotc.shooter.FlywheelIO;
-import frc.cotc.shooter.FlywheelIOPhoenix;
-import frc.cotc.shooter.FlywheelIOSim;
-import frc.cotc.shooter.Shooter;
+import frc.cotc.shooter.*;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
@@ -63,6 +61,8 @@ public class Robot extends LoggedRobot {
   public static final StatusSignalCollection rioSignals = new StatusSignalCollection();
 
   public static final CANBus rioBus = CANBus.roboRIO();
+
+  public static SOTM.ShotTarget shotTarget = SOTM.ShotTarget.BLUE_HUB;
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
@@ -225,40 +225,24 @@ public class Robot extends LoggedRobot {
 
     var shooter =
         new Shooter(
-            // switch (mode) {
-            //   case REAL -> new HoodIOPhoenix();
-            //   case SIM -> new HoodIOSim();
-            //   case REPLAY -> new HoodIO() {};
-            // },
+            switch (mode) {
+              case REAL -> new HoodIOPhoenix();
+              case SIM -> new HoodIOSim();
+              case REPLAY -> new HoodIO() {};
+            },
             switch (mode) {
               case REAL -> new FlywheelIOPhoenix();
               case SIM -> new FlywheelIOSim();
               case REPLAY -> new FlywheelIO() {};
-            },
-            // switch (mode) {
-            //   case REAL -> new TurretIOPhoenix();
-            //   case SIM -> new TurretIOSim();
-            //   case REPLAY -> new TurretIO() {};
-            // },
-            swerve::getPose,
-            swerve::getFieldSpeeds);
+            });
+
+    CommandScheduler.getInstance().schedule(run(() -> {
+      var result = SOTM.calculate(swerve.getPose(), swerve.getFieldSpeeds(), shotTarget);
+      Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
+      swerve.setSOTMResult(result);
+      shooter.setSOTMResult(result);
+    }));
     shooter.setDefaultCommand(shooter.idleRun());
-    primary
-        .x()
-        .whileTrue(
-            //         // parallel(
-            //         // either(
-            //         //         shooter.shootAt(Shooter.ShotTarget.RED_HUB),
-            //         //         shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
-            //         //         Robot::isOnRed)
-            //         //     .withName("Shoot at alliance hub"),
-            either(
-                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
-                    swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
-                    Robot::isOnRed)
-                .withName("Aim at target"));
-    secondary.povUp().onTrue(shooter.incrementIdleVel());
-    secondary.povDown().onTrue(shooter.decrementIdleVel());
     // controller
     //     .rightBumper()
     //     .whileTrue(

@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
-import frc.cotc.shooter.Shooter;
+import frc.cotc.shooter.SOTM;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
@@ -162,18 +162,23 @@ public class Swerve extends SubsystemBase {
 
   private final PIDController distanceController = new PIDController(5, 0, 0);
 
-  public Command aimAtTarget(
-      Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
+  private SOTM.SOTMResult sotmResult;
+
+  public void setSOTMResult(SOTM.SOTMResult result) {
+    this.sotmResult = result;
+  }
+
+  public Command aimAtTarget(Supplier<Translation2d> translationalInput) {
     return run(() -> {
+          if (sotmResult == null) return;
           var translational =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translational.getX();
           var y = translational.getY();
 
           var currentPoseToGoal =
-              target
-                  .getBaseTargetLocation()
-                  .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation());
+              Robot.shotTarget.targetLocation.minus(
+                  getPose().plus(Constants.robotToShooterTransform).getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
           var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.3);
@@ -182,19 +187,10 @@ public class Swerve extends SubsystemBase {
                   .withVelocityX(-distanceControllerOutput * currentPoseToGoalAngle.getCos() + x)
                   .withVelocityY(-distanceControllerOutput * currentPoseToGoalAngle.getSin() + y)
                   .withTargetDirection(
-                      (target
-                              .getWiggledTargetLocation()
-                              .minus(
-                                  getPose()
-                                      .plus(Constants.robotToShooterTransform)
-                                      .getTranslation())
-                              .getAngle())
-                          .minus(Constants.robotToShooterTransform.getRotation()))
+                      sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
                       (currentPoseToGoalAngle.getCos() * y + currentPoseToGoalAngle.getSin() * x)
                           / distanceToGoalMeters));
-          Logger.recordOutput(
-              "Shooter/Target", new Pose2d(target.getWiggledTargetLocation(), Rotation2d.kZero));
         })
         .withName("Aim at target");
   }

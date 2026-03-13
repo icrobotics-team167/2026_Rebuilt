@@ -15,8 +15,8 @@ Required packages:
 - sleipnirgroup-jormungandr
 """
 
+import json
 import math
-from math import ceil
 
 import numpy as np
 from numpy.linalg import norm
@@ -95,8 +95,6 @@ def solve(
     distance,
     target_height,
     last_solve=None,
-    mode=0,
-    target_pitch=None,
     trying_again=False,
 ):
     """
@@ -156,7 +154,7 @@ def solve(
     # Shooter initial position
     problem.subject_to(p[:, :1] == shooter_wrt_field[:3, :])
 
-    omega_magnitude = sqrt((v0_wrt_shooter.T @ v0_wrt_shooter)[0,0]) / ball_diameter
+    omega_magnitude = sqrt((v0_wrt_shooter.T @ v0_wrt_shooter)[0, 0]) / ball_diameter
 
     omega = problem.decision_variable(3, 1)
     problem.subject_to(
@@ -200,28 +198,28 @@ def solve(
 
     v = X[3:, :]
 
-    if last_solve is None:
-        # Position initial guess is linear interpolation between start and end position
-        for k in range(N):
-            p_x[k].set_value(
-                lerp(shooter_wrt_field[0, 0], target_wrt_field[0, 0], k / N)
-            )
-            p_y[k].set_value(
-                lerp(shooter_wrt_field[1, 0], target_wrt_field[1, 0], k / N)
-            )
-            p_z[k].set_value(
-                lerp(shooter_wrt_field[2, 0], target_wrt_field[2, 0], k / N)
-            )
+    # if last_solve is None:
+    # Position initial guess is linear interpolation between start and end position
+    for k in range(N):
+        p_x[k].set_value(
+            lerp(shooter_wrt_field[0, 0], target_wrt_field[0, 0], k / N)
+        )
+        p_y[k].set_value(
+            lerp(shooter_wrt_field[1, 0], target_wrt_field[1, 0], k / N)
+        )
+        p_z[k].set_value(
+            lerp(shooter_wrt_field[2, 0], target_wrt_field[2, 0], k / N)
+        )
 
-        # Velocity initial guess is max initial velocity toward target
-        uvec_shooter_to_target = target_wrt_field[:3, :] - shooter_wrt_field[:3, :]
-        uvec_shooter_to_target /= norm(uvec_shooter_to_target)
-        for k in range(N):
-            v[:, k].set_value(
-                shooter_wrt_field[3:, :] + max_shooter_velocity * uvec_shooter_to_target
-            )
-    else:
-        X.set_value(last_solve[4])
+    # Velocity initial guess is max initial velocity toward target
+    uvec_shooter_to_target = target_wrt_field[:3, :] - shooter_wrt_field[:3, :]
+    uvec_shooter_to_target /= norm(uvec_shooter_to_target)
+    for k in range(N):
+        v[:, k].set_value(
+            shooter_wrt_field[3:, :] + max_shooter_velocity * uvec_shooter_to_target
+        )
+    # else:
+    #     X.set_value(last_solve[4])
 
     #   √(v_x² + v_y² + v_z²) ≤ v
     #   v_x² + v_y² + v_z² ≤ v²
@@ -236,22 +234,10 @@ def solve(
     if last_solve is not None:
         problem.subject_to(pitch > last_solve[2])
 
-    if mode == 0:
-        # Require initial velocity is less than max shooter velocity
-        problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
-        # Minimize initial velocity
-        problem.minimize(initial_velocity_squared)
-    elif mode == 1:
-        if last_solve is not None:
-            problem.subject_to(pitch > last_solve[2])
-        # Maximize initial velocity
-        problem.maximize(initial_velocity_squared)
-        problem.solve()
-        # Require initial velocity is less than max shooter velocity
-        problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
-    elif mode == 2:
-        problem.subject_to(pitch == target_pitch)
-        problem.minimize(initial_velocity_squared)
+    # Require initial velocity is less than max shooter velocity
+    problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
+    # Minimize initial velocity
+    problem.minimize(T)
 
     status = problem.solve()
     if status == ExitStatus.SUCCESS:
@@ -262,141 +248,49 @@ def solve(
         time = T.value()
 
         if printResults:
-            print(f"Mode {mode} solve at distance {distance:.03f} m")
+            print(f"Solve at distance {distance:.03f} m")
             print(f"Velocity = {velocity:.03f} m/s")
             print(f"Pitch = {np.rad2deg(pitch):.03f}°")
             print(f"Time = {time:.03f} s")
 
         return True, velocity, pitch, time, X.value()
-    if not trying_again and mode != 2:
+    if not trying_again:
         if printResults:
             print(f"Solve failed with status {status.name}, trying again")
         return solve(
             distance,
             target_height,
-            mode=mode,
-            target_pitch=target_pitch,
             trying_again=True,
         )
-    if mode != 2:
-        print(f"Mode {mode} solve failed at distance {distance:.03f} m")
-    else:
-        print(
-            f"Mode 2 solve failed at distance {distance:.03f} m and pitch "
-            f"{np.rad2deg(target_pitch):.03f}°"
-        )
+    print(f"Solve failed at distance {distance:.03f} m")
     return False, 0
 
 
-def iterate_distance(file, distance, target_height, last_min_vel_solve):
-    min_vel_solve = solve(distance, target_height, last_min_vel_solve)
-    if min_vel_solve[0]:
-        if last_min_vel_solve is None:
-            file.write("\n")
-        else:
-            file.write(",\n")
-        file.write(f'    "{distance:.06f}": ' "{\n")
-        file.write('      "map": {\n')
-        iterate_shot_velocity(file, distance, target_height, min_vel_solve)
-        file.write("      }\n")
-        file.write("    }")
-        return min_vel_solve
-    else:
-        return None
-
-
-def iterate_shot_velocity(file, distance, target_height, min_vel_solve):
-    solves = [min_vel_solve[1:4]]
-    base_delta_pitch = np.deg2rad(2.5)
-    max_vel_solve = solve(distance, target_height, min_vel_solve, 1)
-    if max_vel_solve[0]:
-        samples = ceil((max_vel_solve[2] - min_vel_solve[2]) / base_delta_pitch)
-        last_solve = min_vel_solve
-        for i in range(1, samples):
-            fixed_pitch_solve = solve(
-                distance,
-                target_height,
-                last_solve,
-                2,
-                lerp(min_vel_solve[2], max_vel_solve[2], i / samples),
-            )
-            if fixed_pitch_solve[0]:
-                solves.append(fixed_pitch_solve[1:4])
-                last_solve = fixed_pitch_solve
-        solves.append(max_vel_solve[1:4])
-    else:
-        pitch = min_vel_solve[2] + base_delta_pitch
-        last_solve = min_vel_solve
-        while pitch <= max_pitch:
-            fixed_pitch_solve = solve(distance, target_height, last_solve, 2, pitch)
-            if fixed_pitch_solve[0]:
-                solves.append(fixed_pitch_solve[1:4])
-                last_solve = fixed_pitch_solve
-            pitch += base_delta_pitch
-        max_vel_solve = solve(distance, target_height, last_solve, 1)
-        if max_vel_solve[0]:
-            solves.append(max_vel_solve[1:4])
-
-    for i in range(len(solves)):
-        shot_velocity, pitch, time = solves[i]
-        file.write(f'        "{shot_velocity}": ' "{\n")
-        file.write(f'          "pitchRad": {pitch:.16f},\n')
-        file.write(f'          "timeOfFlightSeconds": {time}\n')
-        file.write("        }")
-        if i < len(solves) - 1:
-            file.write(",\n")
-        else:
-            file.write("\n")
-
-
-def write(
-    target_height,
-    min_distance,
-    max_distance,
-    base_delta_distance,
-    name,
-):
-    file = open(f"../src/main/deploy/{name}.json", "w")
-
-    file.write("{\n")
-    file.write('  "map": {')
-
-    last_min_vel_solve = None
-    delta_distance = base_delta_distance
+def write(target_height, min_distance, max_distance, delta, name):
     distance = min_distance
-    while True:
-        distance_solve = iterate_distance(
-            file, distance, target_height, last_min_vel_solve
-        )
-        if distance_solve is not None:
-            last_min_vel_solve = distance_solve
-            delta_distance = base_delta_distance
-            distance += delta_distance
-            if distance > max_distance:
-                break
-        else:
-            distance -= delta_distance
-            delta_distance /= 2
-            if delta_distance < 0.01:
-                delta_distance = base_delta_distance / 2
-            distance += delta_distance * 1.5
-            if distance > max_distance:
-                break
-    iterate_distance(file, max_distance, target_height, last_min_vel_solve)
-    file.write("\n")
-
-    file.write("  }\n")
-    file.write("}\n")
-    file.close()
-    print(f"Done writing {name}.json")
+    solves = {}
+    last_solve = None
+    while distance <= max_distance:
+        result = solve(distance, target_height, last_solve)
+        success = result[0]
+        if success:
+            last_solve = result
+            velocity, pitch, time, X = result[1:]
+            solves[f"{distance}"] = {
+                "pitchRad": pitch,
+                "speedMetersPerSec": velocity,
+                "timeOfFlightSeconds": time,
+            }
+        distance += delta
+    json.dump({"map" : solves}, open(f"../src/main/deploy/{name}.json", "w"), indent=2)
 
 
 if __name__ == "__main__":
     write(
         72 * 0.0254,
-        0.3,
+        0.75,
         14.5,
-        0.5,
+        0.25,
         "HubShotMap",
     )
-    write(0, 0.5, 16, 0.5, "GroundShotMap")
+    write(0, 3, 16, 0.5, "GroundShotMap")
