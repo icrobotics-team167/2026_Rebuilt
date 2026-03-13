@@ -244,26 +244,27 @@ public class Robot extends LoggedRobot {
         .b()
         .whileTrue(
             parallel(
-                runOnce(
-                    () ->
-                        shotTarget =
-                            Robot.isOnRed() ? SOTM.ShotTarget.RED_HUB : SOTM.ShotTarget.BLUE_HUB),
-                swerve.aimAtTarget(translationalInputSupplier),
-                shooter.sotm()));
-    primary
-        .y()
-        .whileTrue(
-            parallel(
                 run(
-                    () ->
-                        shotTarget =
-                            swerve.getPose().getY() > FieldConstants.fieldWidth / 2
-                                ? (Robot.isOnRed()
-                                    ? SOTM.ShotTarget.RED_TOP_GROUND
-                                    : SOTM.ShotTarget.BLUE_TOP_GROUND)
-                                : (Robot.isOnRed()
-                                    ? SOTM.ShotTarget.RED_BOTTOM_GROUND
-                                    : SOTM.ShotTarget.BLUE_BOTTOM_GROUND)),
+                    () -> {
+                      var currentPose = swerve.getPose();
+                      if (Robot.isOnRed()) {
+                        if (currentPose.getX() > FieldConstants.Hub.oppTopCenterPoint.getX()) {
+                          shotTarget = SOTM.ShotTarget.RED_HUB;
+                        } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+                          shotTarget = SOTM.ShotTarget.RED_TOP_GROUND;
+                        } else {
+                          shotTarget = SOTM.ShotTarget.RED_BOTTOM_GROUND;
+                        }
+                      } else {
+                        if (currentPose.getX() < FieldConstants.Hub.topCenterPoint.getX()) {
+                          shotTarget = SOTM.ShotTarget.BLUE_HUB;
+                        } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+                          shotTarget = SOTM.ShotTarget.BLUE_TOP_GROUND;
+                        } else {
+                          shotTarget = SOTM.ShotTarget.BLUE_BOTTOM_GROUND;
+                        }
+                      }
+                    }),
                 swerve.aimAtTarget(translationalInputSupplier),
                 shooter.sotm()));
     // controller
