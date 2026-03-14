@@ -13,7 +13,6 @@ public interface HoodIO {
   @AutoLog
   class HoodIOInputs {
     double thetaRad;
-    double omegaRadPerSec;
     double motorStatorCurrentAmps;
     double motorSupplyCurrentAmps;
   }
