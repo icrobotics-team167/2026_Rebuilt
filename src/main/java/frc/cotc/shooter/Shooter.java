@@ -8,6 +8,7 @@
 package frc.cotc.shooter;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -72,5 +73,13 @@ public class Shooter extends SubsystemBase {
           flywheelIO.runVel(
               projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond()));
         });
+  }
+
+  public Command raiseHood() {
+    return run(() -> hoodIO.runPitch(Units.degreesToRadians(60)));
+  }
+
+  public Command lowerHood() {
+    return run(() -> hoodIO.runPitch(Units.degreesToRadians(40)));
   }
 }

@@ -20,12 +20,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.cotc.autos.Autos;
 import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
 import frc.cotc.intake.IntakePivotIO;
@@ -54,7 +51,7 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
-  private final Autos autos;
+  // private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -152,18 +149,18 @@ public class Robot extends LoggedRobot {
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
 
-    intakePivot.setDefaultCommand(intakePivot.extend());
-    primary
-        .a()
-        .toggleOnTrue(
-            intakePivot
-                .retract()
-                .alongWith(
-                    intakeRoller
-                        .idle()
-                        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-                        .asProxy()));
-    primary.leftTrigger().whileTrue(intakeRoller.intake());
+    // intakePivot.setDefaultCommand(intakePivot.extend());
+    // primary
+    //     .a()
+    //     .toggleOnTrue(
+    //         intakePivot
+    //             .retract()
+    //             .alongWith(
+    //                 intakeRoller
+    //                     .idle()
+    //                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+    //                     .asProxy()));
+    // primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
         new BeltFloor(
@@ -183,10 +180,10 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    Supplier<Command> feedCommandSupplier =
-        () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
-    primary.rightTrigger().whileTrue(feedCommandSupplier.get());
+    // turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    // Supplier<Command> feedCommandSupplier =
+    //     () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
+    // primary.rightTrigger().whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -212,8 +209,8 @@ public class Robot extends LoggedRobot {
           return omega * deadbandedOmegaMag;
         };
 
-    swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
+    // swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    // primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
 
     new Trigger(
             () ->
@@ -239,59 +236,62 @@ public class Robot extends LoggedRobot {
               case REPLAY -> new FlywheelIO() {};
             });
 
-    shooter.setDefaultCommand(shooter.idleRun());
-    primary
-        .b()
-        .whileTrue(
-            parallel(
-                run(
-                    () -> {
-                      var currentPose = swerve.getPose();
-                      if (Robot.isOnRed()) {
-                        if (currentPose.getX() > FieldConstants.Hub.oppTopCenterPoint.getX()) {
-                          shotTarget = SOTM.ShotTarget.RED_HUB;
-                        } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
-                          shotTarget = SOTM.ShotTarget.RED_TOP_GROUND;
-                        } else {
-                          shotTarget = SOTM.ShotTarget.RED_BOTTOM_GROUND;
-                        }
-                      } else {
-                        if (currentPose.getX() < FieldConstants.Hub.topCenterPoint.getX()) {
-                          shotTarget = SOTM.ShotTarget.BLUE_HUB;
-                        } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
-                          shotTarget = SOTM.ShotTarget.BLUE_TOP_GROUND;
-                        } else {
-                          shotTarget = SOTM.ShotTarget.BLUE_BOTTOM_GROUND;
-                        }
-                      }
-                    }),
-                swerve.aimAtTarget(translationalInputSupplier),
-                shooter.sotm()));
+    primary.povUp().whileTrue(shooter.raiseHood());
+    primary.povDown().whileTrue(shooter.lowerHood());
+
+    // shooter.setDefaultCommand(shooter.idleRun());
+    // primary
+    //     .b()
+    //     .whileTrue(
+    //         parallel(
+    //             run(
+    //                 () -> {
+    //                   var currentPose = swerve.getPose();
+    //                   if (Robot.isOnRed()) {
+    //                     if (currentPose.getX() > FieldConstants.Hub.oppTopCenterPoint.getX()) {
+    //                       shotTarget = SOTM.ShotTarget.RED_HUB;
+    //                     } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+    //                       shotTarget = SOTM.ShotTarget.RED_TOP_GROUND;
+    //                     } else {
+    //                       shotTarget = SOTM.ShotTarget.RED_BOTTOM_GROUND;
+    //                     }
+    //                   } else {
+    //                     if (currentPose.getX() < FieldConstants.Hub.topCenterPoint.getX()) {
+    //                       shotTarget = SOTM.ShotTarget.BLUE_HUB;
+    //                     } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+    //                       shotTarget = SOTM.ShotTarget.BLUE_TOP_GROUND;
+    //                     } else {
+    //                       shotTarget = SOTM.ShotTarget.BLUE_BOTTOM_GROUND;
+    //                     }
+    //                   }
+    //                 }),
+    //             swerve.aimAtTarget(translationalInputSupplier),
+    //             shooter.sotm()));
     // controller
     //     .rightBumper()
     //     .whileTrue(
     //         parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
 
-    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    // autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
 
-    RobotModeTriggers.autonomous()
-        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-        .onFalse(runOnce(autos::clear));
-    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
+    // RobotModeTriggers.autonomous()
+    //     .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+    //     .onFalse(runOnce(autos::clear));
+    // RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
 
-    secondary
-        .back()
-        .and(secondary.start())
-        .debounce(.5)
-        .toggleOnTrue(
-            idle(raceway, turretFeeder, shooter)
-                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-                .withName("Disable Shooter"));
+    // secondary
+    //     .back()
+    //     .and(secondary.start())
+    //     .debounce(.5)
+    //     .toggleOnTrue(
+    //         idle(raceway, turretFeeder, shooter)
+    //             .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+    //             .withName("Disable Shooter"));
   }
 
   @Override
   public void disabledPeriodic() {
-    autos.update();
+    // autos.update();
   }
 
   @Override
