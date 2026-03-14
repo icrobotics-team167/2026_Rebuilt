@@ -26,7 +26,7 @@ from sleipnir.optimization import ExitStatus, Problem
 # Physical characteristics
 shooter_height = 18 * 0.0254  # m
 min_pitch = np.deg2rad(40)  # rad
-max_pitch = np.deg2rad(85)  # rad
+max_pitch = np.deg2rad(60)  # rad
 g = np.array([[0], [0], [9.81]])  # m/s²
 max_shooter_velocity = 14.5  # m/s
 ball_mass = 0.5 / 2.205  # kg
@@ -115,7 +115,7 @@ def solve(
 
     target_wrt_field = np.array(
         [
-            [distance],
+            [distance+.08],
             [0],
             [target_height],
             [0.0],
@@ -192,8 +192,11 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    problem.subject_to(v_z[-1] <= -0.4 * hypot(v_x[-1], v_y[-1]))
-    problem.subject_to(v_z[-1] <= -3)
+    max_landing_pitch = np.rad2deg(-50)
+    ratio = math.tan(max_landing_pitch)
+    # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
+    problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) / ratio)
+    # problem.subject_to(v_z[-1] < -1.5)
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -238,7 +241,8 @@ def solve(
     # Require initial velocity is less than max shooter velocity
     problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
     # Minimize initial velocity
-    problem.minimize(T)
+    problem.minimize(initial_velocity_squared)
+    # problem.maximize(pitch)
 
     status = problem.solve()
     if status == ExitStatus.SUCCESS:

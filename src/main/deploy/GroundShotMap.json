@@ -1,139 +1,124 @@
 {
   "map": {
     "3": {
-      "pitchRad": 0.6981317043751596,
-      "speedMetersPerSec": 5.160038328852619,
-      "timeOfFlightSeconds": 0.8082432846534447
+      "pitchRad": 0.705719517437045,
+      "speedMetersPerSec": 5.242267554299619,
+      "timeOfFlightSeconds": 0.8229441778771428
     },
     "3.5": {
-      "pitchRad": 0.6981317039326869,
-      "speedMetersPerSec": 5.660574009275377,
-      "timeOfFlightSeconds": 0.8649460667615927
+      "pitchRad": 0.7147908143891518,
+      "speedMetersPerSec": 5.736146514747601,
+      "timeOfFlightSeconds": 0.8866908080081181
     },
     "4.0": {
-      "pitchRad": 0.6981317038226357,
-      "speedMetersPerSec": 6.130138758520434,
-      "timeOfFlightSeconds": 0.9185166665984579
+      "pitchRad": 0.7214104509414031,
+      "speedMetersPerSec": 6.199730589241681,
+      "timeOfFlightSeconds": 0.9464534219840224
     },
     "4.5": {
-      "pitchRad": 0.6981317036246217,
-      "speedMetersPerSec": 6.5750302363169935,
-      "timeOfFlightSeconds": 0.9694722316533031
+      "pitchRad": 0.726369574118095,
+      "speedMetersPerSec": 6.639265229097057,
+      "timeOfFlightSeconds": 1.0029018699441667
     },
     "5.0": {
-      "pitchRad": 0.6981317034587197,
-      "speedMetersPerSec": 6.999809187130127,
-      "timeOfFlightSeconds": 1.018203389884775
+      "pitchRad": 0.7301531253552207,
+      "speedMetersPerSec": 7.0592480131610245,
+      "timeOfFlightSeconds": 1.0565415089481842
     },
     "5.5": {
-      "pitchRad": 0.6981317033174437,
-      "speedMetersPerSec": 7.40789726288453,
-      "timeOfFlightSeconds": 1.065013588391801
+      "pitchRad": 0.733074580955146,
+      "speedMetersPerSec": 7.463039184191085,
+      "timeOfFlightSeconds": 1.1077633326916803
     },
     "6.0": {
-      "pitchRad": 0.6981317031956942,
-      "speedMetersPerSec": 7.801935941693191,
-      "timeOfFlightSeconds": 1.110143990079572
+      "pitchRad": 0.7353454554649871,
+      "speedMetersPerSec": 7.853224807461171,
+      "timeOfFlightSeconds": 1.1568765221640194
     },
     "6.5": {
-      "pitchRad": 0.6981317030796675,
-      "speedMetersPerSec": 8.184013143909924,
-      "timeOfFlightSeconds": 1.1537899206657554
-    },
-    "7.0": {
-      "pitchRad": 0.6981317029940698,
-      "speedMetersPerSec": 8.555812346872898,
-      "timeOfFlightSeconds": 1.1961121255192333
-    },
-    "7.5": {
-      "pitchRad": 0.69813170290972,
-      "speedMetersPerSec": 8.918714147217479,
-      "timeOfFlightSeconds": 1.2372447066584589
-    },
-    "8.0": {
-      "pitchRad": 0.6981317028337606,
-      "speedMetersPerSec": 9.273867488588532,
-      "timeOfFlightSeconds": 1.2773008629809692
+      "pitchRad": 0.737113563525162,
+      "speedMetersPerSec": 8.231844304377057,
+      "timeOfFlightSeconds": 1.2041301590279863
     },
     "8.5": {
-      "pitchRad": 0.6981317027647804,
-      "speedMetersPerSec": 9.622240886361602,
-      "timeOfFlightSeconds": 1.3163771333282457
+      "pitchRad": 0.7409164062326214,
+      "speedMetersPerSec": 9.659438670255938,
+      "timeOfFlightSeconds": 1.3781519589702032
     },
     "9.0": {
-      "pitchRad": 0.6981317027013832,
-      "speedMetersPerSec": 9.964660079386478,
-      "timeOfFlightSeconds": 1.354556593424008
+      "pitchRad": 0.7413207740693564,
+      "speedMetersPerSec": 9.9998524665764,
+      "timeOfFlightSeconds": 1.418576848630184
     },
     "9.5": {
-      "pitchRad": 0.6981317025672014,
-      "speedMetersPerSec": 10.301836239638199,
-      "timeOfFlightSeconds": 1.3919113052367658
+      "pitchRad": 0.7415756268599539,
+      "speedMetersPerSec": 10.335238893768812,
+      "timeOfFlightSeconds": 1.4579717830424337
     },
     "10.0": {
-      "pitchRad": 0.6981317025452943,
-      "speedMetersPerSec": 10.63438746740741,
-      "timeOfFlightSeconds": 1.4285042223327726
+      "pitchRad": 0.7417035602599218,
+      "speedMetersPerSec": 10.6661982199997,
+      "timeOfFlightSeconds": 1.4964148328033466
     },
     "10.5": {
-      "pitchRad": 0.6981317025403312,
-      "speedMetersPerSec": 10.962855419563713,
-      "timeOfFlightSeconds": 1.4643906903892783
+      "pitchRad": 0.7417229272665968,
+      "speedMetersPerSec": 10.993256387488168,
+      "timeOfFlightSeconds": 1.5339744774097062
     },
     "11.0": {
-      "pitchRad": 0.6981317024521274,
-      "speedMetersPerSec": 11.287718346148992,
-      "timeOfFlightSeconds": 1.4996196448462318
+      "pitchRad": 0.7416487935592833,
+      "speedMetersPerSec": 11.31687772415626,
+      "timeOfFlightSeconds": 1.57071115131618
     },
     "11.5": {
-      "pitchRad": 0.698131702382373,
-      "speedMetersPerSec": 11.609401436523287,
-      "timeOfFlightSeconds": 1.5342345764871903
+      "pitchRad": 0.7414936462520753,
+      "speedMetersPerSec": 11.637475020743532,
+      "timeOfFlightSeconds": 1.6066784851711557
     },
     "12.0": {
-      "pitchRad": 0.6981317024110621,
-      "speedMetersPerSec": 11.928285121595387,
-      "timeOfFlightSeconds": 1.5682743169883062
+      "pitchRad": 0.7412679272094413,
+      "speedMetersPerSec": 11.955417609361088,
+      "timeOfFlightSeconds": 1.6419243123291467
     },
     "12.5": {
-      "pitchRad": 0.6981317023733701,
-      "speedMetersPerSec": 12.244711802727183,
-      "timeOfFlightSeconds": 1.6017736840827748
+      "pitchRad": 0.7409804395578016,
+      "speedMetersPerSec": 12.27103790612339,
+      "timeOfFlightSeconds": 1.6764914925252667
     },
     "13.0": {
-      "pitchRad": 0.6981317023374461,
-      "speedMetersPerSec": 12.558991354904906,
-      "timeOfFlightSeconds": 1.6347640168954252
+      "pitchRad": 0.7406386611926609,
+      "speedMetersPerSec": 12.584636759370342,
+      "timeOfFlightSeconds": 1.7104185915753736
     },
     "13.5": {
-      "pitchRad": 0.6981317023039961,
-      "speedMetersPerSec": 12.8714056667902,
-      "timeOfFlightSeconds": 1.6672736215652166
+      "pitchRad": 0.7402489891851017,
+      "speedMetersPerSec": 12.896487858971158,
+      "timeOfFlightSeconds": 1.743740446624003
     },
     "14.0": {
-      "pitchRad": 0.6981317022718825,
-      "speedMetersPerSec": 13.182212414401159,
-      "timeOfFlightSeconds": 1.6993281461402105
+      "pitchRad": 0.739816932219847,
+      "speedMetersPerSec": 13.206841400201876,
+      "timeOfFlightSeconds": 1.7764886395811483
     },
     "14.5": {
-      "pitchRad": 0.6981317022416564,
-      "speedMetersPerSec": 13.491648220690431,
-      "timeOfFlightSeconds": 1.7309508975092336
+      "pitchRad": 0.7393472634987076,
+      "speedMetersPerSec": 13.51592715039198,
+      "timeOfFlightSeconds": 1.8086918962710015
     },
     "15.0": {
-      "pitchRad": 0.6981317022126893,
-      "speedMetersPerSec": 13.79993131857095,
-      "timeOfFlightSeconds": 1.7621631109821372
+      "pitchRad": 0.7388441432771947,
+      "speedMetersPerSec": 13.823957033027142,
+      "timeOfFlightSeconds": 1.8403764250405472
     },
     "15.5": {
-      "pitchRad": 0.6981317021839453,
-      "speedMetersPerSec": 14.107263809360637,
-      "timeOfFlightSeconds": 1.7929841808743208
+      "pitchRad": 0.7383112178313285,
+      "speedMetersPerSec": 14.131127318919582,
+      "timeOfFlightSeconds": 1.8715662056370885
     },
     "16.0": {
-      "pitchRad": 0.6981317021443817,
-      "speedMetersPerSec": 14.413833589236228,
-      "timeOfFlightSeconds": 1.8234318587285454
+      "pitchRad": 0.7377516999845454,
+      "speedMetersPerSec": 14.437620495091375,
+      "timeOfFlightSeconds": 1.9022832369906062
     }
   }
 }

@@ -30,6 +30,11 @@ public class Shooter extends SubsystemBase {
     this.flywheelIO = flywheelIO;
 
     addMapping(0, 0);
+    addMapping(37.8, 6.627);
+    addMapping(38.2, 7.03);
+    addMapping(40.8, 7.67);
+    addMapping(42, 8.019);
+    addMapping(43.8, 8.377);
   }
 
   private void addMapping(double flywheelSpeedRotPerSec, double projectileSpeedMetersPerSec) {
@@ -55,7 +60,7 @@ public class Shooter extends SubsystemBase {
     return run(
         () -> {
           targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
-          flywheelIO.runVel(targetSpeedMetersPerSec);
+          flywheelIO.runVel(projectileSpeedToFlywheelSpeedMap.get(targetSpeedMetersPerSec));
         });
   }
 

@@ -47,16 +47,16 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.054932;
+    motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.055176;
     motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
     motorConfig.Slot0.kP = 350;
     motorConfig.Slot0.kD = 1.5;
-    motorConfig.Slot0.kS = .465;
+    motorConfig.Slot0.kS = .675;
     motor.getConfigurator().apply(motorConfig);
 
     var encoderConfig = new CANcoderConfiguration();
-    encoderConfig.MagnetSensor.MagnetOffset = -0.10888671875;
+    encoderConfig.MagnetSensor.MagnetOffset = -0.05810546875;
     encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.9;
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     encoder.getConfigurator().apply(encoderConfig);
