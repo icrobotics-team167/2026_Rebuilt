@@ -27,9 +27,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
-import frc.cotc.Robot;
 import frc.cotc.FieldConstants.LeftBump;
 import frc.cotc.FieldConstants.RightBump;
+import frc.cotc.Robot;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
@@ -299,23 +299,26 @@ public class Swerve extends SubsystemBase {
     ChassisSpeeds fieldRelativeSpeeds = getFieldSpeeds();
 
     return new Pose2d(
-      currentPose2d.getX() + fieldRelativeSpeeds.vxMetersPerSecond * futureSeconds,
-      currentPose2d.getY() + fieldRelativeSpeeds.vyMetersPerSecond * futureSeconds,
-      currentPose2d.getRotation().plus(new Rotation2d(fieldRelativeSpeeds.omegaRadiansPerSecond * futureSeconds)));
+        currentPose2d.getX() + fieldRelativeSpeeds.vxMetersPerSecond * futureSeconds,
+        currentPose2d.getY() + fieldRelativeSpeeds.vyMetersPerSecond * futureSeconds,
+        currentPose2d
+            .getRotation()
+            .plus(new Rotation2d(fieldRelativeSpeeds.omegaRadiansPerSecond * futureSeconds)));
   }
 
   public boolean trajectoryWithinBump() {
     Pose2d projectedPose = getProjectedPose(0.1); // placeholder time
 
     Rectangle2d alliLeftBump = new Rectangle2d(LeftBump.farRightCorner, LeftBump.nearLeftCorner);
-    Rectangle2d oppLeftBump = new Rectangle2d(LeftBump.oppFarRightCorner, LeftBump.oppNearLeftCorner);
+    Rectangle2d oppLeftBump =
+        new Rectangle2d(LeftBump.oppFarRightCorner, LeftBump.oppNearLeftCorner);
     Rectangle2d alliRightBump = new Rectangle2d(RightBump.farRightCorner, RightBump.nearLeftCorner);
-    Rectangle2d oppRightBump = new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
+    Rectangle2d oppRightBump =
+        new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
 
-    return (
-      alliLeftBump.contains(projectedPose.getTranslation()) ||
-      oppLeftBump.contains(projectedPose.getTranslation()) ||
-      alliRightBump.contains(projectedPose.getTranslation()) ||
-      oppRightBump.contains(projectedPose.getTranslation()));
+    return (alliLeftBump.contains(projectedPose.getTranslation())
+        || oppLeftBump.contains(projectedPose.getTranslation())
+        || alliRightBump.contains(projectedPose.getTranslation())
+        || oppRightBump.contains(projectedPose.getTranslation()));
   }
 }
