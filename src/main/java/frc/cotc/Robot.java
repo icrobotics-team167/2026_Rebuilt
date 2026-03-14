@@ -135,6 +135,11 @@ public class Robot extends LoggedRobot {
     var primary = new CommandXboxController(0);
     var secondary = new CommandXboxController(1);
 
+    new Trigger(
+      primary.x())
+      .and(swerve::trajectoryWithinBump)
+      .onTrue(swerve.alignToBump(() -> swerve.getRobotSpeeds().vxMetersPerSecond)); // placeholder button
+
     var intakeRoller =
         new IntakeRoller(
             switch (mode) {
