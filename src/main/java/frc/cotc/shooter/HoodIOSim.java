@@ -17,7 +17,7 @@ public class HoodIOSim implements HoodIO {
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
           LinearSystemId.createSingleJointedArmSystem(DCMotor.getKrakenX44(1), .25, 30),
-          DCMotor.getKrakenX44(1).withReduction(30),
+          DCMotor.getKrakenX44(1).withReduction(154.0 / 5),
           0,
           0,
           0,
@@ -26,8 +26,6 @@ public class HoodIOSim implements HoodIO {
           0); // placeholders
 
   private final PIDController pid = new PIDController(1, 0, 1);
-  private final double kvRadPerSecPerVolt =
-      DCMotor.getKrakenX44(1).withReduction(30).KvRadPerSecPerVolt;
   private final double kG = 1.0; // placeholder
 
   @Override
@@ -35,14 +33,11 @@ public class HoodIOSim implements HoodIO {
     sim.update(Robot.defaultPeriodSecs);
 
     inputs.thetaRad = sim.getAngleRads();
-    inputs.omegaRadPerSec = sim.getVelocityRadPerSec();
   }
 
   @Override
-  public void runPitch(double thetaRad, double omegaRadPerSec) {
+  public void runPitch(double thetaRad) {
     sim.setInputVoltage(
-        pid.calculate(sim.getAngleRads(), thetaRad)
-            + omegaRadPerSec / kvRadPerSecPerVolt
-            + kG * Math.cos(sim.getAngleRads()));
+        pid.calculate(sim.getAngleRads(), thetaRad) + kG * Math.cos(sim.getAngleRads()));
   }
 }

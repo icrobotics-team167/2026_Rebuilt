@@ -13,12 +13,11 @@ public interface HoodIO {
   @AutoLog
   class HoodIOInputs {
     double thetaRad;
-    double omegaRadPerSec;
     double motorStatorCurrentAmps;
     double motorSupplyCurrentAmps;
   }
 
   default void updateInputs(HoodIOInputs inputs) {}
 
-  default void runPitch(double thetaRad, double omegaRadPerSec) {}
+  default void runPitch(double thetaRad) {}
 }
