@@ -86,6 +86,12 @@ public class Autos {
     selectedOnRed = false;
   }
 
+  public Command warmup() {
+    var routine = autoFactory.newRoutine("Warmup");
+    var path = ChoreoTraj.Warmup.asAutoTraj(routine);
+    return sequence(path.resetOdometry(), path.cmd(), stopCommand.get()).ignoringDisable(true);
+  }
+
   public Command getSelectedCommand() {
     return selectedCommand;
   }

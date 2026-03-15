@@ -238,6 +238,7 @@ public class Robot extends LoggedRobot {
     primary.b().whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
 
     autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    CommandScheduler.getInstance().schedule(autos.warmup());
 
     RobotModeTriggers.autonomous()
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))

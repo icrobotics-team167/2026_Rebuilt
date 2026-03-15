@@ -1,4 +1,4 @@
-
+// spotless:off
 package frc.cotc.autos;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -6,10 +6,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Map;
 import java.util.OptionalInt;
 
-// If these imports cause errors because you're not using ChoreoLib,
-// turn off "Include ChoreoLib-specific Helpers" in Choreo's codegen settings.
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+// If the 2 imports above cause errors because you're not using ChoreoLib,
+// turn off "Include ChoreoLib-specific Helpers" in Choreo's codegen settings.
 
 /**
  * A class containing the name, start pose, end pose, and total time of every Choreo trajectory.
@@ -24,68 +24,80 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
+    public static final ChoreoTraj Center = new ChoreoTraj(
+        "Center",
+        OptionalInt.empty(),
+        0.83295,
+        new Pose2d(3.66757, 4.01932, Rotation2d.fromRadians(0)),
+        new Pose2d(2.567, 4.002, Rotation2d.fromRadians(-1.5708))
+    );
     public static final ChoreoTraj DepotLeft = new ChoreoTraj(
-	    "DepotLeft",
-	    OptionalInt.empty(),
-	    2.87394,
-	    new Pose2d(3.729, 5.964, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(2.99, 5.285, Rotation2d.fromRadians(-2.308))
-	);
-	public static final ChoreoTraj DepotLeft$0 = new ChoreoTraj(
-	    "DepotLeft",
-	    OptionalInt.of(0),
-	    1.65395,
-	    new Pose2d(3.729, 5.964, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(0.591, 5.964, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj DepotLeft$1 = new ChoreoTraj(
-	    "DepotLeft",
-	    OptionalInt.of(1),
-	    1.2199900000000001,
-	    new Pose2d(0.591, 5.964, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(2.99, 5.285, Rotation2d.fromRadians(-2.308))
-	);
-	public static final ChoreoTraj OutpostRight = new ChoreoTraj(
-	    "OutpostRight",
-	    OptionalInt.empty(),
-	    3.43448,
-	    new Pose2d(3.675, 2.4, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.109))
-	);
-	public static final ChoreoTraj OutpostRight$0 = new ChoreoTraj(
-	    "OutpostRight",
-	    OptionalInt.of(0),
-	    1.94192,
-	    new Pose2d(3.675, 2.4, Rotation2d.fromRadians(0)),
-	    new Pose2d(0.469, 0.555, Rotation2d.fromRadians(1.571))
-	);
-	public static final ChoreoTraj OutpostRight$1 = new ChoreoTraj(
-	    "OutpostRight",
-	    OptionalInt.of(1),
-	    1.49256,
-	    new Pose2d(0.469, 0.555, Rotation2d.fromRadians(1.571)),
-	    new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.109))
-	);
-	public static final ChoreoTraj Center = new ChoreoTraj(
-	    "Center",
-	    OptionalInt.empty(),
-	    0.83295,
-	    new Pose2d(3.668, 4.019, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.567, 4.002, Rotation2d.fromRadians(-1.571))
-	);
+        "DepotLeft",
+        OptionalInt.empty(),
+        2.87394,
+        new Pose2d(3.72933, 5.96411, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.99, 5.285, Rotation2d.fromRadians(-2.30837))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj DepotLeft$0 = new ChoreoTraj(
+        "DepotLeft",
+        OptionalInt.of(0),
+        1.65395,
+        new Pose2d(3.72933, 5.96411, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.59144, 5.96411, Rotation2d.fromRadians(3.14159))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj DepotLeft$1 = new ChoreoTraj(
+        "DepotLeft",
+        OptionalInt.of(1),
+        1.2199900000000001,
+        new Pose2d(0.59144, 5.96411, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.99, 5.285, Rotation2d.fromRadians(-2.30837))
+    );
+    public static final ChoreoTraj OutpostRight = new ChoreoTraj(
+        "OutpostRight",
+        OptionalInt.empty(),
+        3.43448,
+        new Pose2d(3.67541, 2.4, Rotation2d.fromRadians(0)),
+        new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.10898))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj OutpostRight$0 = new ChoreoTraj(
+        "OutpostRight",
+        OptionalInt.of(0),
+        1.94192,
+        new Pose2d(3.67541, 2.4, Rotation2d.fromRadians(0)),
+        new Pose2d(0.46949, 0.55473, Rotation2d.fromRadians(1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj OutpostRight$1 = new ChoreoTraj(
+        "OutpostRight",
+        OptionalInt.of(1),
+        1.49256,
+        new Pose2d(0.46949, 0.55473, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.861, 2.966, Rotation2d.fromRadians(-1.10898))
+    );
+    public static final ChoreoTraj Warmup = new ChoreoTraj(
+        "Warmup",
+        OptionalInt.empty(),
+        1.01406,
+        new Pose2d(0, 0, Rotation2d.fromRadians(0)),
+        new Pose2d(1, 1, Rotation2d.fromRadians(3.14159))
+    );
 
     /**
      * A map between trajectory names and their corresponding data.
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("DepotLeft", DepotLeft),
-		Map.entry("DepotLeft$0", DepotLeft$0),
-		Map.entry("DepotLeft$1", DepotLeft$1),
-		Map.entry("OutpostRight", OutpostRight),
-		Map.entry("OutpostRight$0", OutpostRight$0),
-		Map.entry("OutpostRight$1", OutpostRight$1),
-		Map.entry("Center", Center)
+        Map.entry("Center", Center),
+        Map.entry("DepotLeft", DepotLeft),
+        Map.entry("DepotLeft$0", DepotLeft$0),
+        Map.entry("DepotLeft$1", DepotLeft$1),
+        Map.entry("OutpostRight", OutpostRight),
+        Map.entry("OutpostRight$0", OutpostRight$0),
+        Map.entry("OutpostRight$1", OutpostRight$1),
+        Map.entry("Warmup", Warmup)
     );
 
     /**
@@ -112,3 +124,4 @@ public record ChoreoTraj(
         return routine.trajectory(this.name);
     }
 }
+// spotless:on
