@@ -15,6 +15,7 @@ import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -244,6 +245,12 @@ public class Robot extends LoggedRobot {
     autos.update();
   }
 
+  // The shooter will lag behind the target position, so try to look a little further into the
+  // future to compensate
+  // TODO: Tune
+  @SuppressWarnings("FieldCanBeLocal")
+  private final double LOOK_AHEAD_SECONDS = 0.0;
+
   @Override
   public void robotPeriodic() {
     Threads.setCurrentThreadPriority(true, 1);
@@ -251,7 +258,19 @@ public class Robot extends LoggedRobot {
     canivoreSignals.refreshAll();
     rioSignals.refreshAll();
     updateTarget();
-    var result = SOTM.calculate(swerve.getPose(), swerve.getFieldSpeeds(), shotTarget);
+    var fieldChassisSpeeds = swerve.getFieldSpeeds();
+    var result =
+        SOTM.calculate(
+            swerve
+                .getPose()
+                .plus(
+                    new Transform2d(
+                        fieldChassisSpeeds.vxMetersPerSecond * LOOK_AHEAD_SECONDS,
+                        fieldChassisSpeeds.vyMetersPerSecond * LOOK_AHEAD_SECONDS,
+                        new Rotation2d(
+                            fieldChassisSpeeds.omegaRadiansPerSecond * LOOK_AHEAD_SECONDS))),
+            fieldChassisSpeeds,
+            shotTarget);
     Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
     swerve.setSOTMResult(result);
     shooter.setSOTMResult(result);

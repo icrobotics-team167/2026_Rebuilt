@@ -17,12 +17,6 @@ import frc.cotc.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class SOTM {
-  // The shooter will lag behind the target position, so try to look a little further into the
-  // future to compensate
-  // TODO: Tune
-  @SuppressWarnings("FieldCanBeLocal")
-  private static final double LOOK_AHEAD_SECONDS = 0;
-
   // Shooting on the move will induce drag on the projectile, so compensate for that
   // Time in inverse seconds for the shot's velocity to decay by 1/e times (decay to ~36.8%)
   // TODO: Tune
@@ -71,12 +65,6 @@ public class SOTM {
 
   public static SOTMResult calculate(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
-    robotPose =
-        robotPose.plus(
-            new Transform2d(
-                fieldChassisSpeeds.vxMetersPerSecond * LOOK_AHEAD_SECONDS,
-                fieldChassisSpeeds.vyMetersPerSecond * LOOK_AHEAD_SECONDS,
-                new Rotation2d(fieldChassisSpeeds.omegaRadiansPerSecond * LOOK_AHEAD_SECONDS)));
     // Calculate where the shooter is on the field
     var shooterTranslation = robotPose.plus(robotToShooterTransform).getTranslation();
     // Rotate the robotToShooterTransform by the robot yaw
