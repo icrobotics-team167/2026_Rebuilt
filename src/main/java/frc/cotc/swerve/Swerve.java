@@ -293,17 +293,14 @@ public class Swerve extends SubsystemBase {
     io.resetPose(pose);
   }
 
-  private Pose2d getProjectedPose(double futureSeconds) {
+  private Translation2d getProjectedPose(double futureSeconds) {
     Pose2d currentPose2d = getPose();
 
     ChassisSpeeds fieldRelativeSpeeds = getFieldSpeeds();
 
-    return new Pose2d(
+    return new Translation2d(
         currentPose2d.getX() + fieldRelativeSpeeds.vxMetersPerSecond * futureSeconds,
-        currentPose2d.getY() + fieldRelativeSpeeds.vyMetersPerSecond * futureSeconds,
-        currentPose2d
-            .getRotation()
-            .plus(new Rotation2d(fieldRelativeSpeeds.omegaRadiansPerSecond * futureSeconds)));
+        currentPose2d.getY() + fieldRelativeSpeeds.vyMetersPerSecond * futureSeconds);
   }
 
   private final Rectangle2d alliLeftBump =
@@ -316,11 +313,12 @@ public class Swerve extends SubsystemBase {
       new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
 
   public boolean trajectoryWithinBump() {
-    Pose2d projectedPose = getProjectedPose(0.1); // placeholder time
+    Translation2d projectedPose = getProjectedPose(0.1); // placeholder time
 
-    return (alliLeftBump.contains(projectedPose.getTranslation())
-        || oppLeftBump.contains(projectedPose.getTranslation())
-        || alliRightBump.contains(projectedPose.getTranslation())
-        || oppRightBump.contains(projectedPose.getTranslation()));
+    // need to fix this later
+    return (alliLeftBump.contains(projectedPose)
+        || oppLeftBump.contains(projectedPose)
+        || alliRightBump.contains(projectedPose)
+        || oppRightBump.contains(projectedPose));
   }
 }
