@@ -229,33 +229,7 @@ public class Robot extends LoggedRobot {
               case REPLAY -> new FlywheelIO() {};
             });
     shooter.setDefaultCommand(shooter.idleRun());
-    primary
-        .b()
-        .whileTrue(
-            parallel(
-                run(
-                    () -> {
-                      var currentPose = swerve.getPose();
-                      if (Robot.isOnRed()) {
-                        if (currentPose.getX() > FieldConstants.Hub.oppTopCenterPoint.getX()) {
-                          shotTarget = SOTM.ShotTarget.RED_HUB;
-                        } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
-                          shotTarget = SOTM.ShotTarget.RED_TOP_GROUND;
-                        } else {
-                          shotTarget = SOTM.ShotTarget.RED_BOTTOM_GROUND;
-                        }
-                      } else {
-                        if (currentPose.getX() < FieldConstants.Hub.topCenterPoint.getX()) {
-                          shotTarget = SOTM.ShotTarget.BLUE_HUB;
-                        } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
-                          shotTarget = SOTM.ShotTarget.BLUE_TOP_GROUND;
-                        } else {
-                          shotTarget = SOTM.ShotTarget.BLUE_BOTTOM_GROUND;
-                        }
-                      }
-                    }),
-                swerve.aimAtTarget(translationalInputSupplier),
-                shooter.sotm()));
+    primary.b().whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
 
     autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
 
@@ -276,6 +250,7 @@ public class Robot extends LoggedRobot {
 
     canivoreSignals.refreshAll();
     rioSignals.refreshAll();
+    updateTarget();
     var result = SOTM.calculate(swerve.getPose(), swerve.getFieldSpeeds(), shotTarget);
     Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
     swerve.setSOTMResult(result);
@@ -302,6 +277,27 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData(CommandScheduler.getInstance());
 
     Threads.setCurrentThreadPriority(false, 10);
+  }
+
+  private void updateTarget() {
+    var currentPose = swerve.getPose();
+    if (Robot.isOnRed()) {
+      if (currentPose.getX() > FieldConstants.Hub.oppTopCenterPoint.getX()) {
+        shotTarget = SOTM.ShotTarget.RED_HUB;
+      } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+        shotTarget = SOTM.ShotTarget.RED_TOP_GROUND;
+      } else {
+        shotTarget = SOTM.ShotTarget.RED_BOTTOM_GROUND;
+      }
+    } else {
+      if (currentPose.getX() < FieldConstants.Hub.topCenterPoint.getX()) {
+        shotTarget = SOTM.ShotTarget.BLUE_HUB;
+      } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+        shotTarget = SOTM.ShotTarget.BLUE_TOP_GROUND;
+      } else {
+        shotTarget = SOTM.ShotTarget.BLUE_BOTTOM_GROUND;
+      }
+    }
   }
 
   public static boolean isOnRed() {

@@ -192,11 +192,11 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    max_landing_pitch = np.rad2deg(-50)
+    max_landing_pitch = np.rad2deg(-45)
     ratio = math.tan(max_landing_pitch)
     # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
-    problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) / ratio)
-    # problem.subject_to(v_z[-1] < -1.5)
+    problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
+    problem.subject_to(v_z[-1] < -1)
 
     p_x = X[0, :]
     p_y = X[1, :]

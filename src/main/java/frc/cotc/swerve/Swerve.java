@@ -159,7 +159,7 @@ public class Swerve extends SubsystemBase {
 
   private final SwerveRequest.FieldCentricFacingAngle facingAngle =
       new SwerveRequest.FieldCentricFacingAngle()
-          .withHeadingPID(8, 0, 0)
+          .withHeadingPID(12, 0, 0)
           .withCenterOfRotation(Constants.robotToShooterTransform.getTranslation());
 
   private SOTM.SOTMResult sotmResult;
@@ -173,6 +173,9 @@ public class Swerve extends SubsystemBase {
           if (sotmResult == null) return;
           var translational =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
+          Logger.recordOutput(
+              "Swerve/Aiming target yaw",
+              sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()));
 
           var currentPoseToGoal =
               Robot.shotTarget.targetLocation.minus(
