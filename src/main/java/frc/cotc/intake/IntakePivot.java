@@ -19,12 +19,13 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   private final IntakePivotIO io;
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
-  private static final double EXTENDED_ANGLE = Units.degreesToRadians(95); // TODO: get real value
-  private static final double RETRACTED_ANGLE = Units.degreesToRadians(10); // TODO: get real value
-  private final PIDController pidController =
-      new PIDController(1.0, 0.0, 0.0); // TODO: get real values
-  private final ArmFeedforward feedforward =
-      new ArmFeedforward(0.0, 0.0, 0.0); // TODO: get real values
+
+  // TODO: set values
+  private static final double EXTENDED_ANGLE = Units.degreesToRadians(95);
+  private static final double RETRACTED_ANGLE = Units.degreesToRadians(10);
+  private final PIDController pidController = new PIDController(1.0, 0.0, 0.0);
+  private final ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.0, 0.0);
+
   private double targetAngleRad = RETRACTED_ANGLE;
 
   public IntakePivot(IntakePivotIO io) {
@@ -50,7 +51,7 @@ public class IntakePivot extends SubsystemBase {
 
   private Command goToAngle(double angle) {
     return run(() -> {
-          targetAngleRad = angle;
+          targetAngleRad = angle; // Set the new state
           double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
           double ffVolts = feedforward.calculate(targetAngleRad, 0);
           io.run(pidVolts + ffVolts);
@@ -68,7 +69,6 @@ public class IntakePivot extends SubsystemBase {
 
   public Command agitate() {
     double intervalSeconds = 0.5;
-
     return repeatingSequence(
             extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
         .withName("Agitate");
