@@ -28,7 +28,7 @@ public class IntakePivot extends SubsystemBase {
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
-    this.setDefaultCommand(holdPosition());
+    this.setDefaultCommand(extend());
   }
 
   @Override
@@ -38,26 +38,21 @@ public class IntakePivot extends SubsystemBase {
     Logger.recordOutput("IntakePivot/TargetAngleRad", targetAngleRad);
   }
 
-  private Command holdPosition() {
+  private Command goToPos(double posRad) {
     return run(() -> {
+          targetAngleRad = posRad;
           double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
           double ffVolts = feedforward.calculate(targetAngleRad, 0);
           io.run(pidVolts + ffVolts);
         })
-        .withName("HoldPosition");
-  }
-
-  public Command retractWhileHeld() {
-    return run(() -> targetAngleRad = RETRACTED_ANGLE)
-        .finallyDo(() -> targetAngleRad = EXTENDED_ANGLE)
-        .withName("RetractWhileHeld");
+        .finallyDo(io::stop);
   }
 
   public Command extend() {
-    return runOnce(() -> targetAngleRad = EXTENDED_ANGLE).withName("Extend");
+    return goToPos(EXTENDED_ANGLE).withName("Extend");
   }
 
   public Command retract() {
-    return runOnce(() -> targetAngleRad = RETRACTED_ANGLE).withName("Retract");
+    return goToPos(RETRACTED_ANGLE).withName("Retract");
   }
 }
