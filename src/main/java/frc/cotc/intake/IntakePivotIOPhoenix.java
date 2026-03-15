@@ -23,6 +23,9 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final SplineEncoder pivotEncoder = new SplineEncoder(0);
   private final BaseStatusSignal statorSignal, supplySignal, velocitySignal;
 
+  // TODO: Adjust this so that inputs.pivotAngleRad is 0 when the arm is horizontal
+  private final double offsetRot = 0.0;
+
   public IntakePivotIOPhoenix() {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
@@ -47,8 +50,6 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   public void run(double volts) {
     motor.setVoltage(volts);
   }
-
-  private final double offsetRot = 0;
 
   @Override
   public void updateInputs(IntakePivotIOInputs inputs) {
