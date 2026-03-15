@@ -294,14 +294,18 @@ public class Swerve extends SubsystemBase {
     io.resetPose(pose);
   }
 
-  private Translation2d getProjectedPose(double futureSeconds) {
+  private Translation2d getProjectedPose(
+      double futureSeconds, Supplier<Translation2d> translationalInput) {
     Pose2d currentPose2d = getPose();
 
-    ChassisSpeeds fieldRelativeSpeeds = getFieldSpeeds();
+    var translation =
+        Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
+    var x = translation.getX();
+    var y = translation.getY();
 
     return new Translation2d(
-        currentPose2d.getX() + fieldRelativeSpeeds.vxMetersPerSecond * futureSeconds,
-        currentPose2d.getY() + fieldRelativeSpeeds.vyMetersPerSecond * futureSeconds);
+        currentPose2d.getX() + x * maxLinearSpeedMetersPerSecond * futureSeconds,
+        currentPose2d.getY() + y * maxLinearSpeedMetersPerSecond * futureSeconds);
   }
 
   private final Rectangle2d alliLeftBump =
@@ -316,8 +320,8 @@ public class Swerve extends SubsystemBase {
   private final int samples = 5;
 
   public boolean trajectoryWithinBump() {
-    Translation2d projectedPose = getProjectedPose(0.1); // placeholder time
     Translation2d currentPose = getPose().getTranslation();
+    Translation2d projectedPose = getProjectedPose(0.1, () -> currentPose); // placeholder time
 
     // check on 5 projected points
     for (int i = 0; i <= samples; i++) {
