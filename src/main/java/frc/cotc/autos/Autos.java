@@ -87,9 +87,10 @@ public class Autos {
   }
 
   public Command warmup() {
-    var routine = autoFactory.newRoutine("Warmup");
-    var path = ChoreoTraj.Warmup.asAutoTraj(routine);
-    return sequence(path.resetOdometry(), path.cmd(), stopCommand.get()).ignoringDisable(true);
+    System.out.println("Warmup command instantiated");
+    return sequence(
+            print("Warming up"), autoFactory.trajectoryCmd("Warmup"), print("Warmup complete"))
+        .ignoringDisable(true);
   }
 
   public Command getSelectedCommand() {
