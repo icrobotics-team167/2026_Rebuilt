@@ -7,9 +7,8 @@
 
 package frc.cotc.intake;
 
-import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
-
-import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -17,6 +16,14 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   private final IntakePivotIO io;
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+
+  private static final double EXTENDED_ANGLE = 0;
+  private static final double RETRACTED_ANGLE = 1.35;
+
+  private final PIDController pidController = new PIDController(7, 0.0, 0.0);
+  private final ArmFeedforward feedforward = new ArmFeedforward(0.115, 0.399, 0.0);
+
+  private double targetAngleRad = EXTENDED_ANGLE;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
@@ -26,28 +33,24 @@ public class IntakePivot extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
+    Logger.recordOutput("IntakePivot/TargetAngleRad", targetAngleRad);
+  }
+
+  private Command goToPos(double posRad) {
+    return run(() -> {
+          targetAngleRad = posRad;
+          double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
+          double ffVolts = feedforward.calculate(targetAngleRad - 0.61, 0);
+          io.run(pidVolts + ffVolts);
+        })
+        .finallyDo(io::stop);
   }
 
   public Command extend() {
-    return run(() -> io.run(12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
+    return goToPos(EXTENDED_ANGLE).withName("Extend");
   }
 
   public Command retract() {
-    return run(() -> io.run(-4)).until(this::isStalled).andThen(run(() -> io.run(-1)));
-  }
-
-  private final Debouncer debouncer = new Debouncer(0.5);
-
-  private boolean isStalled() {
-    return debouncer.calculate(
-        Math.abs(inputs.statorCurrentAmps) > 40 && Math.abs(inputs.velocityRotPerSec) < 20);
-  }
-
-  public Command agitate() {
-    double intervalSeconds = 0.5; // Placeholder speed
-
-    return repeatingSequence(
-            extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
-        .withName("Agitate");
+    return goToPos(RETRACTED_ANGLE).withName("Retract");
   }
 }
