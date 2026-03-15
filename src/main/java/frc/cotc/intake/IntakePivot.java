@@ -9,7 +9,6 @@ package frc.cotc.intake;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -18,11 +17,11 @@ public class IntakePivot extends SubsystemBase {
   private final IntakePivotIO io;
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
-  private static final double EXTENDED_ANGLE = Units.degreesToRadians(95);
-  private static final double RETRACTED_ANGLE = Units.degreesToRadians(10);
+  private static final double EXTENDED_ANGLE = 0;
+  private static final double RETRACTED_ANGLE = 1.35;
 
-  private final PIDController pidController = new PIDController(1.0, 0.0, 0.0);
-  private final ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.0, 0.0);
+  private final PIDController pidController = new PIDController(7, 0.0, 0.0);
+  private final ArmFeedforward feedforward = new ArmFeedforward(0.115, 0.399, 0.0);
 
   private double targetAngleRad = EXTENDED_ANGLE;
 
@@ -41,7 +40,7 @@ public class IntakePivot extends SubsystemBase {
     return run(() -> {
           targetAngleRad = posRad;
           double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
-          double ffVolts = feedforward.calculate(targetAngleRad, 0);
+          double ffVolts = feedforward.calculate(targetAngleRad - 0.61, 0);
           io.run(pidVolts + ffVolts);
         })
         .finallyDo(io::stop);

@@ -23,16 +23,15 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final SplineEncoder pivotEncoder = new SplineEncoder(0);
   private final BaseStatusSignal statorSignal, supplySignal, velocitySignal;
 
-  // TODO: Adjust this so that inputs.pivotAngleRad is 0 when the arm is horizontal
-  private final double offsetRot = 0.0;
+  private final double offsetRot = 0.232227;
 
   public IntakePivotIOPhoenix() {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
 
     config.CurrentLimits.StatorCurrentLimit = 60;
-    config.CurrentLimits.SupplyCurrentLimit = 40;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.CurrentLimits.SupplyCurrentLimit = 30;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     motor.getConfigurator().apply(config);
@@ -57,6 +56,6 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
     inputs.velocityRotPerSec = velocitySignal.getValueAsDouble();
     inputs.pivotAngleRad =
-        MathUtil.angleModulus(Units.rotationsToRadians(pivotEncoder.getAngle() - offsetRot));
+        -MathUtil.angleModulus(Units.rotationsToRadians(pivotEncoder.getAngle() - offsetRot));
   }
 }
