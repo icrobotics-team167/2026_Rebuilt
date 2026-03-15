@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -234,7 +233,7 @@ public class Swerve extends SubsystemBase {
             targetY = bottomTrenchY;
           }
           return new Translation2d(
-              vx.getAsDouble() * TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond),
+              vx.getAsDouble() * maxLinearSpeedMetersPerSecond,
               bumpAlignYController.calculate(getPose().getY(), targetY));
         },
         () -> bumpAlignThetaController.calculate(getPose().getRotation().getRadians(), 0));
@@ -314,13 +313,15 @@ public class Swerve extends SubsystemBase {
   private final Rectangle2d oppRightBump =
       new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
 
+  private int samples = 5;
+
   public boolean trajectoryWithinBump() {
     Translation2d projectedPose = getProjectedPose(0.1); // placeholder time
     Translation2d currentPose = getPose().getTranslation();
 
-    // check on 10 projected points
-    for (double i = 0.0; i < 1.0; i += 0.1) {
-      Translation2d projectedPoint = currentPose.interpolate(projectedPose, i);
+    // check on 5 projected points
+    for (int i = 0; i <= samples; i++) {
+      Translation2d projectedPoint = currentPose.interpolate(projectedPose, (double) i / samples);
       if (alliLeftBump.contains(projectedPoint)
           || oppLeftBump.contains(projectedPoint)
           || alliRightBump.contains(projectedPoint)
