@@ -138,9 +138,7 @@ public class Robot extends LoggedRobot {
     primary
         .y()
         .and(swerve::trajectoryWithinBump)
-        .onTrue(
-            swerve.alignToBump(
-                () -> -primary.getLeftY() * 4.0)); // placeholder button and placeholder speed
+        .onTrue(swerve.alignToBump(() -> -primary.getLeftY())); // placeholder button
 
     var intakeRoller =
         new IntakeRoller(

@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -233,7 +234,8 @@ public class Swerve extends SubsystemBase {
             targetY = bottomTrenchY;
           }
           return new Translation2d(
-              vx.getAsDouble(), bumpAlignYController.calculate(getPose().getY(), targetY));
+              vx.getAsDouble() * TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond),
+              bumpAlignYController.calculate(getPose().getY(), targetY));
         },
         () -> bumpAlignThetaController.calculate(getPose().getRotation().getRadians(), 0));
   }
@@ -314,11 +316,18 @@ public class Swerve extends SubsystemBase {
 
   public boolean trajectoryWithinBump() {
     Translation2d projectedPose = getProjectedPose(0.1); // placeholder time
+    Translation2d currentPose = getPose().getTranslation();
 
-    // need to fix this later
-    return (alliLeftBump.contains(projectedPose)
-        || oppLeftBump.contains(projectedPose)
-        || alliRightBump.contains(projectedPose)
-        || oppRightBump.contains(projectedPose));
+    // check on 10 projected points
+    for (double i = 0.0; i < 1.0; i += 0.1) {
+      Translation2d projectedPoint = currentPose.interpolate(projectedPose, i);
+      if (alliLeftBump.contains(projectedPoint)
+          || oppLeftBump.contains(projectedPoint)
+          || alliRightBump.contains(projectedPoint)
+          || oppRightBump.contains(projectedPoint)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
