@@ -13,10 +13,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.encoder.SplineEncoder;
-
-import frc.cotc.Robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.cotc.Robot;
 
 public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final TalonFX motor;
@@ -31,7 +30,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     config.CurrentLimits.StatorCurrentLimit = 60;
     config.CurrentLimits.SupplyCurrentLimit = 40;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake; 
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     motor.getConfigurator().apply(config);
 
@@ -39,12 +38,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     supplySignal = motor.getSupplyCurrent(false);
     velocitySignal = motor.getVelocity(false);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50,
-        statorSignal,
-        supplySignal,
-        velocitySignal
-    );
+    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, velocitySignal);
 
     Robot.rioSignals.addSignals(statorSignal, supplySignal, velocitySignal);
   }
@@ -53,6 +47,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   public void run(double volts) {
     motor.setVoltage(volts);
   }
+
   private final double offsetRot = 0;
 
   @Override
@@ -60,6 +55,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     inputs.statorCurrentAmps = statorSignal.getValueAsDouble();
     inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
     inputs.velocityRotPerSec = velocitySignal.getValueAsDouble();
-    inputs.pivotAngleRad = MathUtil.angleModulus(Units.rotationsToRadians(pivotEncoder.getAngle() - offsetRot));
+    inputs.pivotAngleRad =
+        MathUtil.angleModulus(Units.rotationsToRadians(pivotEncoder.getAngle() - offsetRot));
   }
 }
