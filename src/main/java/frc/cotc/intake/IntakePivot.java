@@ -28,7 +28,6 @@ public class IntakePivot extends SubsystemBase {
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
-    this.setDefaultCommand(extend());
   }
 
   @Override
