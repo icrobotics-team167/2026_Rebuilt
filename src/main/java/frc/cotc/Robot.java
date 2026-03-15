@@ -138,11 +138,6 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("BackRight"));
     var primary = new CommandXboxController(0);
 
-    primary
-        .y()
-        .and(swerve::trajectoryWithinBump)
-        .whileTrue(swerve.alignToBump(() -> -primary.getLeftY())); // placeholder button
-
     var intakeRoller =
         new IntakeRoller(
             switch (mode) {
@@ -156,10 +151,6 @@ public class Robot extends LoggedRobot {
               case REAL -> new IntakePivotIOPhoenix();
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
-
-    intakePivot.setDefaultCommand(intakePivot.extend());
-    primary.a().whileTrue(intakePivot.retract());
-    primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
         new BeltFloor(
@@ -179,9 +170,41 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     Supplier<Command> feedCommandSupplier =
         () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
+
+    new Trigger(
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
+        .onTrue(swerve.setToBlue());
+    new Trigger(
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
+        .onTrue(swerve.setToRed());
+
+    shooter =
+        new Shooter(
+            switch (mode) {
+              case REAL -> new HoodIOPhoenix();
+              case SIM -> new HoodIOSim();
+              case REPLAY -> new HoodIO() {};
+            },
+            switch (mode) {
+              case REAL -> new FlywheelIOPhoenix();
+              case SIM -> new FlywheelIOSim();
+              case REPLAY -> new FlywheelIO() {};
+            });
+
+    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+
+    RobotModeTriggers.autonomous()
+        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+        .onFalse(runOnce(autos::clear));
+    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
+
+    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     primary.rightTrigger().whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
@@ -208,41 +231,35 @@ public class Robot extends LoggedRobot {
           return omega * deadbandedOmegaMag;
         };
 
-    // swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    // primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
+    swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    primary.rightBumper().whileTrue(swerve.slowTeleopDrive());
+    primary.povLeft().whileTrue(swerve.faceAngle(translationalInputSupplier, () -> {
+      var control = new Translation2d(-primary.getRightY(), -primary.getRightX());
+      if (control.getNorm() > 1) {
+        return control.div(control.getNorm());
+      }
+      return control;
+    }));
 
-    new Trigger(
-            () ->
-                DriverStation.getAlliance().isPresent()
-                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
-        .onTrue(swerve.setToBlue());
-    new Trigger(
-            () ->
-                DriverStation.getAlliance().isPresent()
-                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
-        .onTrue(swerve.setToRed());
+    primary
+        .b()
+        .and(() -> swerve.trajectoryWithinBump(translationalInputSupplier))
+        .whileTrue(swerve.alignToBump(() -> translationalInputSupplier.get().getX()));
 
-    shooter =
-        new Shooter(
-            switch (mode) {
-              case REAL -> new HoodIOPhoenix();
-              case SIM -> new HoodIOSim();
-              case REPLAY -> new HoodIO() {};
-            },
-            switch (mode) {
-              case REAL -> new FlywheelIOPhoenix();
-              case SIM -> new FlywheelIOSim();
-              case REPLAY -> new FlywheelIO() {};
-            });
     shooter.setDefaultCommand(shooter.idleRun());
-    primary.b().whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
+    primary
+        .leftBumper()
+        .whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
 
-    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
-
-    RobotModeTriggers.autonomous()
-        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-        .onFalse(runOnce(autos::clear));
-    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
+    intakePivot.setDefaultCommand(
+        parallel(intakePivot.extend(), intakeRoller.intake().withTimeout(2).asProxy()));
+    primary
+        .a()
+        .toggleOnTrue(
+            parallel(intakePivot.retract(), intakeRoller.intake().withTimeout(2).asProxy()));
+    primary.x().whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()));
+    primary.leftTrigger().whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()));
+    primary.y().whileTrue(intakeRoller.outtake());
   }
 
   @Override

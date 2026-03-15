@@ -7,6 +7,8 @@
 
 package frc.cotc.intake;
 
+import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,7 +20,8 @@ public class IntakePivot extends SubsystemBase {
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
   private static final double EXTENDED_ANGLE = 0;
-  private static final double RETRACTED_ANGLE = 1.35;
+  private static final double AGITATE_ANGLE = 1.35;
+  private static final double RETRACTED_ANGLE = 2;
 
   private final PIDController pidController = new PIDController(7, 0.0, 0.0);
   private final ArmFeedforward feedforward = new ArmFeedforward(0.115, 0.399, 0.0);
@@ -52,5 +55,12 @@ public class IntakePivot extends SubsystemBase {
 
   public Command retract() {
     return goToPos(RETRACTED_ANGLE).withName("Retract");
+  }
+
+  public Command agitate() {
+    return repeatingSequence(
+      goToPos(AGITATE_ANGLE).withTimeout(1).withName("Agitate"),
+      extend().withTimeout(1)
+    );
   }
 }
