@@ -248,7 +248,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // autos.update();
+    autos.update();
   }
 
   // The shooter will lag behind the target position, so try to look a little further into the
