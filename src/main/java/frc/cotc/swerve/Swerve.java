@@ -313,7 +313,7 @@ public class Swerve extends SubsystemBase {
   private final Rectangle2d oppRightBump =
       new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
 
-  private int samples = 5;
+  private final int samples = 5;
 
   public boolean trajectoryWithinBump() {
     Translation2d projectedPose = getProjectedPose(0.1); // placeholder time
