@@ -19,5 +19,6 @@ public interface IntakePivotIO {
     double statorCurrentAmps = 0.0;
     double supplyCurrentAmps = 0.0;
     double velocityRotPerSec = 0.0;
+    double pivotAngleRad = 0.0;
   }
 }

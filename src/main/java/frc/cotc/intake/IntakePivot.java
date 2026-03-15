@@ -9,7 +9,9 @@ package frc.cotc.intake;
 
 import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
 
-import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -17,37 +19,56 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   private final IntakePivotIO io;
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+  private static final double EXTENDED_ANGLE = Units.degreesToRadians(95); // TODO: get real value
+  private static final double RETRACTED_ANGLE = Units.degreesToRadians(10); // TODO: get real value
+  private final PIDController pidController = new PIDController(1.0, 0.0, 0.0); // TODO: get real values
+  private final ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.0, 0.0); // TODO: get real values
+  private double targetAngleRad = RETRACTED_ANGLE;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
+    pidController.setTolerance(Units.degreesToRadians(2.0)); 
+    setDefaultCommand(holdPosition());
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
+    }
+  
+  private Command holdPosition() {
+    return run(() -> {
+      double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
+      double ffVolts = feedforward.calculate(targetAngleRad, 0);
+      io.run(pidVolts + ffVolts);
+    }).withName("HoldPosition");
+  }
+
+  private Command goToAngle(double angle) {
+    return run(() -> {
+      targetAngleRad = angle;
+      double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
+      double ffVolts = feedforward.calculate(targetAngleRad, 0);
+      io.run(pidVolts + ffVolts);
+    })
+    .until(pidController::atSetpoint); 
   }
 
   public Command extend() {
-    return run(() -> io.run(12)).until(this::isStalled).finallyDo(() -> io.run(0)).andThen(idle());
+    return goToAngle(EXTENDED_ANGLE).withName("Extend"); 
   }
 
   public Command retract() {
-    return run(() -> io.run(-4)).until(this::isStalled).andThen(run(() -> io.run(-1)));
-  }
-
-  private final Debouncer debouncer = new Debouncer(0.5);
-
-  private boolean isStalled() {
-    return debouncer.calculate(
-        Math.abs(inputs.statorCurrentAmps) > 40 && Math.abs(inputs.velocityRotPerSec) < 20);
+    return goToAngle(RETRACTED_ANGLE).withName("Retract");
   }
 
   public Command agitate() {
-    double intervalSeconds = 0.5; // Placeholder speed
+    double intervalSeconds = 0.5;
 
     return repeatingSequence(
-            extend().withTimeout(intervalSeconds), retract().withTimeout(intervalSeconds))
+            extend().withTimeout(intervalSeconds),
+            retract().withTimeout(intervalSeconds))
         .withName("Agitate");
   }
 }
