@@ -14,6 +14,8 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignalCollection;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -22,7 +24,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.cotc.autos.Autos;
 import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
 import frc.cotc.intake.IntakePivotIO;
@@ -30,10 +34,7 @@ import frc.cotc.intake.IntakePivotIOPhoenix;
 import frc.cotc.intake.IntakeRoller;
 import frc.cotc.intake.IntakeRollerIO;
 import frc.cotc.intake.IntakeRollerIOPhoenix;
-import frc.cotc.shooter.FlywheelIO;
-import frc.cotc.shooter.FlywheelIOPhoenix;
-import frc.cotc.shooter.FlywheelIOSim;
-import frc.cotc.shooter.Shooter;
+import frc.cotc.shooter.*;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import java.io.FileNotFoundException;
@@ -54,13 +55,18 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
-  // private final Autos autos;
+  private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
   public static final StatusSignalCollection rioSignals = new StatusSignalCollection();
 
   public static final CANBus rioBus = CANBus.roboRIO();
+
+  public static SOTM.ShotTarget shotTarget = SOTM.ShotTarget.BLUE_HUB;
+
+  private final Swerve swerve;
+  private final Shooter shooter;
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
@@ -121,7 +127,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().onCommandFinish(CommandsLogging::commandEnded);
     CommandScheduler.getInstance().onCommandInterrupt(CommandsLogging::logInterrupts);
 
-    var swerve =
+    swerve =
         new Swerve(
             switch (mode) {
               case REAL -> new SwerveIOReal();
@@ -131,7 +137,6 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("BackLeft"),
             new AprilTagPoseEstimator("BackRight"));
     var primary = new CommandXboxController(0);
-    var secondary = new CommandXboxController(1);
 
     primary
         .y()
@@ -174,10 +179,10 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    // turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    // Supplier<Command> feedCommandSupplier =
-    //     () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
-    // primary.rightTrigger().whileTrue(feedCommandSupplier.get());
+    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    Supplier<Command> feedCommandSupplier =
+        () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
+    primary.rightTrigger().whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -217,62 +222,27 @@ public class Robot extends LoggedRobot {
                     && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
         .onTrue(swerve.setToRed());
 
-    var shooter =
+    shooter =
         new Shooter(
-            // switch (mode) {
-            //   case REAL -> new HoodIOPhoenix();
-            //   case SIM -> new HoodIOSim();
-            //   case REPLAY -> new HoodIO() {};
-            // },
+            switch (mode) {
+              case REAL -> new HoodIOPhoenix();
+              case SIM -> new HoodIOSim();
+              case REPLAY -> new HoodIO() {};
+            },
             switch (mode) {
               case REAL -> new FlywheelIOPhoenix();
               case SIM -> new FlywheelIOSim();
               case REPLAY -> new FlywheelIO() {};
-            },
-            // switch (mode) {
-            //   case REAL -> new TurretIOPhoenix();
-            //   case SIM -> new TurretIOSim();
-            //   case REPLAY -> new TurretIO() {};
-            // },
-            swerve::getPose,
-            swerve::getFieldSpeeds);
-    // shooter.setDefaultCommand(shooter.idleRun());
-    // primary
-    //     .x()
-    //     .whileTrue(
-    //         //         // parallel(
-    //         //         // either(
-    //         //         //         shooter.shootAt(Shooter.ShotTarget.RED_HUB),
-    //         //         //         shooter.shootAt(Shooter.ShotTarget.BLUE_HUB),
-    //         //         //         Robot::isOnRed)
-    //         //         //     .withName("Shoot at alliance hub"),
-    //         either(
-    //                 swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.RED_HUB),
-    //                 swerve.aimAtTarget(translationalInputSupplier, Shooter.ShotTarget.BLUE_HUB),
-    //                 Robot::isOnRed)
-    //             .withName("Aim at target"));
-    // secondary.povUp().onTrue(shooter.incrementIdleVel());
-    // secondary.povDown().onTrue(shooter.decrementIdleVel());
-    // controller
-    //     .rightBumper()
-    //     .whileTrue(
-    //         parallel(shooter.pass(), swerve.pass(translationalInputSupplier)).withName("Pass"));
+            });
+    shooter.setDefaultCommand(shooter.idleRun());
+    primary.b().whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
 
-    // autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
 
-    // RobotModeTriggers.autonomous()
-    //     .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-    //     .onFalse(runOnce(autos::clear));
-    // RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
-
-    secondary
-        .back()
-        .and(secondary.start())
-        .debounce(.5)
-        .toggleOnTrue(
-            idle(raceway, turretFeeder, shooter)
-                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-                .withName("Disable Shooter"));
+    RobotModeTriggers.autonomous()
+        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+        .onFalse(runOnce(autos::clear));
+    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
   }
 
   @Override
@@ -280,12 +250,35 @@ public class Robot extends LoggedRobot {
     // autos.update();
   }
 
+  // The shooter will lag behind the target position, so try to look a little further into the
+  // future to compensate
+  // TODO: Tune
+  @SuppressWarnings("FieldCanBeLocal")
+  private final double LOOK_AHEAD_SECONDS = 0.0;
+
   @Override
   public void robotPeriodic() {
     Threads.setCurrentThreadPriority(true, 1);
 
     canivoreSignals.refreshAll();
     rioSignals.refreshAll();
+    updateTarget();
+    var fieldChassisSpeeds = swerve.getFieldSpeeds();
+    var result =
+        SOTM.calculate(
+            swerve
+                .getPose()
+                .plus(
+                    new Transform2d(
+                        fieldChassisSpeeds.vxMetersPerSecond * LOOK_AHEAD_SECONDS,
+                        fieldChassisSpeeds.vyMetersPerSecond * LOOK_AHEAD_SECONDS,
+                        new Rotation2d(
+                            fieldChassisSpeeds.omegaRadiansPerSecond * LOOK_AHEAD_SECONDS))),
+            fieldChassisSpeeds,
+            shotTarget);
+    Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
+    swerve.setSOTMResult(result);
+    shooter.setSOTMResult(result);
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
     // running already-scheduled commands, removing finished or interrupted commands, and running
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
@@ -308,6 +301,27 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData(CommandScheduler.getInstance());
 
     Threads.setCurrentThreadPriority(false, 10);
+  }
+
+  private void updateTarget() {
+    var currentPose = swerve.getPose();
+    if (Robot.isOnRed()) {
+      if (currentPose.getX() > FieldConstants.Hub.oppTopCenterPoint.getX()) {
+        shotTarget = SOTM.ShotTarget.RED_HUB;
+      } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+        shotTarget = SOTM.ShotTarget.RED_TOP_GROUND;
+      } else {
+        shotTarget = SOTM.ShotTarget.RED_BOTTOM_GROUND;
+      }
+    } else {
+      if (currentPose.getX() < FieldConstants.Hub.topCenterPoint.getX()) {
+        shotTarget = SOTM.ShotTarget.BLUE_HUB;
+      } else if (currentPose.getY() > FieldConstants.fieldWidth / 2) {
+        shotTarget = SOTM.ShotTarget.BLUE_TOP_GROUND;
+      } else {
+        shotTarget = SOTM.ShotTarget.BLUE_BOTTOM_GROUND;
+      }
+    }
   }
 
   public static boolean isOnRed() {

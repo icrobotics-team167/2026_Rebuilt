@@ -28,7 +28,6 @@ public class FlywheelIOPhoenix implements FlywheelIO {
       motor0SupplyCurrent,
       motor1SupplyCurrent;
 
-  private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private final VoltageOut stopRequest = new VoltageOut(0);
 
@@ -36,12 +35,14 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     motor0 = new TalonFX(MOTOR_0_ID, Robot.rioBus);
     motor1 = new TalonFX(MOTOR_1_ID, Robot.rioBus);
 
+    var config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.CurrentLimits.StatorCurrentLimitEnable = false;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
 
-    config.Slot0.kV = 12.0 / 110.0;
-    config.Slot0.kP = .5;
+    config.Slot0.kV = .105305;
+    config.Slot0.kS = .4065;
+    config.Slot0.kP = .6;
 
     // Left Side
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

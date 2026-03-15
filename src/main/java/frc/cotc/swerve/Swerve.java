@@ -30,7 +30,7 @@ import frc.cotc.FieldConstants;
 import frc.cotc.FieldConstants.LeftBump;
 import frc.cotc.FieldConstants.RightBump;
 import frc.cotc.Robot;
-import frc.cotc.shooter.Shooter;
+import frc.cotc.shooter.SOTM;
 import frc.cotc.vision.AprilTagPoseEstimator;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
@@ -161,64 +161,56 @@ public class Swerve extends SubsystemBase {
   }
 
   private final SwerveRequest.FieldCentricFacingAngle facingAngle =
-      new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
+      new SwerveRequest.FieldCentricFacingAngle()
+          .withHeadingPID(12, 0, 0)
+          .withCenterOfRotation(Constants.robotToShooterTransform.getTranslation());
 
-  private final PIDController distanceController = new PIDController(5, 0, 0);
+  private SOTM.SOTMResult sotmResult;
 
-  public Command aimAtTarget(
-      Supplier<Translation2d> translationalInput, Shooter.ShotTarget target) {
+  public void setSOTMResult(SOTM.SOTMResult result) {
+    this.sotmResult = result;
+  }
+
+  public Command aimAtTarget(Supplier<Translation2d> translationalInput) {
     return run(() -> {
+          if (sotmResult == null) return;
           var translational =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
-          var x = translational.getX();
-          var y = translational.getY();
+          Logger.recordOutput(
+              "Swerve/Aiming target yaw",
+              sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()));
 
           var currentPoseToGoal =
-              target
-                  .getBaseTargetLocation()
-                  .minus(getPose().plus(Constants.robotToShooterTransform).getTranslation());
+              Robot.shotTarget.targetLocation.minus(
+                  getPose().plus(Constants.robotToShooterTransform).getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
-          var distanceControllerOutput = distanceController.calculate(distanceToGoalMeters, 2.3);
+
+          var targetRelativeSpeed = translational.rotateBy(currentPoseToGoalAngle.unaryMinus());
+          if (targetRelativeSpeed.getX() < -0.25) {
+            translational = translational.times(-0.25 / targetRelativeSpeed.getX());
+          }
+          var x = translational.getX();
+          var y = translational.getY();
           io.setControl(
               facingAngle
-                  .withVelocityX(-distanceControllerOutput * currentPoseToGoalAngle.getCos() + x)
-                  .withVelocityY(-distanceControllerOutput * currentPoseToGoalAngle.getSin() + y)
+                  .withVelocityX(
+                      x
+                          * Math.min(
+                              maxLinearSpeedMetersPerSecond,
+                              sotmResult.maxMoveSpeedMetersPerSecond()))
+                  .withVelocityY(
+                      y
+                          * Math.min(
+                              maxLinearSpeedMetersPerSecond,
+                              sotmResult.maxMoveSpeedMetersPerSecond()))
                   .withTargetDirection(
-                      (target
-                              .getWiggledTargetLocation()
-                              .minus(
-                                  getPose()
-                                      .plus(Constants.robotToShooterTransform)
-                                      .getTranslation())
-                              .getAngle())
-                          .minus(Constants.robotToShooterTransform.getRotation()))
+                      sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
                       (currentPoseToGoalAngle.getCos() * y + currentPoseToGoalAngle.getSin() * x)
                           / distanceToGoalMeters));
-          Logger.recordOutput(
-              "Shooter/Target", new Pose2d(target.getWiggledTargetLocation(), Rotation2d.kZero));
         })
         .withName("Aim at target");
-  }
-
-  public Command pass(Supplier<Translation2d> translationalInput) {
-    return run(() -> {
-          var translational =
-              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
-          var x = translational.getX();
-          var y = translational.getY();
-          io.setControl(
-              facingAngle
-                  .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
-                  .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
-                  .withTargetDirection(
-                      Robot.isOnRed()
-                          ? Constants.robotToShooterTransform.getRotation().unaryMinus()
-                          : Rotation2d.k180deg.minus(
-                              Constants.robotToShooterTransform.getRotation())));
-        })
-        .withName("Pass");
   }
 
   public Command alignToBump(DoubleSupplier vx) {
