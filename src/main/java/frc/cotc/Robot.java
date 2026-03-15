@@ -24,9 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.cotc.autos.Autos;
 import frc.cotc.feeder.*;
 import frc.cotc.intake.IntakePivot;
 import frc.cotc.intake.IntakePivotIO;
@@ -55,7 +53,7 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
-  private final Autos autos;
+  // private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -138,6 +136,11 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("BackRight"));
     var primary = new CommandXboxController(0);
 
+    primary
+        .y()
+        .and(swerve::trajectoryWithinBump)
+        .whileTrue(swerve.alignToBump(() -> -primary.getLeftY())); // placeholder button
+
     var intakeRoller =
         new IntakeRoller(
             switch (mode) {
@@ -174,10 +177,10 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    Supplier<Command> feedCommandSupplier =
-        () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
-    primary.rightTrigger().whileTrue(feedCommandSupplier.get());
+    // turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    // Supplier<Command> feedCommandSupplier =
+    //     () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
+    // primary.rightTrigger().whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -203,8 +206,8 @@ public class Robot extends LoggedRobot {
           return omega * deadbandedOmegaMag;
         };
 
-    swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
+    // swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    // primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
 
     new Trigger(
             () ->
@@ -232,7 +235,7 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(shooter.idleRun());
     primary.b().whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
 
-    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    // autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
 
     RobotModeTriggers.autonomous()
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
@@ -242,7 +245,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    autos.update();
+    // autos.update();
   }
 
   // The shooter will lag behind the target position, so try to look a little further into the

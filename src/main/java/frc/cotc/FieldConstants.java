@@ -14,14 +14,11 @@ import edu.wpi.first.math.util.Units;
 import frc.cotc.vision.AprilTagPoseEstimator;
 
 /**
- * Contains information for location of field elements and other useful reference points.
+ * Contains information for location of field element and other useful reference points.
  *
  * <p>NOTE: All constants are defined relative to the field coordinate system, and from the
  * perspective of the blue alliance station
- *
- * <p>By Team 6328 Mechanical Advantage.
  */
-@SuppressWarnings({"OptionalGetWithoutIsPresent", "SuspiciousNameCombination"})
 public class FieldConstants {
   // AprilTag related constants
   public static final int aprilTagCount = AprilTagPoseEstimator.tagLayout.getTags().size();
@@ -30,6 +27,9 @@ public class FieldConstants {
   // Field dimensions
   public static final double fieldLength = AprilTagPoseEstimator.tagLayout.getFieldLength();
   public static final double fieldWidth = AprilTagPoseEstimator.tagLayout.getFieldWidth();
+
+  // Fuel dimensions
+  public static final double fuelDiameter = Units.inchesToMeters(5.91);
 
   /**
    * Officially defined and relevant vertical lines found on the field (defined by X-axis offset)
@@ -56,23 +56,27 @@ public class FieldConstants {
    * alliance station
    */
   public static class LinesHorizontal {
+
     public static final double center = fieldWidth / 2.0;
 
     // Right of hub
     public static final double rightBumpStart = Hub.nearRightCorner.getY();
     public static final double rightBumpEnd = rightBumpStart - RightBump.width;
+    public static final double rightBumpMiddle = (rightBumpStart + rightBumpEnd) / 2.0;
     public static final double rightTrenchOpenStart = rightBumpEnd - Units.inchesToMeters(12.0);
     public static final double rightTrenchOpenEnd = 0;
 
     // Left of hub
     public static final double leftBumpEnd = Hub.nearLeftCorner.getY();
     public static final double leftBumpStart = leftBumpEnd + LeftBump.width;
+    public static final double leftBumpMiddle = (leftBumpStart + leftBumpEnd) / 2.0;
     public static final double leftTrenchOpenEnd = leftBumpStart + Units.inchesToMeters(12.0);
     public static final double leftTrenchOpenStart = fieldWidth;
   }
 
   /** Hub related constants */
   public static class Hub {
+
     // Dimensions
     public static final double width = Units.inchesToMeters(47.0);
     public static final double height =
@@ -107,11 +111,6 @@ public class FieldConstants {
             AprilTagPoseEstimator.tagLayout.getTagPose(4).get().getX() + width / 2.0,
             fieldWidth / 2.0,
             height);
-    public static final Translation3d oppInnerCenterPoint =
-        new Translation3d(
-            AprilTagPoseEstimator.tagLayout.getTagPose(4).get().getX() + width / 2.0,
-            fieldWidth / 2.0,
-            innerHeight);
     public static final Translation2d oppNearLeftCorner =
         new Translation2d(oppTopCenterPoint.getX() - width / 2.0, fieldWidth / 2.0 + width / 2.0);
     public static final Translation2d oppNearRightCorner =
@@ -141,18 +140,18 @@ public class FieldConstants {
 
     // Relevant reference points on alliance side
     public static final Translation2d nearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
+        new Translation2d(LinesVertical.hubCenter - depth / 2, Units.inchesToMeters(255));
     public static final Translation2d nearRightCorner = Hub.nearLeftCorner;
     public static final Translation2d farLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
+        new Translation2d(LinesVertical.hubCenter + depth / 2, Units.inchesToMeters(255));
     public static final Translation2d farRightCorner = Hub.farLeftCorner;
 
     // Relevant reference points on opposing side
     public static final Translation2d oppNearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
+        new Translation2d(LinesVertical.oppHubCenter - depth / 2, Units.inchesToMeters(255));
     public static final Translation2d oppNearRightCorner = Hub.oppNearLeftCorner;
     public static final Translation2d oppFarLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
+        new Translation2d(LinesVertical.oppHubCenter + depth / 2, Units.inchesToMeters(255));
     public static final Translation2d oppFarRightCorner = Hub.oppFarLeftCorner;
   }
 
@@ -164,20 +163,24 @@ public class FieldConstants {
     public static final double depth = Units.inchesToMeters(44.4);
 
     // Relevant reference points on alliance side
-    public static final Translation2d nearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
-    public static final Translation2d nearRightCorner = Hub.nearLeftCorner;
-    public static final Translation2d farLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
-    public static final Translation2d farRightCorner = Hub.farLeftCorner;
+    public static final Translation2d nearLeftCorner = Hub.nearRightCorner;
+    public static final Translation2d nearRightCorner =
+        new Translation2d(
+            LinesVertical.hubCenter - depth / 2, fieldWidth - Units.inchesToMeters(255));
+    public static final Translation2d farLeftCorner = Hub.farRightCorner;
+    public static final Translation2d farRightCorner =
+        new Translation2d(
+            LinesVertical.hubCenter + depth / 2, fieldWidth - Units.inchesToMeters(255));
 
     // Relevant reference points on opposing side
     public static final Translation2d oppNearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
+        new Translation2d(
+            LinesVertical.oppHubCenter - depth / 2, fieldWidth - Units.inchesToMeters(255));
     public static final Translation2d oppNearRightCorner = Hub.oppNearLeftCorner;
     public static final Translation2d oppFarLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
-    public static final Translation2d oppFarRightCorner = Hub.oppFarLeftCorner;
+        new Translation2d(
+            LinesVertical.hubCenter + depth / 2, fieldWidth - Units.inchesToMeters(255));
+    public static final Translation2d oppFarRightCorner = Hub.oppFarRightCorner;
   }
 
   /** Left Trench related constants */
@@ -203,6 +206,7 @@ public class FieldConstants {
   }
 
   public static class RightTrench {
+
     // Dimensions
     public static final double width = Units.inchesToMeters(65.65);
     public static final double depth = Units.inchesToMeters(47.0);
@@ -298,5 +302,21 @@ public class FieldConstants {
     // Relevant reference points on alliance side
     public static final Translation2d centerPoint =
         new Translation2d(0, AprilTagPoseEstimator.tagLayout.getTagPose(29).get().getY());
+  }
+
+  public static class FuelPool {
+    // Dimensions
+    public static final double width = Units.inchesToMeters(181.9);
+    public static final double depth = Units.inchesToMeters(71.9);
+
+    // Relevant reference points on alliance side
+    public static final Translation2d nearLeftCorner =
+        new Translation2d(fieldLength / 2.0 - depth / 2.0, fieldWidth / 2.0 + width / 2.0);
+    public static final Translation2d nearRightCorner =
+        new Translation2d(fieldLength / 2.0 - depth / 2.0, fieldWidth / 2.0 - width / 2.0);
+    public static final Translation2d leftCenter =
+        new Translation2d(fieldLength / 2.0, fieldWidth / 2.0 + width / 2.0);
+    public static final Translation2d rightCenter =
+        new Translation2d(fieldLength / 2.0, fieldWidth / 2.0 - width / 2.0);
   }
 }
