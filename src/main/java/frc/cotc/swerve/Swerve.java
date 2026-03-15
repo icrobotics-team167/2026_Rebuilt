@@ -306,15 +306,17 @@ public class Swerve extends SubsystemBase {
             .plus(new Rotation2d(fieldRelativeSpeeds.omegaRadiansPerSecond * futureSeconds)));
   }
 
+  private final Rectangle2d alliLeftBump =
+      new Rectangle2d(LeftBump.farRightCorner, LeftBump.nearLeftCorner);
+  private final Rectangle2d oppLeftBump =
+      new Rectangle2d(LeftBump.oppFarRightCorner, LeftBump.oppNearLeftCorner);
+  private final Rectangle2d alliRightBump =
+      new Rectangle2d(RightBump.farRightCorner, RightBump.nearLeftCorner);
+  private final Rectangle2d oppRightBump =
+      new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
+
   public boolean trajectoryWithinBump() {
     Pose2d projectedPose = getProjectedPose(0.1); // placeholder time
-
-    Rectangle2d alliLeftBump = new Rectangle2d(LeftBump.farRightCorner, LeftBump.nearLeftCorner);
-    Rectangle2d oppLeftBump =
-        new Rectangle2d(LeftBump.oppFarRightCorner, LeftBump.oppNearLeftCorner);
-    Rectangle2d alliRightBump = new Rectangle2d(RightBump.farRightCorner, RightBump.nearLeftCorner);
-    Rectangle2d oppRightBump =
-        new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
 
     return (alliLeftBump.contains(projectedPose.getTranslation())
         || oppLeftBump.contains(projectedPose.getTranslation())

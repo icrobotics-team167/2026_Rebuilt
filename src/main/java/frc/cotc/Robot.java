@@ -135,7 +135,8 @@ public class Robot extends LoggedRobot {
     var primary = new CommandXboxController(0);
     var secondary = new CommandXboxController(1);
 
-    new Trigger(primary.y())
+    primary
+        .y()
         .and(swerve::trajectoryWithinBump)
         .onTrue(
             swerve.alignToBump(
