@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -26,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
+import frc.cotc.FieldConstants.LeftBump;
+import frc.cotc.FieldConstants.RightBump;
 import frc.cotc.Robot;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.vision.AprilTagPoseEstimator;
@@ -45,7 +48,7 @@ public class Swerve extends SubsystemBase {
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
   private final PIDController bumpAlignYController = new PIDController(10, 0, 1); // Placeholder
-  private final PIDController bumpAlignThetaController = new PIDController(10, 0, 1); // Placeholder
+  private final PIDController bumpAlignThetaController = new PIDController(8, 0, 1); // Placeholder
 
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
@@ -230,7 +233,8 @@ public class Swerve extends SubsystemBase {
             targetY = bottomTrenchY;
           }
           return new Translation2d(
-              vx.getAsDouble(), bumpAlignYController.calculate(getPose().getY(), targetY));
+              vx.getAsDouble() * maxLinearSpeedMetersPerSecond,
+              bumpAlignYController.calculate(getPose().getY(), targetY));
         },
         () -> bumpAlignThetaController.calculate(getPose().getRotation().getRadians(), 0));
   }
@@ -288,5 +292,68 @@ public class Swerve extends SubsystemBase {
       AprilTagPoseEstimatorIOPhoton.resetSim();
     }
     io.resetPose(pose);
+  }
+
+  private Translation2d getProjectedPose(
+      double futureSeconds, Supplier<Translation2d> translationalInput) {
+    Pose2d currentPose2d = getPose();
+
+    var translation =
+        Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
+    var x = translation.getX();
+    var y = translation.getY();
+
+    return new Translation2d(
+        currentPose2d.getX() + x * maxLinearSpeedMetersPerSecond * futureSeconds,
+        currentPose2d.getY() + y * maxLinearSpeedMetersPerSecond * futureSeconds);
+  }
+
+  private final Rectangle2d alliLeftBump =
+      new Rectangle2d(LeftBump.farRightCorner, LeftBump.nearLeftCorner);
+  private final Rectangle2d oppLeftBump =
+      new Rectangle2d(LeftBump.oppFarRightCorner, LeftBump.oppNearLeftCorner);
+  private final Rectangle2d alliRightBump =
+      new Rectangle2d(RightBump.farRightCorner, RightBump.nearLeftCorner);
+  private final Rectangle2d oppRightBump =
+      new Rectangle2d(RightBump.oppFarRightCorner, RightBump.oppNearLeftCorner);
+
+  private final int samples = 5;
+
+  public boolean trajectoryWithinBump() {
+    Logger.recordOutput(
+        "Swerve/Bumps/Alli Left",
+        new Pose2d(LeftBump.farRightCorner, Rotation2d.kZero),
+        new Pose2d(LeftBump.nearLeftCorner, Rotation2d.kZero));
+    Logger.recordOutput(
+        "Swerve/Bumps/Opp Left",
+        new Pose2d(LeftBump.oppFarRightCorner, Rotation2d.kZero),
+        new Pose2d(LeftBump.oppNearLeftCorner, Rotation2d.kZero));
+    Logger.recordOutput(
+        "Swerve/Bumps/Alli Right",
+        new Pose2d(RightBump.farRightCorner, Rotation2d.kZero),
+        new Pose2d(RightBump.nearLeftCorner, Rotation2d.kZero));
+    Logger.recordOutput(
+        "Swerve/Bumps/Opp Right",
+        new Pose2d(RightBump.oppFarRightCorner, Rotation2d.kZero),
+        new Pose2d(RightBump.oppNearLeftCorner, Rotation2d.kZero));
+
+    Translation2d currentPose = getPose().getTranslation();
+    Translation2d projectedPose = getProjectedPose(0.5, () -> currentPose); // placeholder time
+
+    var projectedPoses = new ArrayList<Pose2d>();
+    // check on 5 projected points
+    for (int i = 0; i <= samples; i++) {
+      Translation2d projectedPoint = currentPose.interpolate(projectedPose, (double) i / samples);
+      projectedPoses.add(new Pose2d(projectedPoint, getPose().getRotation()));
+      if (alliLeftBump.contains(projectedPoint)
+          || oppLeftBump.contains(projectedPoint)
+          || alliRightBump.contains(projectedPoint)
+          || oppRightBump.contains(projectedPoint)) {
+        Logger.recordOutput("Swerve/Bump Align Detections", projectedPoses.toArray(new Pose2d[0]));
+        return true;
+      }
+    }
+    Logger.recordOutput("Swerve/Bump Align Detections", projectedPoses.toArray(new Pose2d[0]));
+    return false;
   }
 }

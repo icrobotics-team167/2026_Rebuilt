@@ -135,6 +135,11 @@ public class Robot extends LoggedRobot {
     var primary = new CommandXboxController(0);
     var secondary = new CommandXboxController(1);
 
+    primary
+        .y()
+        .and(swerve::trajectoryWithinBump)
+        .whileTrue(swerve.alignToBump(() -> -primary.getLeftY())); // placeholder button
+
     var intakeRoller =
         new IntakeRoller(
             switch (mode) {
