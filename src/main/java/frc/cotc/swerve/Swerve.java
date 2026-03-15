@@ -48,7 +48,7 @@ public class Swerve extends SubsystemBase {
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
   private final PIDController bumpAlignYController = new PIDController(10, 0, 1); // Placeholder
-  private final PIDController bumpAlignThetaController = new PIDController(10, 0, 1); // Placeholder
+  private final PIDController bumpAlignThetaController = new PIDController(8, 0, 1); // Placeholder
 
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
@@ -320,19 +320,41 @@ public class Swerve extends SubsystemBase {
   private final int samples = 5;
 
   public boolean trajectoryWithinBump() {
+    Logger.recordOutput(
+        "Swerve/Bumps/Alli Left",
+        new Pose2d(LeftBump.farRightCorner, Rotation2d.kZero),
+        new Pose2d(LeftBump.nearLeftCorner, Rotation2d.kZero));
+    Logger.recordOutput(
+        "Swerve/Bumps/Opp Left",
+        new Pose2d(LeftBump.oppFarRightCorner, Rotation2d.kZero),
+        new Pose2d(LeftBump.oppNearLeftCorner, Rotation2d.kZero));
+    Logger.recordOutput(
+        "Swerve/Bumps/Alli Right",
+        new Pose2d(RightBump.farRightCorner, Rotation2d.kZero),
+        new Pose2d(RightBump.nearLeftCorner, Rotation2d.kZero));
+    Logger.recordOutput(
+        "Swerve/Bumps/Opp Right",
+        new Pose2d(RightBump.oppFarRightCorner, Rotation2d.kZero),
+        new Pose2d(RightBump.oppNearLeftCorner, Rotation2d.kZero));
+
+    Translation2d projectedPose = getProjectedPose(0.5); // placeholder time
     Translation2d currentPose = getPose().getTranslation();
     Translation2d projectedPose = getProjectedPose(0.1, () -> currentPose); // placeholder time
 
+    var projectedPoses = new ArrayList<Pose2d>();
     // check on 5 projected points
     for (int i = 0; i <= samples; i++) {
       Translation2d projectedPoint = currentPose.interpolate(projectedPose, (double) i / samples);
+      projectedPoses.add(new Pose2d(projectedPoint, getPose().getRotation()));
       if (alliLeftBump.contains(projectedPoint)
           || oppLeftBump.contains(projectedPoint)
           || alliRightBump.contains(projectedPoint)
           || oppRightBump.contains(projectedPoint)) {
+        Logger.recordOutput("Swerve/Bump Align Detections", projectedPoses.toArray(new Pose2d[0]));
         return true;
       }
     }
+    Logger.recordOutput("Swerve/Bump Align Detections", projectedPoses.toArray(new Pose2d[0]));
     return false;
   }
 }
