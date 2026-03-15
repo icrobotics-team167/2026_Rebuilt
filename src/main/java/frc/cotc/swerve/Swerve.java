@@ -337,9 +337,8 @@ public class Swerve extends SubsystemBase {
         new Pose2d(RightBump.oppFarRightCorner, Rotation2d.kZero),
         new Pose2d(RightBump.oppNearLeftCorner, Rotation2d.kZero));
 
-    Translation2d projectedPose = getProjectedPose(0.5); // placeholder time
     Translation2d currentPose = getPose().getTranslation();
-    Translation2d projectedPose = getProjectedPose(0.1, () -> currentPose); // placeholder time
+    Translation2d projectedPose = getProjectedPose(0.5, () -> currentPose); // placeholder time
 
     var projectedPoses = new ArrayList<Pose2d>();
     // check on 5 projected points
