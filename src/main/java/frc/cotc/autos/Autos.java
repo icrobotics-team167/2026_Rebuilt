@@ -30,7 +30,7 @@ public class Autos {
   private final String NONE_NAME = "Do Nothing";
 
   private final Swerve swerve;
-  private final Supplier<Command> feedCommand, intakeCommand, aimCommand, stopCommand;
+  private final Supplier<Command> shootCommand, feedCommand, intakeCommand, aimCommand, stopCommand;
 
   public Autos(
       Swerve swerve, Shooter shooter, Supplier<Command> feedCommand, IntakeRoller intakeRoller) {
@@ -39,6 +39,7 @@ public class Autos {
     routines.put(NONE_NAME, Commands::none);
 
     this.swerve = swerve;
+    shootCommand = shooter::sotm;
     this.feedCommand = feedCommand;
     intakeCommand = intakeRoller::intake;
     aimCommand = () -> swerve.aimAtTarget(() -> Translation2d.kZero);
@@ -46,10 +47,11 @@ public class Autos {
 
     autoFactory =
         new AutoFactory(swerve::getPose, swerve::resetPose, swerve::followPath, true, swerve);
-
-    addRoutine("Depot Left", this::depotLeft);
-    addRoutine("Outpost Right", this::outpostRight);
     addRoutine("Center", this::center);
+    addRoutine("Right Bump Mid", this::rightBumpMid);
+    addRoutine("Left Bump Mid", this::leftBumpMid);
+    addRoutine("Far Right Outpost", this::farRightOutpost);
+    addRoutine("Far Left Depot", this::farLeftDepot);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -102,45 +104,6 @@ public class Autos {
     routines.put(name, generator);
   }
 
-  private Command depotLeft() {
-    var routine = autoFactory.newRoutine("Depot Left");
-    var segment0 = ChoreoTraj.DepotLeft$0.asAutoTraj(routine);
-    var segment1 = ChoreoTraj.DepotLeft$1.asAutoTraj(routine);
-
-    routine
-        .active()
-        .onTrue(
-            sequence(
-                segment0.resetOdometry(),
-                segment0.cmd().deadlineFor(intakeCommand.get().asProxy()),
-                segment1.cmd(),
-                parallel(
-                    aimCommand.get(),
-                    waitSeconds(1).withName("Delay").andThen(feedCommand.get().asProxy()))));
-
-    return routine.cmd();
-  }
-
-  private Command outpostRight() {
-    var routine = autoFactory.newRoutine("Outpost Right");
-    var segment0 = ChoreoTraj.OutpostRight$0.asAutoTraj(routine);
-    var segment1 = ChoreoTraj.OutpostRight$1.asAutoTraj(routine);
-
-    routine
-        .active()
-        .onTrue(
-            sequence(
-                segment0.resetOdometry(),
-                segment0.cmd(),
-                swerve.brake().withTimeout(5),
-                segment1.cmd(),
-                parallel(
-                    aimCommand.get(),
-                    waitSeconds(1).withName("Delay").andThen(feedCommand.get().asProxy()))));
-
-    return routine.cmd();
-  }
-
   private Command center() {
     var routine = autoFactory.newRoutine("Center");
     var trajectory = ChoreoTraj.Center.asAutoTraj(routine);
@@ -153,7 +116,95 @@ public class Autos {
                 trajectory.cmd(),
                 parallel(
                     aimCommand.get(),
-                    waitSeconds(1).withName("Delay").andThen(feedCommand.get().asProxy()))));
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command rightBumpMid() {
+    var routine = autoFactory.newRoutine("Right Bump Mid");
+    var trajectory0 = ChoreoTraj.RightBumpMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightBumpMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightBumpMid$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command leftBumpMid() {
+    var routine = autoFactory.newRoutine("Left Bump Mid");
+    var trajectory0 = ChoreoTraj.LeftBumpMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftBumpMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftBumpMid$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farRightOutpost() {
+    var routine = autoFactory.newRoutine("Far Right Outpost");
+    var trajectory0 = ChoreoTraj.FarRightOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarRightOutpost$1.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farLeftDepot() {
+    var routine = autoFactory.newRoutine("Far Left Depot");
+    var trajectory0 = ChoreoTraj.FarLeftDepot$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarLeftDepot$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarLeftDepot$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
