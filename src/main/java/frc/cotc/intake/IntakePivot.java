@@ -59,8 +59,6 @@ public class IntakePivot extends SubsystemBase {
 
   public Command agitate() {
     return repeatingSequence(
-      goToPos(AGITATE_ANGLE).withTimeout(1).withName("Agitate"),
-      extend().withTimeout(1)
-    );
+        goToPos(AGITATE_ANGLE).withTimeout(1).withName("Agitate"), extend().withTimeout(1));
   }
 }

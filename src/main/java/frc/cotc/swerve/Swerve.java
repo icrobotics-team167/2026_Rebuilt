@@ -161,33 +161,34 @@ public class Swerve extends SubsystemBase {
   }
 
   private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle =
-      new SwerveRequest.FieldCentricFacingAngle()
-          .withHeadingPID(8, 0, 0);
+      new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
 
   private Rotation2d lastHeading = Rotation2d.kZero;
 
-  public Command faceAngle(Supplier<Translation2d> translationalInput,
-                           Supplier<Translation2d> headingInput) {
-    return run(() -> {
-      var translation =
-        Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
-      var x = translation.getX();
-      var y = translation.getY();
+  public Command faceAngle(
+      Supplier<Translation2d> translationalInput, Supplier<Translation2d> headingInput) {
+    return run(
+        () -> {
+          var translation =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
+          var x = translation.getX();
+          var y = translation.getY();
 
-      var headingControl = headingInput.get();
-      Rotation2d heading;
-      if (headingControl.getNorm() < 1e-3) {
-        heading = lastHeading;
-      } else {
-        heading = headingControl.getAngle();
-        lastHeading = heading;
-      }
-      io.setControl(
-        fieldCentricFacingAngle
-          .withVelocityX(x * maxLinearSpeedMetersPerSecond)
-          .withVelocityY(y * maxLinearSpeedMetersPerSecond)
-          .withTargetDirection(heading));
-    });
+          var headingControl =
+              Robot.isOnRed() ? headingInput.get().unaryMinus() : headingInput.get();
+          Rotation2d heading;
+          if (headingControl.getNorm() < 1e-3) {
+            heading = lastHeading;
+          } else {
+            heading = headingControl.getAngle();
+            lastHeading = heading;
+          }
+          io.setControl(
+              fieldCentricFacingAngle
+                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withTargetDirection(heading));
+        });
   }
 
   private final SwerveRequest.FieldCentricFacingAngle shootingAim =
