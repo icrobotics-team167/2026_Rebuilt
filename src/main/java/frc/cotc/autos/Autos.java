@@ -86,6 +86,13 @@ public class Autos {
     selectedOnRed = false;
   }
 
+  public Command warmup() {
+    System.out.println("Warmup command instantiated");
+    return sequence(
+            print("Warming up"), autoFactory.trajectoryCmd("Warmup"), print("Warmup complete"))
+        .ignoringDisable(true);
+  }
+
   public Command getSelectedCommand() {
     return selectedCommand;
   }

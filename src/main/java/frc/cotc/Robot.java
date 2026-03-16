@@ -198,6 +198,7 @@ public class Robot extends LoggedRobot {
             });
 
     autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    CommandScheduler.getInstance().schedule(autos.warmup());
 
     RobotModeTriggers.autonomous()
         .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
@@ -277,7 +278,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // autos.update();
+    autos.update();
   }
 
   // The shooter will lag behind the target position, so try to look a little further into the
