@@ -274,6 +274,16 @@ public class Robot extends LoggedRobot {
     primary.x().whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()));
     primary.leftTrigger().whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()));
     primary.y().whileTrue(intakeRoller.outtake());
+
+    primary
+        .back()
+        .and(primary.start())
+        .debounce(2)
+        .toggleOnTrue(
+            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
+                .ignoringDisable(true)
+                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+                .withName("Disable shooting"));
   }
 
   @Override

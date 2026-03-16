@@ -64,6 +64,14 @@ public class Shooter extends SubsystemBase {
         });
   }
 
+  @Override
+  public Command idle() {
+    return run(() -> {
+      targetSpeedMetersPerSec = 0;
+      flywheelIO.stop();
+    });
+  }
+
   private SOTM.SOTMResult sotmResult;
 
   public void setSOTMResult(SOTM.SOTMResult result) {
