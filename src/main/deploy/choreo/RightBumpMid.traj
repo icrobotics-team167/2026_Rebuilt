@@ -33,7 +33,7 @@
     {"x":{"exp":"RightMidExit.x", "val":8.05}, "y":{"exp":"RightMidExit.y", "val":3.3}, "heading":{"exp":"RightMidExit.heading", "val":2.0943951023931953}, "intervals":38, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"5.6 m", "val":5.6}, "y":{"exp":"RightBumpStartPose.y", "val":2.5}, "heading":{"exp":"RightBumpStartPose.heading", "val":0.0}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"RightBumpStartPose.x", "val":3.68}, "y":{"exp":"RightBumpStartPose.y", "val":2.5}, "heading":{"exp":"RightBumpStartPose.heading", "val":0.0}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"2.424 m", "val":2.424}, "y":{"exp":"2.776 m", "val":2.776}, "heading":{"exp":"-63.75 deg", "val":-1.1126473981463851}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RightShoot.x", "val":2.424}, "y":{"exp":"RightShoot.y", "val":2.776}, "heading":{"exp":"RightShoot.heading", "val":-1.1126473981463851}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

@@ -69,6 +69,20 @@
      "val":0.0
     }
    },
+   "LeftAcrossExit":{
+    "x":{
+     "exp":"RightAcrossExit.x",
+     "val":8.9
+    },
+    "y":{
+     "exp":"FieldWidth - RightAcrossExit.y",
+     "val":1.3690000000000009
+    },
+    "heading":{
+     "exp":"RightAcrossExit.heading",
+     "val":2.0943951023931953
+    }
+   },
    "LeftBumpStartPose":{
     "x":{
      "exp":"RightBumpStartPose.x",
@@ -153,6 +167,20 @@
      "val":0.0
     }
    },
+   "LeftShoot":{
+    "x":{
+     "exp":"2.527 m",
+     "val":2.527
+    },
+    "y":{
+     "exp":"5.121 m",
+     "val":5.121
+    },
+    "heading":{
+     "exp":"-121.28 deg",
+     "val":-2.116735316818723
+    }
+   },
    "Outpost":{
     "x":{
      "exp":"0.56 m",
@@ -165,6 +193,20 @@
     "heading":{
      "exp":"180 deg",
      "val":3.141592653589793
+    }
+   },
+   "RightAcrossExit":{
+    "x":{
+     "exp":"RightFarExit.x",
+     "val":8.9
+    },
+    "y":{
+     "exp":"6.7 m",
+     "val":6.7
+    },
+    "heading":{
+     "exp":"RightFarExit.heading",
+     "val":2.0943951023931953
     }
    },
    "RightBumpStartPose":{
@@ -249,6 +291,20 @@
     "heading":{
      "exp":"0 deg",
      "val":0.0
+    }
+   },
+   "RightShoot":{
+    "x":{
+     "exp":"2.424 m",
+     "val":2.424
+    },
+    "y":{
+     "exp":"2.776 m",
+     "val":2.776
+    },
+    "heading":{
+     "exp":"-63.75 deg",
+     "val":-1.1126473981463851
     }
    }
   }
