@@ -83,6 +83,34 @@
      "val":0.0
     }
    },
+   "LeftFarEnter":{
+    "x":{
+     "exp":"8.9 m",
+     "val":8.9
+    },
+    "y":{
+     "exp":"LeftMidEnter.y",
+     "val":7.069000000000001
+    },
+    "heading":{
+     "exp":"LeftMidEnter.heading",
+     "val":-2.0943951023931953
+    }
+   },
+   "LeftFarExit":{
+    "x":{
+     "exp":"LeftFarEnter.x",
+     "val":8.9
+    },
+    "y":{
+     "exp":"FieldWidth - RightFarExit.y",
+     "val":5.069000000000001
+    },
+    "heading":{
+     "exp":"LeftMidExit.heading",
+     "val":2.0943951023931953
+    }
+   },
    "LeftMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
@@ -151,6 +179,34 @@
     "heading":{
      "exp":"FarRightStartPose.heading",
      "val":0.0
+    }
+   },
+   "RightFarEnter":{
+    "x":{
+     "exp":"LeftFarEnter.x",
+     "val":8.9
+    },
+    "y":{
+     "exp":"RightMidEnter.y",
+     "val":1.0
+    },
+    "heading":{
+     "exp":"RightMidEnter.heading",
+     "val":2.0943951023931953
+    }
+   },
+   "RightFarExit":{
+    "x":{
+     "exp":"RightFarEnter.x",
+     "val":8.9
+    },
+    "y":{
+     "exp":"3 m",
+     "val":3.0
+    },
+    "heading":{
+     "exp":"RightMidExit.heading",
+     "val":2.0943951023931953
     }
    },
    "RightMidEnter":{
