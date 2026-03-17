@@ -28,7 +28,7 @@ public final class ChoreoVars {
         public static final Pose2d LeftFarExit = new Pose2d(8.9, 5.069, Rotation2d.fromRadians(2.0943951));
         public static final Pose2d LeftMidEnter = new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0943951));
         public static final Pose2d LeftMidExit = new Pose2d(8.05, 4.869, Rotation2d.fromRadians(2.0943951));
-        public static final Pose2d LeftMidLeadIn = new Pose2d(6.94, 6.8550913, Rotation2d.fromRadians(0));
+        public static final Pose2d LeftMidLeadIn = new Pose2d(6.94, 6.969, Rotation2d.fromRadians(0));
         public static final Pose2d LeftShoot = new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.1167353));
         public static final Pose2d Outpost = new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.1415927));
         public static final Pose2d RightAcrossExit = new Pose2d(8.9, 6.7, Rotation2d.fromRadians(2.0943951));
@@ -40,7 +40,7 @@ public final class ChoreoVars {
         public static final Pose2d RightFarExit = new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0943951));
         public static final Pose2d RightMidEnter = new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0943951));
         public static final Pose2d RightMidExit = new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0943951));
-        public static final Pose2d RightMidLeadIn = new Pose2d(6.94, 1.2139087, Rotation2d.fromRadians(0));
+        public static final Pose2d RightMidLeadIn = new Pose2d(6.94, 1.1, Rotation2d.fromRadians(0));
         public static final Pose2d RightShoot = new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.1126474));
     }
 }

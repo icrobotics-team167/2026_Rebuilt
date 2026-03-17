@@ -95,7 +95,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMid = new ChoreoTraj(
         "LeftBumpMid",
         OptionalInt.empty(),
-        5.00333,
+        5.03113,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -103,7 +103,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMid$0 = new ChoreoTraj(
         "LeftBumpMid",
         OptionalInt.of(0),
-        2.11952,
+        2.16242,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -111,7 +111,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMid$1 = new ChoreoTraj(
         "LeftBumpMid",
         OptionalInt.of(1),
-        0.8202400000000001,
+        0.8054199999999998,
         new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(8.05, 4.869, Rotation2d.fromRadians(-2.0944))
     );
@@ -119,14 +119,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMid$2 = new ChoreoTraj(
         "LeftBumpMid",
         OptionalInt.of(2),
-        2.06357,
+        2.0632900000000003,
         new Pose2d(8.05, 4.869, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj LeftBumpMidDepot = new ChoreoTraj(
         "LeftBumpMidDepot",
         OptionalInt.empty(),
-        7.68335,
+        7.71115,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -134,7 +134,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidDepot$0 = new ChoreoTraj(
         "LeftBumpMidDepot",
         OptionalInt.of(0),
-        2.11952,
+        2.16242,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -142,7 +142,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidDepot$1 = new ChoreoTraj(
         "LeftBumpMidDepot",
         OptionalInt.of(1),
-        0.8202400000000001,
+        0.8054199999999998,
         new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(8.05, 4.869, Rotation2d.fromRadians(-2.0944))
     );
@@ -150,7 +150,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidDepot$2 = new ChoreoTraj(
         "LeftBumpMidDepot",
         OptionalInt.of(2),
-        2.06357,
+        2.0632900000000003,
         new Pose2d(8.05, 4.869, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -158,7 +158,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidDepot$3 = new ChoreoTraj(
         "LeftBumpMidDepot",
         OptionalInt.of(3),
-        0.8154000000000003,
+        0.8153899999999998,
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
         new Pose2d(1.3, 5.9843, Rotation2d.fromRadians(3.14159))
     );
@@ -166,7 +166,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidDepot$4 = new ChoreoTraj(
         "LeftBumpMidDepot",
         OptionalInt.of(4),
-        0.7726599999999992,
+        0.7726699999999997,
         new Pose2d(1.3, 5.9843, Rotation2d.fromRadians(3.14159)),
         new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159))
     );
@@ -181,7 +181,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMid = new ChoreoTraj(
         "RightBumpMid",
         OptionalInt.empty(),
-        5.05596,
+        5.08359,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -189,7 +189,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMid$0 = new ChoreoTraj(
         "RightBumpMid",
         OptionalInt.of(0),
-        2.12186,
+        2.16134,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0944))
     );
@@ -197,7 +197,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMid$1 = new ChoreoTraj(
         "RightBumpMid",
         OptionalInt.of(1),
-        0.8127400000000002,
+        0.79738,
         new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0944)),
         new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0944))
     );
@@ -205,14 +205,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMid$2 = new ChoreoTraj(
         "RightBumpMid",
         OptionalInt.of(2),
-        2.1213599999999997,
+        2.12487,
         new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0944)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj RightBumpMidOutpost = new ChoreoTraj(
         "RightBumpMidOutpost",
         OptionalInt.empty(),
-        7.99665,
+        8.02429,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -220,7 +220,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidOutpost$0 = new ChoreoTraj(
         "RightBumpMidOutpost",
         OptionalInt.of(0),
-        2.12186,
+        2.16134,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0944))
     );
@@ -228,7 +228,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidOutpost$1 = new ChoreoTraj(
         "RightBumpMidOutpost",
         OptionalInt.of(1),
-        0.8127400000000002,
+        0.79738,
         new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0944)),
         new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0944))
     );
@@ -236,7 +236,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidOutpost$2 = new ChoreoTraj(
         "RightBumpMidOutpost",
         OptionalInt.of(2),
-        2.1213599999999997,
+        2.12487,
         new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0944)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -252,14 +252,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidOutpost$4 = new ChoreoTraj(
         "RightBumpMidOutpost",
         OptionalInt.of(4),
-        1.29699,
+        1.2970000000000006,
         new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj RightBumpFar = new ChoreoTraj(
         "RightBumpFar",
         OptionalInt.empty(),
-        5.28353,
+        5.31118,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -267,7 +267,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFar$0 = new ChoreoTraj(
         "RightBumpFar",
         OptionalInt.of(0),
-        2.30119,
+        2.34138,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944))
     );
@@ -275,7 +275,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFar$1 = new ChoreoTraj(
         "RightBumpFar",
         OptionalInt.of(1),
-        0.6780200000000001,
+        0.6673800000000001,
         new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944)),
         new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0944))
     );
@@ -283,14 +283,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFar$2 = new ChoreoTraj(
         "RightBumpFar",
         OptionalInt.of(2),
-        2.3043199999999997,
+        2.30242,
         new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0944)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj LeftBumpFar = new ChoreoTraj(
         "LeftBumpFar",
         OptionalInt.empty(),
-        5.2339,
+        5.26141,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -298,7 +298,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFar$0 = new ChoreoTraj(
         "LeftBumpFar",
         OptionalInt.of(0),
-        2.30311,
+        2.33946,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -306,7 +306,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFar$1 = new ChoreoTraj(
         "LeftBumpFar",
         OptionalInt.of(1),
-        0.6890799999999997,
+        0.6779800000000002,
         new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(8.9, 5.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -314,14 +314,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFar$2 = new ChoreoTraj(
         "LeftBumpFar",
         OptionalInt.of(2),
-        2.2417100000000003,
+        2.2439699999999996,
         new Pose2d(8.9, 5.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj RightBumpFarOutpost = new ChoreoTraj(
         "RightBumpFarOutpost",
         OptionalInt.empty(),
-        7.86299,
+        7.89064,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(1.549, 1.535, Rotation2d.fromRadians(-0.92694))
     );
@@ -329,7 +329,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarOutpost$0 = new ChoreoTraj(
         "RightBumpFarOutpost",
         OptionalInt.of(0),
-        2.30119,
+        2.34138,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944))
     );
@@ -337,7 +337,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarOutpost$1 = new ChoreoTraj(
         "RightBumpFarOutpost",
         OptionalInt.of(1),
-        0.6780200000000001,
+        0.6673800000000001,
         new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944)),
         new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0944))
     );
@@ -345,7 +345,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarOutpost$2 = new ChoreoTraj(
         "RightBumpFarOutpost",
         OptionalInt.of(2),
-        2.3043199999999997,
+        2.30242,
         new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0944)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -368,7 +368,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarDepot = new ChoreoTraj(
         "LeftBumpFarDepot",
         OptionalInt.empty(),
-        7.91392,
+        7.94143,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -376,7 +376,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarDepot$0 = new ChoreoTraj(
         "LeftBumpFarDepot",
         OptionalInt.of(0),
-        2.30311,
+        2.33946,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -384,7 +384,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarDepot$1 = new ChoreoTraj(
         "LeftBumpFarDepot",
         OptionalInt.of(1),
-        0.6890799999999997,
+        0.6779800000000002,
         new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(8.9, 5.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -392,7 +392,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarDepot$2 = new ChoreoTraj(
         "LeftBumpFarDepot",
         OptionalInt.of(2),
-        2.2417100000000003,
+        2.2439699999999996,
         new Pose2d(8.9, 5.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -400,7 +400,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarDepot$3 = new ChoreoTraj(
         "LeftBumpFarDepot",
         OptionalInt.of(3),
-        0.8153999999999995,
+        0.8154000000000003,
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
         new Pose2d(1.3, 5.9843, Rotation2d.fromRadians(3.14159))
     );
@@ -423,7 +423,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarAcross = new ChoreoTraj(
         "RightBumpFarAcross",
         OptionalInt.empty(),
-        6.1773,
+        6.20504,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -431,7 +431,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarAcross$0 = new ChoreoTraj(
         "RightBumpFarAcross",
         OptionalInt.of(0),
-        2.30149,
+        2.34164,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944))
     );
@@ -439,7 +439,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarAcross$1 = new ChoreoTraj(
         "RightBumpFarAcross",
         OptionalInt.of(1),
-        1.58115,
+        1.5700600000000002,
         new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944)),
         new Pose2d(8.9, 6.7, Rotation2d.fromRadians(2.0944))
     );
@@ -447,14 +447,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpFarAcross$2 = new ChoreoTraj(
         "RightBumpFarAcross",
         OptionalInt.of(2),
-        2.29466,
+        2.29334,
         new Pose2d(8.9, 6.7, Rotation2d.fromRadians(2.0944)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj LeftBumpFarAcross = new ChoreoTraj(
         "LeftBumpFarAcross",
         OptionalInt.empty(),
-        6.22685,
+        6.25473,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -462,7 +462,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarAcross$0 = new ChoreoTraj(
         "LeftBumpFarAcross",
         OptionalInt.of(0),
-        2.3024,
+        2.34052,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -470,7 +470,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarAcross$1 = new ChoreoTraj(
         "LeftBumpFarAcross",
         OptionalInt.of(1),
-        1.56536,
+        1.5554799999999998,
         new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(8.9, 1.369, Rotation2d.fromRadians(-2.0944))
     );
@@ -478,30 +478,30 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpFarAcross$2 = new ChoreoTraj(
         "LeftBumpFarAcross",
         OptionalInt.of(2),
-        2.3590899999999997,
+        2.3587300000000004,
         new Pose2d(8.9, 1.369, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj RightBumpClose = new ChoreoTraj(
         "RightBumpClose",
         OptionalInt.empty(),
-        4.40365,
-        new Pose2d(3.68, 2.1, Rotation2d.fromRadians(0)),
+        4.432,
+        new Pose2d(3.68, 2.2, Rotation2d.fromRadians(0)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj RightBumpClose$0 = new ChoreoTraj(
         "RightBumpClose",
         OptionalInt.of(0),
-        1.45734,
-        new Pose2d(3.68, 2.1, Rotation2d.fromRadians(0)),
+        1.47007,
+        new Pose2d(3.68, 2.2, Rotation2d.fromRadians(0)),
         new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj RightBumpClose$1 = new ChoreoTraj(
         "RightBumpClose",
         OptionalInt.of(1),
-        0.9464699999999999,
+        0.9571600000000002,
         new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708)),
         new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708))
     );
@@ -509,30 +509,30 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpClose$2 = new ChoreoTraj(
         "RightBumpClose",
         OptionalInt.of(2),
-        1.9998399999999998,
+        2.00477,
         new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj LeftBumpClose = new ChoreoTraj(
         "LeftBumpClose",
         OptionalInt.empty(),
-        4.41807,
-        new Pose2d(3.68, 5.969, Rotation2d.fromRadians(0)),
+        4.4463,
+        new Pose2d(3.68, 5.869, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj LeftBumpClose$0 = new ChoreoTraj(
         "LeftBumpClose",
         OptionalInt.of(0),
-        1.45664,
-        new Pose2d(3.68, 5.969, Rotation2d.fromRadians(0)),
+        1.47011,
+        new Pose2d(3.68, 5.869, Rotation2d.fromRadians(0)),
         new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj LeftBumpClose$1 = new ChoreoTraj(
         "LeftBumpClose",
         OptionalInt.of(1),
-        0.9421899999999999,
+        0.95268,
         new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708))
     );
@@ -540,14 +540,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpClose$2 = new ChoreoTraj(
         "LeftBumpClose",
         OptionalInt.of(2),
-        2.0192400000000004,
+        2.02351,
         new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj RightBumpMidClose = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.empty(),
-        9.84949,
+        9.88361,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -555,7 +555,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidClose$0 = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.of(0),
-        2.12186,
+        2.16134,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
         new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0944))
     );
@@ -563,7 +563,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidClose$1 = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.of(1),
-        0.8127400000000002,
+        0.79738,
         new Pose2d(8.05, 1, Rotation2d.fromRadians(2.0944)),
         new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0944))
     );
@@ -571,7 +571,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidClose$2 = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.of(2),
-        2.1213599999999997,
+        2.12487,
         new Pose2d(8.05, 3.2, Rotation2d.fromRadians(2.0944)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
@@ -579,7 +579,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidClose$3 = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.of(3),
-        1.84652,
+        1.8378800000000002,
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
         new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708))
     );
@@ -587,7 +587,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidClose$4 = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.of(4),
-        0.9469600000000007,
+        0.95737,
         new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708)),
         new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708))
     );
@@ -595,14 +595,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightBumpMidClose$5 = new ChoreoTraj(
         "RightBumpMidClose",
         OptionalInt.of(5),
-        2.000049999999999,
+        2.004769999999999,
         new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj LeftBumpMidClose = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.empty(),
-        9.9384,
+        9.97037,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -610,7 +610,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidClose$0 = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.of(0),
-        2.11952,
+        2.16242,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
         new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0944))
     );
@@ -618,7 +618,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidClose$1 = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.of(1),
-        0.8202400000000001,
+        0.8054199999999998,
         new Pose2d(8.05, 7.069, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(8.05, 4.869, Rotation2d.fromRadians(-2.0944))
     );
@@ -626,7 +626,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidClose$2 = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.of(2),
-        2.06357,
+        2.0632900000000003,
         new Pose2d(8.05, 4.869, Rotation2d.fromRadians(-2.0944)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -634,7 +634,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidClose$3 = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.of(3),
-        1.9729099999999997,
+        1.9628800000000002,
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
         new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708))
     );
@@ -642,7 +642,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidClose$4 = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.of(4),
-        0.9427000000000003,
+        0.95289,
         new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708))
     );
@@ -650,9 +650,229 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftBumpMidClose$5 = new ChoreoTraj(
         "LeftBumpMidClose",
         OptionalInt.of(5),
-        2.0194599999999996,
+        2.0234700000000005,
         new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightBumpFarClose = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.empty(),
+        10.1112,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarClose$0 = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.of(0),
+        2.34138,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
+        new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarClose$1 = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.of(1),
+        0.6673800000000001,
+        new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarClose$2 = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.of(2),
+        2.30242,
+        new Pose2d(8.9, 3, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarClose$3 = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.of(3),
+        1.8378800000000002,
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
+        new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarClose$4 = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.of(4),
+        0.9573699999999992,
+        new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarClose$5 = new ChoreoTraj(
+        "RightBumpFarClose",
+        OptionalInt.of(5),
+        2.0047700000000006,
+        new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj LeftBumpFarClose = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.empty(),
+        10.20065,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarClose$0 = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.of(0),
+        2.33946,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
+        new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarClose$1 = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.of(1),
+        0.6779800000000002,
+        new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(8.9, 5.069, Rotation2d.fromRadians(-2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarClose$2 = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.of(2),
+        2.2439699999999996,
+        new Pose2d(8.9, 5.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarClose$3 = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.of(3),
+        1.9628800000000002,
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
+        new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarClose$4 = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.of(4),
+        0.95289,
+        new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarClose$5 = new ChoreoTraj(
+        "LeftBumpFarClose",
+        OptionalInt.of(5),
+        2.0234699999999997,
+        new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightBumpFarAcrossClose = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.empty(),
+        11.14427,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarAcrossClose$0 = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.of(0),
+        2.34164,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0)),
+        new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarAcrossClose$1 = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.of(1),
+        1.5700600000000002,
+        new Pose2d(8.9, 1, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(8.9, 6.7, Rotation2d.fromRadians(2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarAcrossClose$2 = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.of(2),
+        2.29334,
+        new Pose2d(8.9, 6.7, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarAcrossClose$3 = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.of(3),
+        1.9628800000000002,
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
+        new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarAcrossClose$4 = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.of(4),
+        0.9528799999999986,
+        new Pose2d(6.2, 6.069, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj RightBumpFarAcrossClose$5 = new ChoreoTraj(
+        "RightBumpFarAcrossClose",
+        OptionalInt.of(5),
+        2.0234700000000014,
+        new Pose2d(6.2, 4.569, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj LeftBumpFarAcrossClose = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.empty(),
+        11.05475,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarAcrossClose$0 = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.of(0),
+        2.34052,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(0)),
+        new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarAcrossClose$1 = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.of(1),
+        1.5554799999999998,
+        new Pose2d(8.9, 7.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(8.9, 1.369, Rotation2d.fromRadians(-2.0944))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarAcrossClose$2 = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.of(2),
+        2.3587300000000004,
+        new Pose2d(8.9, 1.369, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarAcrossClose$3 = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.of(3),
+        1.8378800000000002,
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
+        new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarAcrossClose$4 = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.of(4),
+        0.9573699999999992,
+        new Pose2d(6.2, 2, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708))
+    );
+    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
+    public static final ChoreoTraj LeftBumpFarAcrossClose$5 = new ChoreoTraj(
+        "LeftBumpFarAcrossClose",
+        OptionalInt.of(5),
+        2.0047700000000006,
+        new Pose2d(6.2, 3.5, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
 
     /**
@@ -740,7 +960,35 @@ public record ChoreoTraj(
         Map.entry("LeftBumpMidClose$2", LeftBumpMidClose$2),
         Map.entry("LeftBumpMidClose$3", LeftBumpMidClose$3),
         Map.entry("LeftBumpMidClose$4", LeftBumpMidClose$4),
-        Map.entry("LeftBumpMidClose$5", LeftBumpMidClose$5)
+        Map.entry("LeftBumpMidClose$5", LeftBumpMidClose$5),
+        Map.entry("RightBumpFarClose", RightBumpFarClose),
+        Map.entry("RightBumpFarClose$0", RightBumpFarClose$0),
+        Map.entry("RightBumpFarClose$1", RightBumpFarClose$1),
+        Map.entry("RightBumpFarClose$2", RightBumpFarClose$2),
+        Map.entry("RightBumpFarClose$3", RightBumpFarClose$3),
+        Map.entry("RightBumpFarClose$4", RightBumpFarClose$4),
+        Map.entry("RightBumpFarClose$5", RightBumpFarClose$5),
+        Map.entry("LeftBumpFarClose", LeftBumpFarClose),
+        Map.entry("LeftBumpFarClose$0", LeftBumpFarClose$0),
+        Map.entry("LeftBumpFarClose$1", LeftBumpFarClose$1),
+        Map.entry("LeftBumpFarClose$2", LeftBumpFarClose$2),
+        Map.entry("LeftBumpFarClose$3", LeftBumpFarClose$3),
+        Map.entry("LeftBumpFarClose$4", LeftBumpFarClose$4),
+        Map.entry("LeftBumpFarClose$5", LeftBumpFarClose$5),
+        Map.entry("RightBumpFarAcrossClose", RightBumpFarAcrossClose),
+        Map.entry("RightBumpFarAcrossClose$0", RightBumpFarAcrossClose$0),
+        Map.entry("RightBumpFarAcrossClose$1", RightBumpFarAcrossClose$1),
+        Map.entry("RightBumpFarAcrossClose$2", RightBumpFarAcrossClose$2),
+        Map.entry("RightBumpFarAcrossClose$3", RightBumpFarAcrossClose$3),
+        Map.entry("RightBumpFarAcrossClose$4", RightBumpFarAcrossClose$4),
+        Map.entry("RightBumpFarAcrossClose$5", RightBumpFarAcrossClose$5),
+        Map.entry("LeftBumpFarAcrossClose", LeftBumpFarAcrossClose),
+        Map.entry("LeftBumpFarAcrossClose$0", LeftBumpFarAcrossClose$0),
+        Map.entry("LeftBumpFarAcrossClose$1", LeftBumpFarAcrossClose$1),
+        Map.entry("LeftBumpFarAcrossClose$2", LeftBumpFarAcrossClose$2),
+        Map.entry("LeftBumpFarAcrossClose$3", LeftBumpFarAcrossClose$3),
+        Map.entry("LeftBumpFarAcrossClose$4", LeftBumpFarAcrossClose$4),
+        Map.entry("LeftBumpFarAcrossClose$5", LeftBumpFarAcrossClose$5)
     );
 
     /**

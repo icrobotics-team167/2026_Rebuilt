@@ -209,7 +209,7 @@
     },
     "y":{
      "exp":"FieldWidth - RightMidLeadIn.y",
-     "val":6.855091327667237
+     "val":6.969000000000001
     },
     "heading":{
      "exp":"RightMidLeadIn.heading",
@@ -376,8 +376,8 @@
      "val":6.94
     },
     "y":{
-     "exp":"1.2139086723327637 m",
-     "val":1.2139086723327637
+     "exp":"1.1 m",
+     "val":1.1
     },
     "heading":{
      "exp":"0 deg",
