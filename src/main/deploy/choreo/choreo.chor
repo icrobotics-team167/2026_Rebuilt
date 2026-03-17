@@ -4,6 +4,13 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
+   "BumpExitX":{
+    "dimension":"Length",
+    "var":{
+     "exp":"5.6 m",
+     "val":5.6
+    }
+   },
    "FieldWidth":{
     "dimension":"Length",
     "var":{
@@ -97,6 +104,48 @@
      "val":0.0
     }
    },
+   "LeftBumpTopStartPose":{
+    "x":{
+     "exp":"RightBumpLowStartPose.x",
+     "val":3.68
+    },
+    "y":{
+     "exp":"FieldWidth - RightBumpLowStartPose.y",
+     "val":5.869000000000001
+    },
+    "heading":{
+     "exp":"RightBumpLowStartPose.heading",
+     "val":0.0
+    }
+   },
+   "LeftCloseEnter":{
+    "x":{
+     "exp":"RightCloseEnter.x",
+     "val":6.2
+    },
+    "y":{
+     "exp":"FieldWidth - RightCloseEnter.y",
+     "val":6.069000000000001
+    },
+    "heading":{
+     "exp":"-RightCloseEnter.heading",
+     "val":-1.5707963267948966
+    }
+   },
+   "LeftCloseExit":{
+    "x":{
+     "exp":"RightCloseExit.x",
+     "val":6.2
+    },
+    "y":{
+     "exp":"FieldWidth - RightCloseExit.y",
+     "val":4.569000000000001
+    },
+    "heading":{
+     "exp":"RightCloseExit.heading",
+     "val":1.5707963267948966
+    }
+   },
    "LeftFarEnter":{
     "x":{
      "exp":"8.9 m",
@@ -146,7 +195,7 @@
     },
     "y":{
      "exp":"FieldWidth - RightMidExit.y",
-     "val":4.769000000000001
+     "val":4.869000000000001
     },
     "heading":{
      "exp":"RightMidExit.heading",
@@ -209,6 +258,20 @@
      "val":2.0943951023931953
     }
    },
+   "RightBumpLowStartPose":{
+    "x":{
+     "exp":"RightBumpStartPose.x",
+     "val":3.68
+    },
+    "y":{
+     "exp":"2.2 m",
+     "val":2.2
+    },
+    "heading":{
+     "exp":"RightBumpStartPose.heading",
+     "val":0.0
+    }
+   },
    "RightBumpStartPose":{
     "x":{
      "exp":"FarRightStartPose.x",
@@ -221,6 +284,34 @@
     "heading":{
      "exp":"FarRightStartPose.heading",
      "val":0.0
+    }
+   },
+   "RightCloseEnter":{
+    "x":{
+     "exp":"6.2 m",
+     "val":6.2
+    },
+    "y":{
+     "exp":"2 m",
+     "val":2.0
+    },
+    "heading":{
+     "exp":"90 deg",
+     "val":1.5707963267948966
+    }
+   },
+   "RightCloseExit":{
+    "x":{
+     "exp":"RightCloseEnter.x",
+     "val":6.2
+    },
+    "y":{
+     "exp":"3.5 m",
+     "val":3.5
+    },
+    "heading":{
+     "exp":"RightCloseEnter.heading",
+     "val":1.5707963267948966
     }
    },
    "RightFarEnter":{
@@ -271,8 +362,8 @@
      "val":8.05
     },
     "y":{
-     "exp":"3.3 m",
-     "val":3.3
+     "exp":"3.2 m",
+     "val":3.2
     },
     "heading":{
      "exp":"RightMidEnter.heading",
