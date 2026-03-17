@@ -61,7 +61,8 @@ public class SOTM {
       double pitchRad,
       Rotation2d yaw,
       double shotSpeedMetersPerSecond,
-      double maxMoveSpeedMetersPerSecond) {}
+      double maxMoveSpeedMetersPerSecond,
+      double timeOfFlightSeconds) {}
 
   public static SOTMResult calculate(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
@@ -159,6 +160,7 @@ public class SOTM {
         result.pitchRad(),
         turretYawAbsolute,
         result.speedMetersPerSec(),
-        initialGuess.speedMetersPerSec() * Math.sin(initialGuess.pitchRad()) / 2);
+        initialGuess.speedMetersPerSec() * Math.sin(initialGuess.pitchRad()) / 2,
+        timeOfFlight);
   }
 }

@@ -68,6 +68,8 @@ public class Robot extends LoggedRobot {
   private final Swerve swerve;
   private final Shooter shooter;
 
+  private boolean isOkayToShoot = true;
+
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
     // If this is erroring, hit build
@@ -206,7 +208,15 @@ public class Robot extends LoggedRobot {
     RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
 
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    primary.rightTrigger().whileTrue(feedCommandSupplier.get());
+    primary
+        .rightTrigger()
+        .and(
+            () ->
+                switch (shotTarget) {
+                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  default -> true;
+                })
+        .whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -320,6 +330,18 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
     swerve.setSOTMResult(result);
     shooter.setSOTMResult(result);
+    var shiftInfo = Shifts.getOfficialShiftInfo();
+    Logger.recordOutput("ShiftInfo/CurrentShift", shiftInfo.currentShift());
+    Logger.recordOutput("ShiftInfo/Active", shiftInfo.active());
+    Logger.recordOutput("ShiftInfo/ElapsedTime", shiftInfo.elapsedTime());
+    Logger.recordOutput("ShiftInfo/RemainingTime", shiftInfo.remainingTime());
+    var adjustedShiftInfo = Shifts.getAdjustedShiftInfo(result.timeOfFlightSeconds());
+    Logger.recordOutput("ShiftInfo/TimeLeftTillShooting", adjustedShiftInfo.remainingTime());
+    Logger.recordOutput(
+        "ShiftInfo/OkayToShoot",
+        adjustedShiftInfo.active()
+            && (shotTarget == SOTM.ShotTarget.BLUE_HUB || shotTarget == SOTM.ShotTarget.RED_HUB));
+    isOkayToShoot = adjustedShiftInfo.active();
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
     // running already-scheduled commands, removing finished or interrupted commands, and running
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
@@ -331,11 +353,6 @@ public class Robot extends LoggedRobot {
         "LoggedRobot/MemoryUsageMB",
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6);
     Logger.recordOutput("IsOnRed", isOnRed());
-    var shiftInfo = Shifts.getOfficialShiftInfo();
-    Logger.recordOutput("ShiftInfo/CurrentShift", shiftInfo.currentShift());
-    Logger.recordOutput("ShiftInfo/Active", shiftInfo.active());
-    Logger.recordOutput("ShiftInfo/ElapsedTime", shiftInfo.elapsedTime());
-    Logger.recordOutput("ShiftInfo/RemainingTime", shiftInfo.remainingTime());
     if (groundTruthPoseSupplier != null) {
       Logger.recordOutput("Swerve/Ground Truth Pose", groundTruthPoseSupplier.get());
     }
