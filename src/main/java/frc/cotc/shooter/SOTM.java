@@ -130,6 +130,7 @@ public class SOTM {
     var finalVirtualShooterToTargetDistance = finalVirtualShooterToTarget.getNorm();
     var result = map.get(finalVirtualShooterToTargetDistance);
     iterationToFs[iterations + 1] = result.timeOfFlightSeconds();
+    timeOfFlight = result.timeOfFlightSeconds();
     Logger.recordOutput("Shooter/Shot result/Iteration Poses", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Iteration ToF seconds", iterationToFs);
 
@@ -142,6 +143,7 @@ public class SOTM {
         "Shooter/Shot result/Final virtual shooter pose", iterationsPoses[iterations + 1]);
     Logger.recordOutput("Shooter/Shot result/Result", result);
     Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTargetDistance);
+    Logger.recordOutput("Shooter/Shot result/Time of flight", timeOfFlight);
 
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
