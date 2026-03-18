@@ -21,7 +21,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"FarLeftStartPose.x", "val":3.68}, "y":{"exp":"FarLeftStartPose.y", "val":7.589}, "heading":{"exp":"FarLeftStartPose.heading", "val":0.0}, "intervals":43, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"1.2 m", "val":1.2}, "y":{"exp":"Depot.y", "val":5.9843010902404785}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":15, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"DepotLeadIn.x", "val":1.2}, "y":{"exp":"DepotLeadIn.y", "val":5.9843010902404785}, "heading":{"exp":"DepotLeadIn.heading", "val":0.0}, "intervals":15, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"Depot.x", "val":0.5985493659973145}, "y":{"exp":"Depot.y", "val":5.9843010902404785}, "heading":{"exp":"Depot.heading", "val":3.141592653589793}, "intervals":21, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"1.4821299314498901 m", "val":1.48212993144989}, "y":{"exp":"5.818456649780273 m", "val":5.818456649780273}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"LeftShoot.x", "val":2.527}, "y":{"exp":"LeftShoot.y", "val":5.121}, "heading":{"exp":"LeftShoot.heading", "val":-2.116735316818723}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],

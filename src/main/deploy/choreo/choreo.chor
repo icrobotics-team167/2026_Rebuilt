@@ -48,6 +48,20 @@
      "val":3.141592653589793
     }
    },
+   "DepotLeadIn":{
+    "x":{
+     "exp":"1.2 m",
+     "val":1.2
+    },
+    "y":{
+     "exp":"Depot.y",
+     "val":5.9843010902404785
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
    "FarLeftStartPose":{
     "x":{
      "exp":"FarRightStartPose.x",
@@ -242,6 +256,20 @@
     "heading":{
      "exp":"180 deg",
      "val":3.141592653589793
+    }
+   },
+   "OutpostLeadIn":{
+    "x":{
+     "exp":"1 m",
+     "val":1.0
+    },
+    "y":{
+     "exp":"Outpost.y",
+     "val":0.68
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
     }
    },
    "RightAcrossExit":{
