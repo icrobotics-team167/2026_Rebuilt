@@ -93,7 +93,7 @@
    "LeftAcrossExit":{
     "x":{
      "exp":"RightAcrossExit.x",
-     "val":8.9
+     "val":8.75
     },
     "y":{
      "exp":"FieldWidth - RightAcrossExit.y",
@@ -162,22 +162,22 @@
    },
    "LeftFarEnter":{
     "x":{
-     "exp":"8.9 m",
-     "val":8.9
+     "exp":"8.75 m",
+     "val":8.75
     },
     "y":{
      "exp":"LeftMidEnter.y",
      "val":7.069000000000001
     },
     "heading":{
-     "exp":"LeftMidEnter.heading",
-     "val":-2.0943951023931953
+     "exp":"-110 deg",
+     "val":-1.9198621771937625
     }
    },
    "LeftFarExit":{
     "x":{
      "exp":"LeftFarEnter.x",
-     "val":8.9
+     "val":8.75
     },
     "y":{
      "exp":"FieldWidth - RightFarExit.y",
@@ -275,7 +275,7 @@
    "RightAcrossExit":{
     "x":{
      "exp":"RightFarExit.x",
-     "val":8.9
+     "val":8.75
     },
     "y":{
      "exp":"6.7 m",
@@ -345,7 +345,7 @@
    "RightFarEnter":{
     "x":{
      "exp":"LeftFarEnter.x",
-     "val":8.9
+     "val":8.75
     },
     "y":{
      "exp":"RightMidEnter.y",
@@ -359,7 +359,7 @@
    "RightFarExit":{
     "x":{
      "exp":"RightFarEnter.x",
-     "val":8.9
+     "val":8.75
     },
     "y":{
      "exp":"3 m",
