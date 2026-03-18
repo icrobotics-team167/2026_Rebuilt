@@ -519,25 +519,25 @@ public class Autos {
     var trajectory5 = ChoreoTraj.RightBumpFarClose$5.asAutoTraj(routine);
 
     routine
-      .active()
-      .onTrue(
-        sequence(
-          trajectory0.resetOdometry(),
-          trajectory0.cmd(),
-          trajectory1.cmd().deadlineFor(intakeCommand.get()),
-          trajectory2.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))
-            .withTimeout(5),
-          trajectory3.cmd(),
-          trajectory4.cmd().deadlineFor(intakeCommand.get()),
-          trajectory5.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))));
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -552,25 +552,25 @@ public class Autos {
     var trajectory5 = ChoreoTraj.LeftBumpFarClose$5.asAutoTraj(routine);
 
     routine
-      .active()
-      .onTrue(
-        sequence(
-          trajectory0.resetOdometry(),
-          trajectory0.cmd(),
-          trajectory1.cmd().deadlineFor(intakeCommand.get()),
-          trajectory2.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))
-            .withTimeout(5),
-          trajectory3.cmd(),
-          trajectory4.cmd().deadlineFor(intakeCommand.get()),
-          trajectory5.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))));
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -582,17 +582,17 @@ public class Autos {
     var trajectory2 = ChoreoTraj.RightBumpFarAcross$2.asAutoTraj(routine);
 
     routine
-      .active()
-      .onTrue(
-        sequence(
-          trajectory0.resetOdometry(),
-          trajectory0.cmd(),
-          trajectory1.cmd().deadlineFor(intakeCommand.get()),
-          trajectory2.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))));
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -604,17 +604,17 @@ public class Autos {
     var trajectory2 = ChoreoTraj.LeftBumpFarAcross$2.asAutoTraj(routine);
 
     routine
-      .active()
-      .onTrue(
-        sequence(
-          trajectory0.resetOdometry(),
-          trajectory0.cmd(),
-          trajectory1.cmd().deadlineFor(intakeCommand.get()),
-          trajectory2.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))));
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -695,25 +695,25 @@ public class Autos {
     var trajectory5 = ChoreoTraj.RightBumpFarAcrossDepot$5.asAutoTraj(routine);
 
     routine
-      .active()
-      .onTrue(
-        sequence(
-          trajectory0.resetOdometry(),
-          trajectory0.cmd(),
-          trajectory1.cmd().deadlineFor(intakeCommand.get()),
-          trajectory2.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))
-            .withTimeout(5),
-          trajectory3.cmd(),
-          trajectory4.cmd().deadlineFor(intakeCommand.get()),
-          trajectory5.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))));
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -727,25 +727,25 @@ public class Autos {
     var trajectory4 = ChoreoTraj.LeftBumpFarAcrossOutpost$4.asAutoTraj(routine);
 
     routine
-      .active()
-      .onTrue(
-        sequence(
-          trajectory0.resetOdometry(),
-          trajectory0.cmd(),
-          trajectory1.cmd().deadlineFor(intakeCommand.get()),
-          trajectory2.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))
-            .withTimeout(5),
-          trajectory3.cmd(),
-          stopCommand.get().withTimeout(3),
-          trajectory4.cmd(),
-          parallel(
-            aimCommand.get(),
-            shootCommand.get(),
-            waitSeconds(1).andThen(feedCommand.get()))));
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
