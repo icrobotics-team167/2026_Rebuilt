@@ -68,6 +68,8 @@ public class Robot extends LoggedRobot {
   private final Swerve swerve;
   private final Shooter shooter;
 
+  private boolean isOkayToShoot = true;
+
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
     // If this is erroring, hit build
@@ -138,11 +140,6 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("BackRight"));
     var primary = new CommandXboxController(0);
 
-    primary
-        .y()
-        .and(swerve::trajectoryWithinBump)
-        .whileTrue(swerve.alignToBump(() -> -primary.getLeftY())); // placeholder button
-
     var intakeRoller =
         new IntakeRoller(
             switch (mode) {
@@ -156,10 +153,6 @@ public class Robot extends LoggedRobot {
               case REAL -> new IntakePivotIOPhoenix();
               case SIM, REPLAY -> new IntakePivotIO() {};
             });
-
-    intakePivot.setDefaultCommand(intakePivot.extend());
-    primary.a().whileTrue(intakePivot.retract());
-    primary.leftTrigger().whileTrue(intakeRoller.intake());
 
     var beltFloor =
         new BeltFloor(
@@ -179,10 +172,51 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     Supplier<Command> feedCommandSupplier =
         () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
-    primary.rightTrigger().whileTrue(feedCommandSupplier.get());
+
+    new Trigger(
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
+        .onTrue(swerve.setToBlue());
+    new Trigger(
+            () ->
+                DriverStation.getAlliance().isPresent()
+                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
+        .onTrue(swerve.setToRed());
+
+    shooter =
+        new Shooter(
+            switch (mode) {
+              case REAL -> new HoodIOPhoenix();
+              case SIM -> new HoodIOSim();
+              case REPLAY -> new HoodIO() {};
+            },
+            switch (mode) {
+              case REAL -> new FlywheelIOPhoenix();
+              case SIM -> new FlywheelIOSim();
+              case REPLAY -> new FlywheelIO() {};
+            });
+
+    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    CommandScheduler.getInstance().schedule(autos.warmup());
+
+    RobotModeTriggers.autonomous()
+        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
+        .onFalse(runOnce(autos::clear));
+    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
+
+    turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    primary
+        .rightTrigger()
+        .and(
+            () ->
+                switch (shotTarget) {
+                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  default -> true;
+                })
+        .whileTrue(feedCommandSupplier.get());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -208,42 +242,58 @@ public class Robot extends LoggedRobot {
           return omega * deadbandedOmegaMag;
         };
 
-    // swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    // primary.leftBumper().whileTrue(swerve.slowTeleopDrive());
+    swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
+    primary.rightBumper().whileTrue(swerve.slowTeleopDrive());
+    primary
+        .povLeft()
+        .whileTrue(
+            swerve.faceAngle(
+                translationalInputSupplier,
+                () -> {
+                  var x = -primary.getRightY();
+                  var y = -primary.getRightX();
+                  var magnitude = Math.hypot(x, y);
+                  if (magnitude > 1e-6) {
+                    var normX = x / magnitude;
+                    var normY = y / magnitude;
+                    var deadbandedMagnitude = MathUtil.applyDeadband(Math.min(magnitude, 1), 0.05);
+                    var squaredDeadbandedMagnitude = deadbandedMagnitude * deadbandedMagnitude;
+                    return new Translation2d(
+                        normX * squaredDeadbandedMagnitude, normY * squaredDeadbandedMagnitude);
+                  } else {
+                    return Translation2d.kZero;
+                  }
+                }));
 
-    new Trigger(
-            () ->
-                DriverStation.getAlliance().isPresent()
-                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
-        .onTrue(swerve.setToBlue());
-    new Trigger(
-            () ->
-                DriverStation.getAlliance().isPresent()
-                    && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red))
-        .onTrue(swerve.setToRed());
+    primary
+        .b()
+        .and(() -> swerve.trajectoryWithinBump(translationalInputSupplier))
+        .whileTrue(swerve.alignToBump(() -> translationalInputSupplier.get().getX()));
 
-    shooter =
-        new Shooter(
-            switch (mode) {
-              case REAL -> new HoodIOPhoenix();
-              case SIM -> new HoodIOSim();
-              case REPLAY -> new HoodIO() {};
-            },
-            switch (mode) {
-              case REAL -> new FlywheelIOPhoenix();
-              case SIM -> new FlywheelIOSim();
-              case REPLAY -> new FlywheelIO() {};
-            });
     shooter.setDefaultCommand(shooter.idleRun());
-    primary.b().whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
+    primary
+        .leftBumper()
+        .whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
 
-    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
-    CommandScheduler.getInstance().schedule(autos.warmup());
+    intakePivot.setDefaultCommand(
+        parallel(intakePivot.extend(), intakeRoller.intake().withTimeout(2).asProxy()));
+    primary
+        .a()
+        .toggleOnTrue(
+            parallel(intakePivot.retract(), intakeRoller.intake().withTimeout(2).asProxy()));
+    primary.x().whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()));
+    primary.leftTrigger().whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()));
+    primary.y().whileTrue(intakeRoller.outtake());
 
-    RobotModeTriggers.autonomous()
-        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-        .onFalse(runOnce(autos::clear));
-    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
+    primary
+        .back()
+        .and(primary.start())
+        .debounce(2)
+        .toggleOnTrue(
+            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
+                .ignoringDisable(true)
+                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+                .withName("Disable shooting"));
   }
 
   @Override
@@ -280,6 +330,22 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
     swerve.setSOTMResult(result);
     shooter.setSOTMResult(result);
+    var shiftInfo = Shifts.getOfficialShiftInfo();
+    Logger.recordOutput("ShiftInfo/CurrentShift", shiftInfo.currentShift());
+    Logger.recordOutput("ShiftInfo/Active", shiftInfo.active());
+    Logger.recordOutput("ShiftInfo/ElapsedTime", shiftInfo.elapsedTime());
+    Logger.recordOutput("ShiftInfo/RemainingTime", shiftInfo.remainingTime());
+    var timeOfFlight =
+        (shotTarget == SOTM.ShotTarget.BLUE_HUB || shotTarget == SOTM.ShotTarget.RED_HUB)
+            ? result.timeOfFlightSeconds()
+            : 0.7;
+    var adjustedShiftInfo = Shifts.getAdjustedShiftInfo(timeOfFlight);
+    Logger.recordOutput("ShiftInfo/TimeLeftTillShooting", adjustedShiftInfo.remainingTime());
+    Logger.recordOutput(
+        "ShiftInfo/OkayToShoot",
+        adjustedShiftInfo.active()
+            && (shotTarget == SOTM.ShotTarget.BLUE_HUB || shotTarget == SOTM.ShotTarget.RED_HUB));
+    isOkayToShoot = adjustedShiftInfo.active();
     // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
     // running already-scheduled commands, removing finished or interrupted commands, and running
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
@@ -291,11 +357,6 @@ public class Robot extends LoggedRobot {
         "LoggedRobot/MemoryUsageMB",
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6);
     Logger.recordOutput("IsOnRed", isOnRed());
-    var shiftInfo = Shifts.getOfficialShiftInfo();
-    Logger.recordOutput("ShiftInfo/CurrentShift", shiftInfo.currentShift());
-    Logger.recordOutput("ShiftInfo/Active", shiftInfo.active());
-    Logger.recordOutput("ShiftInfo/ElapsedTime", shiftInfo.elapsedTime());
-    Logger.recordOutput("ShiftInfo/RemainingTime", shiftInfo.remainingTime());
     if (groundTruthPoseSupplier != null) {
       Logger.recordOutput("Swerve/Ground Truth Pose", groundTruthPoseSupplier.get());
     }

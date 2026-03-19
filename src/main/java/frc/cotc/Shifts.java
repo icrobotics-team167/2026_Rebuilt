@@ -132,4 +132,52 @@ public class Shifts {
   public static ShiftInfo getOfficialShiftInfo() {
     return getShiftInfo(getSchedule(), shiftStartTimes, shiftEndTimes);
   }
+
+  private static final double minFuelCountDelay = 1.0;
+  private static final double maxFuelCountDelay = 2.0;
+  private static final double shiftEndFuelCountExtension = 3.0;
+
+  public static ShiftInfo getAdjustedShiftInfo(double timeOfFlight) {
+    double approachingActiveFudge = -1 * (timeOfFlight + minFuelCountDelay);
+    double endingActiveFudge = shiftEndFuelCountExtension + -1 * (timeOfFlight + maxFuelCountDelay);
+
+    boolean[] shiftSchedule = getSchedule();
+    // Starting active
+    if (shiftSchedule[1]) {
+      double[] shiftedShiftStartTimes = {
+        0.0,
+        10.0,
+        35.0 + endingActiveFudge,
+        60.0 + approachingActiveFudge,
+        85.0 + endingActiveFudge,
+        110.0 + approachingActiveFudge
+      };
+      double[] shiftedShiftEndTimes = {
+        10.0,
+        35.0 + endingActiveFudge,
+        60.0 + approachingActiveFudge,
+        85.0 + endingActiveFudge,
+        110.0 + approachingActiveFudge,
+        140.0
+      };
+      return getShiftInfo(shiftSchedule, shiftedShiftStartTimes, shiftedShiftEndTimes);
+    }
+    double[] shiftedShiftStartTimes = {
+      0.0,
+      10.0 + endingActiveFudge,
+      35.0 + approachingActiveFudge,
+      60.0 + endingActiveFudge,
+      85.0 + approachingActiveFudge,
+      110.0
+    };
+    double[] shiftedShiftEndTimes = {
+      10.0 + endingActiveFudge,
+      35.0 + approachingActiveFudge,
+      60.0 + endingActiveFudge,
+      85.0 + approachingActiveFudge,
+      110.0,
+      140.0
+    };
+    return getShiftInfo(shiftSchedule, shiftedShiftStartTimes, shiftedShiftEndTimes);
+  }
 }

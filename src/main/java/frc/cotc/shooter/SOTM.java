@@ -61,7 +61,8 @@ public class SOTM {
       double pitchRad,
       Rotation2d yaw,
       double shotSpeedMetersPerSecond,
-      double maxMoveSpeedMetersPerSecond) {}
+      double maxMoveSpeedMetersPerSecond,
+      double timeOfFlightSeconds) {}
 
   public static SOTMResult calculate(
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
@@ -129,6 +130,7 @@ public class SOTM {
     var finalVirtualShooterToTargetDistance = finalVirtualShooterToTarget.getNorm();
     var result = map.get(finalVirtualShooterToTargetDistance);
     iterationToFs[iterations + 1] = result.timeOfFlightSeconds();
+    timeOfFlight = result.timeOfFlightSeconds();
     Logger.recordOutput("Shooter/Shot result/Iteration Poses", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Iteration ToF seconds", iterationToFs);
 
@@ -141,6 +143,7 @@ public class SOTM {
         "Shooter/Shot result/Final virtual shooter pose", iterationsPoses[iterations + 1]);
     Logger.recordOutput("Shooter/Shot result/Result", result);
     Logger.recordOutput("Shooter/Shot result/Distance", finalVirtualShooterToTargetDistance);
+    Logger.recordOutput("Shooter/Shot result/Time of flight", timeOfFlight);
 
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
@@ -159,6 +162,7 @@ public class SOTM {
         result.pitchRad(),
         turretYawAbsolute,
         result.speedMetersPerSec(),
-        initialGuess.speedMetersPerSec() * Math.sin(initialGuess.pitchRad()) / 2);
+        initialGuess.speedMetersPerSec() * Math.sin(initialGuess.pitchRad()) / 2,
+        timeOfFlight);
   }
 }

@@ -160,7 +160,38 @@ public class Swerve extends SubsystemBase {
         .withName("Teleop Drive");
   }
 
-  private final SwerveRequest.FieldCentricFacingAngle facingAngle =
+  private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle =
+      new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
+
+  private Rotation2d lastHeading = Rotation2d.kZero;
+
+  public Command faceAngle(
+      Supplier<Translation2d> translationalInput, Supplier<Translation2d> headingInput) {
+    return run(
+        () -> {
+          var translation =
+              Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
+          var x = translation.getX();
+          var y = translation.getY();
+
+          var headingControl =
+              Robot.isOnRed() ? headingInput.get().unaryMinus() : headingInput.get();
+          Rotation2d heading;
+          if (headingControl.getNorm() < 1e-3) {
+            heading = lastHeading;
+          } else {
+            heading = headingControl.getAngle();
+            lastHeading = heading;
+          }
+          io.setControl(
+              fieldCentricFacingAngle
+                  .withVelocityX(x * maxLinearSpeedMetersPerSecond)
+                  .withVelocityY(y * maxLinearSpeedMetersPerSecond)
+                  .withTargetDirection(heading));
+        });
+  }
+
+  private final SwerveRequest.FieldCentricFacingAngle shootingAim =
       new SwerveRequest.FieldCentricFacingAngle()
           .withHeadingPID(12, 0, 0)
           .withCenterOfRotation(Constants.robotToShooterTransform.getTranslation());
@@ -193,7 +224,7 @@ public class Swerve extends SubsystemBase {
           var x = translational.getX();
           var y = translational.getY();
           io.setControl(
-              facingAngle
+              shootingAim
                   .withVelocityX(
                       x
                           * Math.min(
@@ -311,7 +342,7 @@ public class Swerve extends SubsystemBase {
 
   private final int samples = 5;
 
-  public boolean trajectoryWithinBump() {
+  public boolean trajectoryWithinBump(Supplier<Translation2d> translationalInput) {
     Logger.recordOutput(
         "Swerve/Bumps/Alli Left",
         new Pose2d(LeftBump.farRightCorner, Rotation2d.kZero),
@@ -329,8 +360,8 @@ public class Swerve extends SubsystemBase {
         new Pose2d(RightBump.oppFarRightCorner, Rotation2d.kZero),
         new Pose2d(RightBump.oppNearLeftCorner, Rotation2d.kZero));
 
-    Translation2d currentPose = getPose().getTranslation();
-    Translation2d projectedPose = getProjectedPose(0.5, () -> currentPose); // placeholder time
+    var currentPose = getPose().getTranslation();
+    var projectedPose = getProjectedPose(0.5, translationalInput);
 
     var projectedPoses = new ArrayList<Pose2d>();
     // check on 5 projected points
