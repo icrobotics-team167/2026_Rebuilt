@@ -21,10 +21,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
 import frc.cotc.FieldConstants.LeftBump;
@@ -85,6 +86,21 @@ public class Swerve extends SubsystemBase {
     }
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
     bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
+    RobotModeTriggers.disabled()
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  for (var camera : cameras) {
+                    camera.setEnabled();
+                  }
+                }))
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  for (var camera : cameras) {
+                    camera.setDisabled();
+                  }
+                }));
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -101,12 +117,12 @@ public class Swerve extends SubsystemBase {
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
     for (var camera : cameras) {
+      camera.addHeadingData(Timer.getTimestamp(), getPose().getRotation());
       camera.update(
           (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
             visionPoses.add(pose);
             io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
-          },
-          DriverStation.isEnabled() ? getPose() : null);
+          });
     }
     Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
     visionPoses.clear();

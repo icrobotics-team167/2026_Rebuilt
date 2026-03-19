@@ -7,7 +7,6 @@
 
 package frc.cotc.vision;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.cotc.Robot;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -30,18 +29,27 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
   public AprilTagPoseEstimatorIOPhoton(String name) {
     camera = new PhotonCamera(name);
     if (Robot.mode == Robot.Mode.SIM) {
+      var cameraCharacteristics = AprilTagPoseEstimator.cameraCharacteristics.get(name);
       var cameraSim =
           new PhotonCameraSim(
               camera,
               new SimCameraProperties()
-                  .setCalibration(1280, 800, Rotation2d.fromDegrees(80))
+                  .setCalibration(
+                      1280,
+                      800,
+                      cameraCharacteristics.cameraMatrix(),
+                      cameraCharacteristics.distortionCoefficients())
+                  .setCalibError(
+                      cameraCharacteristics.calibErrorPx(), cameraCharacteristics.errorStdDevPx())
                   .setAvgLatencyMs(10)
-                  .setLatencyStdDevMs(1),
+                  .setLatencyStdDevMs(1)
+                  .setFPS(45)
+                  .setExposureTimeMs(5),
               AprilTagPoseEstimator.tagLayout);
       cameraSim.enableDrawWireframe(true);
       cameraSim.enableRawStream(true);
       cameraSim.enableProcessedStream(true);
-      sim.addCamera(cameraSim, AprilTagPoseEstimator.cameraTransforms.get(name));
+      sim.addCamera(cameraSim, cameraCharacteristics.robotToCamera());
     }
   }
 

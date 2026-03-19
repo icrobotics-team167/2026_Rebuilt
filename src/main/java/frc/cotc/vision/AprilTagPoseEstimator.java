@@ -9,43 +9,86 @@ package frc.cotc.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 import java.util.HashMap;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.timesync.TimeSyncSingleton;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class AprilTagPoseEstimator {
   public static final AprilTagFieldLayout tagLayout;
 
-  protected static final HashMap<String, Transform3d> cameraTransforms = new HashMap<>();
+  protected static final HashMap<String, CameraCharacteristics> cameraCharacteristics =
+      new HashMap<>();
+
+  protected record CameraCharacteristics(
+      Transform3d robotToCamera,
+      Matrix<N3, N3> cameraMatrix,
+      Matrix<N8, N1> distortionCoefficients,
+      double calibErrorPx,
+      double errorStdDevPx) {}
 
   static {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
-    cameraTransforms.put(
+    cameraCharacteristics.put(
         "BackLeft",
-        new Transform3d(
-            -Units.inchesToMeters(22.0 / 2 - 2),
-            Units.inchesToMeters(32.0 / 2 - 2),
-            Units.inchesToMeters(28.75),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(130))));
-    cameraTransforms.put(
+        new CameraCharacteristics(
+            new Transform3d(
+                -Units.inchesToMeters(22.0 / 2 - 2),
+                Units.inchesToMeters(32.0 / 2 - 2),
+                Units.inchesToMeters(28.75),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(130))),
+            MatBuilder.fill(
+                Nat.N3(),
+                Nat.N3(),
+                895.7697683626751,
+                0.0,
+                659.6060292695324,
+                0.0,
+                896.0068506346151,
+                451.10507981030486,
+                0.0,
+                0.0,
+                1.0),
+            VecBuilder.fill(0, 0, 0, 0, 0, 0, 0, 0),
+            0.5,
+            0.1));
+    cameraCharacteristics.put(
         "BackRight",
-        new Transform3d(
-            -Units.inchesToMeters(22.0 / 2 - 2),
-            -Units.inchesToMeters(32.0 / 2 - 2),
-            Units.inchesToMeters(18.75),
-            new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-135))));
+        new CameraCharacteristics(
+            new Transform3d(
+                -Units.inchesToMeters(22.0 / 2 - 2),
+                -Units.inchesToMeters(32.0 / 2 - 2),
+                Units.inchesToMeters(18.75),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-135))),
+            MatBuilder.fill(
+                Nat.N3(),
+                Nat.N3(),
+                895.7697683626751,
+                0.0,
+                659.6060292695324,
+                0.0,
+                896.0068506346151,
+                451.10507981030486,
+                0.0,
+                0.0,
+                1.0),
+            VecBuilder.fill(0, 0, 0, 0, 0, 0, 0, 0),
+            0.5,
+            0.1));
   }
 
   private final PhotonPoseEstimator poseEstimator;
@@ -61,57 +104,98 @@ public class AprilTagPoseEstimator {
 
   private final String name;
 
+  final Optional<Matrix<N3, N3>> optionalCameraMatrix;
+  final Optional<Matrix<N8, N1>> optionalDistortionCoefficients;
+
   public AprilTagPoseEstimator(String name) {
     io =
         Robot.mode == Robot.Mode.REPLAY
             ? new AprilTagPoseEstimatorIO() {}
             : new AprilTagPoseEstimatorIOPhoton(name);
     this.name = name;
+    var characteristics = cameraCharacteristics.get(name);
+    optionalCameraMatrix = Optional.of(characteristics.cameraMatrix);
+    optionalDistortionCoefficients = Optional.of(characteristics.distortionCoefficients);
     poseEstimator =
         new PhotonPoseEstimator(
             tagLayout,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            cameraTransforms.get(name));
+            PhotonPoseEstimator.PoseStrategy.CONSTRAINED_SOLVEPNP,
+            characteristics.robotToCamera());
+    poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+    TimeSyncSingleton.load();
   }
 
   // data filtering system that Jaynou added
-  private boolean isValidPose(EstimatedRobotPose est, Pose2d currentPoseEstimate) {
-    Pose3d pose3d = est.estimatedPose;
-    Pose2d pose2d = pose3d.toPose2d();
+  private boolean isValidPose(EstimatedRobotPose est) {
+    var pose = est.estimatedPose;
 
     // floor and sky clip checking
-    if (pose3d.getZ() < -0.3 || pose3d.getZ() > 0.8) return false;
+    if (pose.getZ() < -0.3 || pose.getZ() > 0.8) return false;
 
     // out of bounds clip checking
-    if (pose2d.getX() < 0 || pose2d.getX() > tagLayout.getFieldLength()) return false;
-    if (pose2d.getY() < 0 || pose2d.getY() > tagLayout.getFieldWidth()) return false;
+    if (pose.getX() < 0 || pose.getX() > tagLayout.getFieldLength()) return false;
+    if (pose.getY() < 0 || pose.getY() > tagLayout.getFieldWidth()) return false;
 
     return true;
   }
 
-  public void update(VisionEstimateConsumer estimateConsumer, Pose2d currentPoseEstimate) {
+  public void addHeadingData(double timestampSeconds, Rotation2d heading) {
+    poseEstimator.addHeadingData(timestampSeconds, heading);
+  }
+
+  private boolean enabled = false;
+
+  public void setEnabled() {
+    poseEstimator.setMultiTagFallbackStrategy(
+        PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+    enabled = true;
+  }
+
+  public void setDisabled() {
+    poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+    enabled = false;
+  }
+
+  public void update(VisionEstimateConsumer estimateConsumer) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
     for (var result : inputs.results) {
       poseEstimator
-          .update(result)
+          .update(
+              result,
+              optionalCameraMatrix,
+              optionalDistortionCoefficients,
+              Optional.of(new PhotonPoseEstimator.ConstrainedSolvepnpParams(!enabled, 1.0)))
           .ifPresent(
               poseEstimate -> {
                 // data filtering
-                if (!isValidPose(poseEstimate, currentPoseEstimate)) {
+                if (!isValidPose(poseEstimate)) {
                   return;
                 }
 
-                var translationalStdDev = name.equals("BackLeft") ? 2 : 1.5;
-                var angularStdDev = name.equals("BackLeft") ? 2.5 : 1.5;
+                double translationalScoresSum = 0;
+                double angularScoresSum = 0;
+                for (var tag : poseEstimate.targetsUsed) {
+                  var tagDistance = tag.bestCameraToTarget.getTranslation().getNorm();
+
+                  translationalScoresSum += .2 * tagDistance * tagDistance;
+                  angularScoresSum += .2 * tagDistance * tagDistance;
+                }
+
+                var translationalDivisor = Math.pow(poseEstimate.targetsUsed.size(), 2);
+                var angularDivisor = Math.pow(poseEstimate.targetsUsed.size(), 3);
+
                 estimateConsumer.accept(
                     poseEstimate.estimatedPose.toPose2d(),
                     result.getTimestampSeconds(),
                     VecBuilder.fill(
-                        translationalStdDev / poseEstimate.targetsUsed.size(),
-                        translationalStdDev / poseEstimate.targetsUsed.size(),
-                        angularStdDev / poseEstimate.targetsUsed.size()));
+                        translationalScoresSum / translationalDivisor,
+                        translationalScoresSum / translationalDivisor,
+                        poseEstimate.strategy
+                                == PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE
+                            ? Double.POSITIVE_INFINITY
+                            : angularScoresSum / angularDivisor));
               });
     }
   }
