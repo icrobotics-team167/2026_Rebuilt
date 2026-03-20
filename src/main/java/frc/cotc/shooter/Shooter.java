@@ -56,11 +56,14 @@ public class Shooter extends SubsystemBase {
   private final double baseTargetSpeedMetersPerSec = 5;
   private double targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
 
+  private final double presetAngle = Units.degreesToRadians(40); // placeholder
+
   public Command idleRun() {
     return run(
         () -> {
           targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
           flywheelIO.runVel(projectileSpeedToFlywheelSpeedMap.get(targetSpeedMetersPerSec));
+          hoodIO.runPitch(presetAngle);
         });
   }
 
