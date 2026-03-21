@@ -115,7 +115,7 @@ def solve(
 
     target_wrt_field = np.array(
         [
-            [distance+.08],
+            [distance],
             [0],
             [target_height],
             [0.0],
@@ -192,11 +192,11 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    max_landing_pitch = np.rad2deg(-45)
+    max_landing_pitch = np.rad2deg(-55)
     ratio = math.tan(max_landing_pitch)
     # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
     problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
-    problem.subject_to(v_z[-1] < -1)
+    problem.subject_to(v_z[-1] < -1.5)
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -242,6 +242,7 @@ def solve(
     problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
     # Minimize initial velocity
     problem.minimize(initial_velocity_squared)
+    # problem.minimize(T)
     # problem.maximize(pitch)
 
     status = problem.solve()

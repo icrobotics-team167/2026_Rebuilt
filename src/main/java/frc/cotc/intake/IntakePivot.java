@@ -20,7 +20,7 @@ public class IntakePivot extends SubsystemBase {
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
   private static final double EXTENDED_ANGLE = 0;
-  private static final double AGITATE_ANGLE = 0.854;
+  private static final double AGITATE_ANGLE = 1.5;
   private static final double RETRACTED_ANGLE = 2.274;
 
   private final PIDController pidController = new PIDController(7, 0.0, 0.0);
@@ -59,6 +59,6 @@ public class IntakePivot extends SubsystemBase {
 
   public Command agitate() {
     return repeatingSequence(
-        goToPos(AGITATE_ANGLE).withTimeout(1).withName("Agitate"), extend().withTimeout(1));
+        goToPos(AGITATE_ANGLE).withTimeout(0.1).withName("Agitate"), extend().withTimeout(0.1));
   }
 }

@@ -4,6 +4,13 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
+   "BumpCrossSpeed":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.75 m / s",
+     "val":0.75
+    }
+   },
    "BumpExitX":{
     "dimension":"Length",
     "var":{
@@ -16,6 +23,13 @@
     "var":{
      "exp":"8.069 m",
      "val":8.069
+    }
+   },
+   "IntakeDriveSpeed":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"1 m / s",
+     "val":1.0
     }
    }
   },
@@ -466,8 +480,8 @@
    "val":0.0508
   },
   "vmax":{
-   "exp":"4900 RPM",
-   "val":513.1268000863329
+   "exp":"3000 RPM",
+   "val":314.1592653589793
   },
   "tmax":{
    "exp":"1 N * m",

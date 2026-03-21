@@ -56,7 +56,7 @@ public class Shooter extends SubsystemBase {
   private final double baseTargetSpeedMetersPerSec = 5;
   private double targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
 
-  private final double presetAngle = Units.degreesToRadians(40); // placeholder
+  private final double presetAngle = Units.degreesToRadians(60); // placeholder
 
   public Command idleRun() {
     return run(

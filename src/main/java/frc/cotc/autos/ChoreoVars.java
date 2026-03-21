@@ -11,8 +11,10 @@ import edu.wpi.first.units.measure.*;
  * in the Choreo GUI.
  */
 public final class ChoreoVars {
+    public static final LinearVelocity BumpCrossSpeed = Units.MetersPerSecond.of(0.75);
     public static final Distance BumpExitX = Units.Meters.of(5.6);
     public static final Distance FieldWidth = Units.Meters.of(8.069);
+    public static final LinearVelocity IntakeDriveSpeed = Units.MetersPerSecond.of(1);
 
     public static final class Poses {
         public static final Pose2d CenterStartPose = new Pose2d(3.68, 4.0345, Rotation2d.fromRadians(0));

@@ -19,6 +19,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -48,7 +49,7 @@ public class AprilTagPoseEstimator {
             new Transform3d(
                 Units.inchesToMeters(-11 + 2.4375),
                 Units.inchesToMeters(16 - 1.3125),
-                Units.inchesToMeters(28.5),
+                Units.inchesToMeters(28.25),
                 new Rotation3d(0, Units.degreesToRadians(-15), 0)),
             MatBuilder.fill(
                 Nat.N3(),
@@ -79,9 +80,9 @@ public class AprilTagPoseEstimator {
             new Transform3d(
                 Units.inchesToMeters(-11 + 1.3125),
                 Units.inchesToMeters(16 - 2.875),
-                Units.inchesToMeters(28.5),
+                Units.inchesToMeters(28.25),
                 new Rotation3d(
-                    Units.degreesToRadians(-5), Units.degreesToRadians(-15), -Math.PI / 2)),
+                    Units.degreesToRadians(5), Units.degreesToRadians(-15), -Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -111,7 +112,7 @@ public class AprilTagPoseEstimator {
             new Transform3d(
                 Units.inchesToMeters(-11 + 0.75),
                 Units.inchesToMeters(-16 + 1.25),
-                Units.inchesToMeters(28.5),
+                Units.inchesToMeters(28.25),
                 new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
             MatBuilder.fill(
                 Nat.N3(),
@@ -142,9 +143,9 @@ public class AprilTagPoseEstimator {
             new Transform3d(
                 Units.inchesToMeters(-11 + 1.625),
                 Units.inchesToMeters(-16 + 2.875),
-                Units.inchesToMeters(28.5),
+                Units.inchesToMeters(28.25),
                 new Rotation3d(
-                    Units.degreesToRadians(-5), Units.degreesToRadians(-15), Math.PI / 2)),
+                    Units.degreesToRadians(5), Units.degreesToRadians(-15), Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -204,7 +205,10 @@ public class AprilTagPoseEstimator {
     var pose = est.estimatedPose;
 
     // floor and sky clip checking
-    if (pose.getZ() < -0.3 || pose.getZ() > 0.8) return false;
+    if (pose.getZ() < -0.1 || pose.getZ() > 0.05) return false;
+
+    if (Math.abs(pose.getRotation().getX()) > Units.degreesToRadians(10)) return false;
+    if (Math.abs(pose.getRotation().getY()) > Units.degreesToRadians(10)) return false;
 
     // out of bounds clip checking
     if (pose.getX() < 0 || pose.getX() > tagLayout.getFieldLength()) return false;
@@ -213,8 +217,9 @@ public class AprilTagPoseEstimator {
     return true;
   }
 
-  public void addHeadingData(double timestampSeconds, Rotation2d heading) {
-    poseEstimator.addHeadingData(timestampSeconds, heading);
+  public void addPoseData(double timestampSeconds, Pose2d pose) {
+    poseEstimator.setReferencePose(pose);
+    poseEstimator.addHeadingData(timestampSeconds, pose.getRotation());
   }
 
   public void setEnabled() {
@@ -230,6 +235,9 @@ public class AprilTagPoseEstimator {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
+    var acceptedPoses = new ArrayList<Pose3d>();
+    var rejectedPoses = new ArrayList<Pose3d>();
+
     for (var result : inputs.results) {
       poseEstimator
           .update(result)
@@ -237,20 +245,22 @@ public class AprilTagPoseEstimator {
               poseEstimate -> {
                 // data filtering
                 if (!isValidPose(poseEstimate)) {
+                  rejectedPoses.add(poseEstimate.estimatedPose);
                   return;
                 }
+                acceptedPoses.add(poseEstimate.estimatedPose);
 
                 double translationalScoresSum = 0;
                 double angularScoresSum = 0;
                 for (var tag : poseEstimate.targetsUsed) {
                   var tagDistance = tag.bestCameraToTarget.getTranslation().getNorm();
 
-                  translationalScoresSum += .2 * tagDistance * tagDistance;
-                  angularScoresSum += .3 * tagDistance * tagDistance;
+                  translationalScoresSum += .9 * Math.pow(tagDistance, 2.5);
+                  angularScoresSum += .6 * Math.pow(tagDistance, 2.5);
                 }
 
-                var translationalDivisor = Math.pow(poseEstimate.targetsUsed.size(), 2);
-                var angularDivisor = Math.pow(poseEstimate.targetsUsed.size(), 3);
+                var translationalDivisor = Math.pow(poseEstimate.targetsUsed.size(), 1.5);
+                var angularDivisor = Math.pow(poseEstimate.targetsUsed.size(), 1.5);
 
                 estimateConsumer.accept(
                     poseEstimate.estimatedPose.toPose2d(),
@@ -264,5 +274,8 @@ public class AprilTagPoseEstimator {
                             : angularScoresSum / angularDivisor));
               });
     }
+
+    Logger.recordOutput("Vision/" + name + "/Rejected poses", rejectedPoses.toArray(new Pose3d[0]));
+    Logger.recordOutput("Vision/" + name + "/Accepted poses", acceptedPoses.toArray(new Pose3d[0]));
   }
 }

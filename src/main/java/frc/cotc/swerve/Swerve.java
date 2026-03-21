@@ -119,7 +119,7 @@ public class Swerve extends SubsystemBase {
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
     for (var camera : cameras) {
-      camera.addHeadingData(Timer.getTimestamp(), getPose().getRotation());
+      camera.addPoseData(Timer.getTimestamp(), getPose());
       camera.update(
           (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
             visionPoses.add(pose);
@@ -153,11 +153,18 @@ public class Swerve extends SubsystemBase {
                   Math.hypot(
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
-  private final double slowModeMultiplier = 0.25;
-  private double speedMultiplier = 1;
+  private final double slowModeMultiplier = 0.33;
+  private final double baseSpeedMultiplier = 0.8;
+  private double speedMultiplier = baseSpeedMultiplier;
 
   public Command slowTeleopDrive() {
-    return Commands.startEnd(() -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = 1);
+    return Commands.startEnd(
+        () -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = baseSpeedMultiplier);
+  }
+
+  public Command fastTeleopDrive() {
+    return Commands.startEnd(
+        () -> speedMultiplier = 1, () -> speedMultiplier = baseSpeedMultiplier);
   }
 
   private final SwerveRequest.FieldCentric fieldCentricDrive =
