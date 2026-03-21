@@ -264,6 +264,7 @@ public class Robot extends LoggedRobot {
                     return Translation2d.kZero;
                   }
                 }));
+    primary.povRight().whileTrue(swerve.brake());
 
     primary
         .b()
