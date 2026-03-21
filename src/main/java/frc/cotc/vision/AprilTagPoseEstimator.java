@@ -20,7 +20,6 @@ import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 import java.util.HashMap;
-import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -75,75 +74,77 @@ public class AprilTagPoseEstimator {
             .31,
             .2));
     cameraCharacteristics.put(
-      "Right",
-      new CameraCharacteristics(
-        new Transform3d(
-          Units.inchesToMeters(-11 + 1.3125),
-          Units.inchesToMeters(16 - 2.875),
-          Units.inchesToMeters(28.5),
-          new Rotation3d(0, Units.degreesToRadians(-15), -Math.PI / 2)),
-        MatBuilder.fill(
-          Nat.N3(),
-          Nat.N3(),
-          913.5769706149941,
-          0.0,
-          652.4805585543866,
-          0.0,
-          913.6880733305309,
-          438.42963573676263,
-          0.0,
-          0.0,
-          1.0),
-        VecBuilder.fill(
-          0.043640621444117955,
-          -0.0570929951207751,
-          -8.603760109188229E-4,
-          -1.4658776672674253E-4,
-          -0.010502255926284516,
-          -0.0020113855907111624,
-          -6.399691332393489E-5,
-          -6.010419737104136E-4),
-        .44,
-        .2));
+        "Right",
+        new CameraCharacteristics(
+            new Transform3d(
+                Units.inchesToMeters(-11 + 1.3125),
+                Units.inchesToMeters(16 - 2.875),
+                Units.inchesToMeters(28.5),
+                new Rotation3d(
+                    Units.degreesToRadians(-5), Units.degreesToRadians(-15), -Math.PI / 2)),
+            MatBuilder.fill(
+                Nat.N3(),
+                Nat.N3(),
+                913.5769706149941,
+                0.0,
+                652.4805585543866,
+                0.0,
+                913.6880733305309,
+                438.42963573676263,
+                0.0,
+                0.0,
+                1.0),
+            VecBuilder.fill(
+                0.043640621444117955,
+                -0.0570929951207751,
+                -8.603760109188229E-4,
+                -1.4658776672674253E-4,
+                -0.010502255926284516,
+                -0.0020113855907111624,
+                -6.399691332393489E-5,
+                -6.010419737104136E-4),
+            .44,
+            .2));
     cameraCharacteristics.put(
-      "Back",
-      new CameraCharacteristics(
-        new Transform3d(
-          Units.inchesToMeters(-11 + 2.4375),
-          Units.inchesToMeters(16 - 1.3125),
-          Units.inchesToMeters(28.5), // TODO
-          new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
-        MatBuilder.fill(
-          Nat.N3(),
-          Nat.N3(),
-          903.055394105631,
-          0.0,
-          626.4504806409194,
-          0.0,
-          902.8996397233539,
-          441.2614581199893,
-          0.0,
-          0.0,
-          1.0),
-        VecBuilder.fill(
-          0.0485892167270983,
-          -0.06647373800197513,
-          -4.5133828078128144E-4,
-          -8.540950502923184E-4,
-          0.004362226375534471,
-          -0.0018703373716495869,
-          0.003832307751646421,
-          2.560923932909948E-4),
-        .43,
-        .2));
+        "Back",
+        new CameraCharacteristics(
+            new Transform3d(
+                Units.inchesToMeters(-11 + 0.75),
+                Units.inchesToMeters(-16 + 1.25),
+                Units.inchesToMeters(28.5),
+                new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
+            MatBuilder.fill(
+                Nat.N3(),
+                Nat.N3(),
+                903.055394105631,
+                0.0,
+                626.4504806409194,
+                0.0,
+                902.8996397233539,
+                441.2614581199893,
+                0.0,
+                0.0,
+                1.0),
+            VecBuilder.fill(
+                0.0485892167270983,
+                -0.06647373800197513,
+                -4.5133828078128144E-4,
+                -8.540950502923184E-4,
+                0.004362226375534471,
+                -0.0018703373716495869,
+                0.003832307751646421,
+                2.560923932909948E-4),
+            .43,
+            .2));
     cameraCharacteristics.put(
         "Left",
         new CameraCharacteristics(
-          new Transform3d(
-            Units.inchesToMeters(-11 + 2.4375),
-            Units.inchesToMeters(16 - 1.3125),
-            Units.inchesToMeters(28.5), // TODO
-            new Rotation3d(0, Units.degreesToRadians(-15), Math.PI / 2)),
+            new Transform3d(
+                Units.inchesToMeters(-11 + 1.625),
+                Units.inchesToMeters(-16 + 2.875),
+                Units.inchesToMeters(28.5),
+                new Rotation3d(
+                    Units.degreesToRadians(-5), Units.degreesToRadians(-15), Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -182,9 +183,6 @@ public class AprilTagPoseEstimator {
 
   private final String name;
 
-  final Optional<Matrix<N3, N3>> optionalCameraMatrix;
-  final Optional<Matrix<N8, N1>> optionalDistortionCoefficients;
-
   public AprilTagPoseEstimator(String name) {
     io =
         Robot.mode == Robot.Mode.REPLAY
@@ -192,12 +190,10 @@ public class AprilTagPoseEstimator {
             : new AprilTagPoseEstimatorIOPhoton(name);
     this.name = name;
     var characteristics = cameraCharacteristics.get(name);
-    optionalCameraMatrix = Optional.of(characteristics.cameraMatrix);
-    optionalDistortionCoefficients = Optional.of(characteristics.distortionCoefficients);
     poseEstimator =
         new PhotonPoseEstimator(
             tagLayout,
-            PhotonPoseEstimator.PoseStrategy.CONSTRAINED_SOLVEPNP,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             characteristics.robotToCamera());
     poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
     TimeSyncSingleton.load();
@@ -221,17 +217,13 @@ public class AprilTagPoseEstimator {
     poseEstimator.addHeadingData(timestampSeconds, heading);
   }
 
-  private boolean enabled = false;
-
   public void setEnabled() {
     poseEstimator.setMultiTagFallbackStrategy(
         PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
-    enabled = true;
   }
 
   public void setDisabled() {
     poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
-    enabled = false;
   }
 
   public void update(VisionEstimateConsumer estimateConsumer) {
@@ -240,11 +232,7 @@ public class AprilTagPoseEstimator {
 
     for (var result : inputs.results) {
       poseEstimator
-          .update(
-              result,
-              optionalCameraMatrix,
-              optionalDistortionCoefficients,
-              Optional.of(new PhotonPoseEstimator.ConstrainedSolvepnpParams(!enabled, 1.0)))
+          .update(result)
           .ifPresent(
               poseEstimate -> {
                 // data filtering
@@ -258,7 +246,7 @@ public class AprilTagPoseEstimator {
                   var tagDistance = tag.bestCameraToTarget.getTranslation().getNorm();
 
                   translationalScoresSum += .2 * tagDistance * tagDistance;
-                  angularScoresSum += .2 * tagDistance * tagDistance;
+                  angularScoresSum += .3 * tagDistance * tagDistance;
                 }
 
                 var translationalDivisor = Math.pow(poseEstimate.targetsUsed.size(), 2);
