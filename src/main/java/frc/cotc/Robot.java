@@ -136,8 +136,10 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-            new AprilTagPoseEstimator("BackLeft"),
-            new AprilTagPoseEstimator("BackRight"));
+            new AprilTagPoseEstimator("Front"),
+            new AprilTagPoseEstimator("Left"),
+            new AprilTagPoseEstimator("Back"),
+            new AprilTagPoseEstimator("Right"));
     var primary = new CommandXboxController(0);
 
     var intakeRoller =

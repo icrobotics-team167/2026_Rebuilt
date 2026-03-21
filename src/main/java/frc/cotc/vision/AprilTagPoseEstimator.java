@@ -44,51 +44,129 @@ public class AprilTagPoseEstimator {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     cameraCharacteristics.put(
-        "BackLeft",
+        "Front",
         new CameraCharacteristics(
             new Transform3d(
-                -Units.inchesToMeters(22.0 / 2 - 2),
-                Units.inchesToMeters(32.0 / 2 - 2),
-                Units.inchesToMeters(28.75),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(130))),
+                Units.inchesToMeters(-11 + 2.4375),
+                Units.inchesToMeters(16 - 1.3125),
+                Units.inchesToMeters(28.5),
+                new Rotation3d(0, Units.degreesToRadians(-15), 0)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
-                895.7697683626751,
+                911.6805417738924,
                 0.0,
-                659.6060292695324,
+                656.1304695468573,
                 0.0,
-                896.0068506346151,
-                451.10507981030486,
+                912.1546553469605,
+                444.98299255079814,
                 0.0,
                 0.0,
                 1.0),
-            VecBuilder.fill(0, 0, 0, 0, 0, 0, 0, 0),
-            0.5,
-            0.1));
+            VecBuilder.fill(
+                .04795119918130085,
+                -0.062419105839332197,
+                0.0011565212857560978,
+                -5.526702632857694E-4,
+                0.004938645098226732,
+                -0.0019122643292644806,
+                0.007284330071940078,
+                0.003395780379915023),
+            .31,
+            .2));
     cameraCharacteristics.put(
-        "BackRight",
+      "Right",
+      new CameraCharacteristics(
+        new Transform3d(
+          Units.inchesToMeters(-11 + 1.3125),
+          Units.inchesToMeters(16 - 2.875),
+          Units.inchesToMeters(28.5),
+          new Rotation3d(0, Units.degreesToRadians(-15), -Math.PI / 2)),
+        MatBuilder.fill(
+          Nat.N3(),
+          Nat.N3(),
+          913.5769706149941,
+          0.0,
+          652.4805585543866,
+          0.0,
+          913.6880733305309,
+          438.42963573676263,
+          0.0,
+          0.0,
+          1.0),
+        VecBuilder.fill(
+          0.043640621444117955,
+          -0.0570929951207751,
+          -8.603760109188229E-4,
+          -1.4658776672674253E-4,
+          -0.010502255926284516,
+          -0.0020113855907111624,
+          -6.399691332393489E-5,
+          -6.010419737104136E-4),
+        .44,
+        .2));
+    cameraCharacteristics.put(
+      "Back",
+      new CameraCharacteristics(
+        new Transform3d(
+          Units.inchesToMeters(-11 + 2.4375),
+          Units.inchesToMeters(16 - 1.3125),
+          Units.inchesToMeters(28.5), // TODO
+          new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
+        MatBuilder.fill(
+          Nat.N3(),
+          Nat.N3(),
+          903.055394105631,
+          0.0,
+          626.4504806409194,
+          0.0,
+          902.8996397233539,
+          441.2614581199893,
+          0.0,
+          0.0,
+          1.0),
+        VecBuilder.fill(
+          0.0485892167270983,
+          -0.06647373800197513,
+          -4.5133828078128144E-4,
+          -8.540950502923184E-4,
+          0.004362226375534471,
+          -0.0018703373716495869,
+          0.003832307751646421,
+          2.560923932909948E-4),
+        .43,
+        .2));
+    cameraCharacteristics.put(
+        "Left",
         new CameraCharacteristics(
-            new Transform3d(
-                -Units.inchesToMeters(22.0 / 2 - 2),
-                -Units.inchesToMeters(32.0 / 2 - 2),
-                Units.inchesToMeters(18.75),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-135))),
+          new Transform3d(
+            Units.inchesToMeters(-11 + 2.4375),
+            Units.inchesToMeters(16 - 1.3125),
+            Units.inchesToMeters(28.5), // TODO
+            new Rotation3d(0, Units.degreesToRadians(-15), Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
-                895.7697683626751,
+                910.8083030803828,
                 0.0,
-                659.6060292695324,
+                664.4718645147575,
                 0.0,
-                896.0068506346151,
-                451.10507981030486,
+                911.3001066557107,
+                419.47133406032316,
                 0.0,
                 0.0,
                 1.0),
-            VecBuilder.fill(0, 0, 0, 0, 0, 0, 0, 0),
-            0.5,
-            0.1));
+            VecBuilder.fill(
+                0.042369983378026846,
+                -0.06709932133277403,
+                -0.0012209494764653978,
+                -3.283769547303972E-4,
+                0.008945573196069931,
+                -0.001581364863391461,
+                0.0028575430831169787,
+                -2.61093847726435E-4),
+            .35,
+            .2));
   }
 
   private final PhotonPoseEstimator poseEstimator;

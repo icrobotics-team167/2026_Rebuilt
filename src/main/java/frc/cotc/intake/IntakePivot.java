@@ -20,8 +20,8 @@ public class IntakePivot extends SubsystemBase {
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
   private static final double EXTENDED_ANGLE = 0;
-  private static final double AGITATE_ANGLE = 1.35;
-  private static final double RETRACTED_ANGLE = 2;
+  private static final double AGITATE_ANGLE = 0.854;
+  private static final double RETRACTED_ANGLE = 2.274;
 
   private final PIDController pidController = new PIDController(7, 0.0, 0.0);
   private final ArmFeedforward feedforward = new ArmFeedforward(0.115, 0.399, 0.0);

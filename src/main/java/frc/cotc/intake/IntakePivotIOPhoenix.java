@@ -23,7 +23,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final SplineEncoder pivotEncoder = new SplineEncoder(0);
   private final BaseStatusSignal statorSignal, supplySignal, velocitySignal;
 
-  private final double offsetRot = 0.232227;
+  private final double offsetRot = 0.817945;
 
   public IntakePivotIOPhoenix() {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);
@@ -32,7 +32,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     config.CurrentLimits.StatorCurrentLimit = 60;
     config.CurrentLimits.SupplyCurrentLimit = 30;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     motor.getConfigurator().apply(config);
 
