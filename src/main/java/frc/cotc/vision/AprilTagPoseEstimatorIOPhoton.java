@@ -46,9 +46,9 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
                   .setFPS(45)
                   .setExposureTimeMs(5),
               AprilTagPoseEstimator.tagLayout);
-      cameraSim.enableDrawWireframe(true);
-      cameraSim.enableRawStream(true);
-      cameraSim.enableProcessedStream(true);
+      cameraSim.enableDrawWireframe(false);
+      cameraSim.enableRawStream(false);
+      cameraSim.enableProcessedStream(false);
       sim.addCamera(cameraSim, cameraCharacteristics.robotToCamera());
     }
   }
