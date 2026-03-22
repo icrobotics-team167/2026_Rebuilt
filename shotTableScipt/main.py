@@ -25,7 +25,7 @@ from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
 shooter_height = 18 * 0.0254  # m
-min_pitch = np.deg2rad(40)  # rad
+min_pitch = np.deg2rad(45)  # rad
 max_pitch = np.deg2rad(60)  # rad
 g = np.array([[0], [0], [9.81]])  # m/s²
 max_shooter_velocity = 14.5  # m/s
@@ -294,7 +294,7 @@ def write(target_height, min_distance, max_distance, delta, name):
 if __name__ == "__main__":
     write(
         72 * 0.0254,
-        0.75,
+        2,
         14.25,
         0.25,
         "HubShotMap",
