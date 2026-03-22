@@ -11,15 +11,15 @@ import edu.wpi.first.units.measure.*;
  * in the Choreo GUI.
  */
 public final class ChoreoVars {
-    public static final LinearVelocity BumpCrossSpeed = Units.MetersPerSecond.of(0.75);
+    public static final LinearVelocity BumpCrossSpeed = Units.MetersPerSecond.of(2);
     public static final Distance BumpExitX = Units.Meters.of(5.6);
     public static final Distance FieldWidth = Units.Meters.of(8.069);
-    public static final LinearVelocity IntakeDriveSpeed = Units.MetersPerSecond.of(1);
+    public static final LinearVelocity IntakeDriveSpeed = Units.MetersPerSecond.of(1.5);
 
     public static final class Poses {
         public static final Pose2d CenterStartPose = new Pose2d(3.68, 4.0345, Rotation2d.fromRadians(0));
         public static final Pose2d Depot = new Pose2d(0.5985494, 5.9843011, Rotation2d.fromRadians(3.1415927));
-        public static final Pose2d DepotLeadIn = new Pose2d(1.2, 5.9843011, Rotation2d.fromRadians(0));
+        public static final Pose2d DepotLeadIn = new Pose2d(1.25, 5.9843011, Rotation2d.fromRadians(0));
         public static final Pose2d FarLeftStartPose = new Pose2d(3.68, 7.589, Rotation2d.fromRadians(0));
         public static final Pose2d FarRightStartPose = new Pose2d(3.68, 0.48, Rotation2d.fromRadians(0));
         public static final Pose2d LeftAcrossExit = new Pose2d(8.75, 1.369, Rotation2d.fromRadians(2.0943951));

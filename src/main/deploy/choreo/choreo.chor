@@ -7,8 +7,8 @@
    "BumpCrossSpeed":{
     "dimension":"LinVel",
     "var":{
-     "exp":"0.75 m / s",
-     "val":0.75
+     "exp":"2 m / s",
+     "val":2.0
     }
    },
    "BumpExitX":{
@@ -28,8 +28,8 @@
    "IntakeDriveSpeed":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1 m / s",
-     "val":1.0
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    }
   },
@@ -64,8 +64,8 @@
    },
    "DepotLeadIn":{
     "x":{
-     "exp":"1.2 m",
-     "val":1.2
+     "exp":"1.25 m",
+     "val":1.25
     },
     "y":{
      "exp":"Depot.y",
@@ -480,8 +480,8 @@
    "val":0.0508
   },
   "vmax":{
-   "exp":"3000 RPM",
-   "val":314.1592653589793
+   "exp":"4500 RPM",
+   "val":471.23889803846896
   },
   "tmax":{
    "exp":"1 N * m",
