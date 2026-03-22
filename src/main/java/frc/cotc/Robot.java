@@ -177,8 +177,6 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    Supplier<Command> feedCommandSupplier =
-        () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
 
     new Trigger(
             () ->
@@ -231,7 +229,7 @@ public class Robot extends LoggedRobot {
                   case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
-        .whileTrue(feedCommandSupplier.get());
+        .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed"));
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
