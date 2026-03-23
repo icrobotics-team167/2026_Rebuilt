@@ -241,7 +241,7 @@ public class Robot extends LoggedRobot {
             var normX = x / magnitude;
             var normY = y / magnitude;
             var deadbandedMagnitude = MathUtil.applyDeadband(Math.min(magnitude, 1), 0.05);
-            var squaredDeadbandedMagnitude = deadbandedMagnitude * deadbandedMagnitude;
+            var squaredDeadbandedMagnitude = Math.pow(deadbandedMagnitude, 1.5);
             return new Translation2d(
                 normX * squaredDeadbandedMagnitude, normY * squaredDeadbandedMagnitude);
           } else {
