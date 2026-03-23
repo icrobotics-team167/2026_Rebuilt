@@ -23,8 +23,8 @@ public class IntakePivot extends SubsystemBase {
   private static final double AGITATE_ANGLE = 1.5;
   private static final double RETRACTED_ANGLE = 2.274;
 
-  private final PIDController pidController = new PIDController(7, 0.0, 0.0);
-  private final ArmFeedforward feedforward = new ArmFeedforward(0.115, 0.399, 0.0);
+  private final PIDController pidController = new PIDController(14, 0.0, 0.1);
+  private final ArmFeedforward feedforward = new ArmFeedforward(0.1, 0.22, 0.0);
 
   private double targetAngleRad = EXTENDED_ANGLE;
 
@@ -44,6 +44,7 @@ public class IntakePivot extends SubsystemBase {
           targetAngleRad = posRad;
           double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
           double ffVolts = feedforward.calculate(targetAngleRad - 0.61, 0);
+          Logger.recordOutput("IntakePivot/PIDVolts", pidVolts);
           io.run(pidVolts + ffVolts);
         })
         .finallyDo(io::stop);
@@ -58,7 +59,7 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public Command agitate() {
-    return repeatingSequence(goToPos(AGITATE_ANGLE).withTimeout(0.1), extend().withTimeout(0.1))
+    return repeatingSequence(goToPos(AGITATE_ANGLE).withTimeout(0.5), extend().withTimeout(0.5))
         .withName("Agitate");
   }
 }

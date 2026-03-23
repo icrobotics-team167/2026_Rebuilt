@@ -29,8 +29,8 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
 
-    config.CurrentLimits.StatorCurrentLimit = 60;
-    config.CurrentLimits.SupplyCurrentLimit = 30;
+    config.CurrentLimits.StatorCurrentLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
