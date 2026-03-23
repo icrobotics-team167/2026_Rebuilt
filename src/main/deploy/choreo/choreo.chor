@@ -4,6 +4,13 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
+   "BumpCrossSpeed":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"2 m / s",
+     "val":2.0
+    }
+   },
    "BumpExitX":{
     "dimension":"Length",
     "var":{
@@ -17,9 +24,30 @@
      "exp":"8.069 m",
      "val":8.069
     }
+   },
+   "IntakeDriveSpeed":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"1.5 m / s",
+     "val":1.5
+    }
    }
   },
   "poses":{
+   "CenterLeadOut":{
+    "x":{
+     "exp":"CenterStartPose.x - 1 ft",
+     "val":3.3752
+    },
+    "y":{
+     "exp":"FieldWidth / 2",
+     "val":4.0345
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
    "CenterStartPose":{
     "x":{
      "exp":"RightBumpStartPose.x",
@@ -50,12 +78,26 @@
    },
    "DepotLeadIn":{
     "x":{
-     "exp":"1.2 m",
-     "val":1.2
+     "exp":"1.25 m",
+     "val":1.25
     },
     "y":{
      "exp":"Depot.y",
      "val":5.9843010902404785
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
+   "DepotLeadOut":{
+    "x":{
+     "exp":"1.4821299314498901 m",
+     "val":1.48212993144989
+    },
+    "y":{
+     "exp":"5.818456649780273 m",
+     "val":5.818456649780273
     },
     "heading":{
      "exp":"0 deg",
@@ -466,8 +508,8 @@
    "val":0.0508
   },
   "vmax":{
-   "exp":"4900 RPM",
-   "val":513.1268000863329
+   "exp":"4500 RPM",
+   "val":471.23889803846896
   },
   "tmax":{
    "exp":"1 N * m",

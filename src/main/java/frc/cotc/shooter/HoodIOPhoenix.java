@@ -47,7 +47,7 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.055176;
+    motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.05517600178718567;
     motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
     motorConfig.Slot0.kP = 350;

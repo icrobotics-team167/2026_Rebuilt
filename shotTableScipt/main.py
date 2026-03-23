@@ -25,7 +25,7 @@ from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
 shooter_height = 18 * 0.0254  # m
-min_pitch = np.deg2rad(40)  # rad
+min_pitch = np.deg2rad(45)  # rad
 max_pitch = np.deg2rad(60)  # rad
 g = np.array([[0], [0], [9.81]])  # m/s²
 max_shooter_velocity = 14.5  # m/s
@@ -115,7 +115,7 @@ def solve(
 
     target_wrt_field = np.array(
         [
-            [distance+.08],
+            [distance],
             [0],
             [target_height],
             [0.0],
@@ -192,11 +192,11 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    max_landing_pitch = np.rad2deg(-45)
+    max_landing_pitch = np.rad2deg(-55)
     ratio = math.tan(max_landing_pitch)
     # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
     problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
-    problem.subject_to(v_z[-1] < -1)
+    problem.subject_to(v_z[-1] < -1.5)
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -242,6 +242,7 @@ def solve(
     problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
     # Minimize initial velocity
     problem.minimize(initial_velocity_squared)
+    # problem.minimize(T)
     # problem.maximize(pitch)
 
     status = problem.solve()
@@ -293,7 +294,7 @@ def write(target_height, min_distance, max_distance, delta, name):
 if __name__ == "__main__":
     write(
         72 * 0.0254,
-        0.75,
+        2,
         14.25,
         0.25,
         "HubShotMap",

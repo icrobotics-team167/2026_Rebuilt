@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -69,6 +70,8 @@ public class Robot extends LoggedRobot {
   private final Shooter shooter;
 
   private boolean isOkayToShoot = true;
+
+  private Shifts.ShiftInfo shiftInfo;
 
   @SuppressWarnings({"UnreachableCode", "ConstantValue"})
   public Robot(boolean isReplay) {
@@ -136,8 +139,10 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-            new AprilTagPoseEstimator("BackLeft"),
-            new AprilTagPoseEstimator("BackRight"));
+            new AprilTagPoseEstimator("Front"),
+            new AprilTagPoseEstimator("Left"),
+            new AprilTagPoseEstimator("Back"),
+            new AprilTagPoseEstimator("Right"));
     var primary = new CommandXboxController(0);
 
     var intakeRoller =
@@ -172,8 +177,6 @@ public class Robot extends LoggedRobot {
               case REAL -> new RacewayIOPhoenix();
               case SIM, REPLAY -> new RacewayIO() {};
             });
-    Supplier<Command> feedCommandSupplier =
-        () -> parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed");
 
     new Trigger(
             () ->
@@ -199,7 +202,18 @@ public class Robot extends LoggedRobot {
               case REPLAY -> new FlywheelIO() {};
             });
 
-    autos = new Autos(swerve, shooter, feedCommandSupplier, intakeRoller);
+    autos =
+        new Autos(
+            swerve,
+            shooter,
+            () ->
+                parallel(
+                        beltFloor.runBelt(),
+                        raceway.runRaceway(),
+                        intakePivot.agitate().asProxy(),
+                        intakeRoller.intake())
+                    .withName("Feed"),
+            intakeRoller);
     CommandScheduler.getInstance().schedule(autos.warmup());
 
     RobotModeTriggers.autonomous()
@@ -216,7 +230,7 @@ public class Robot extends LoggedRobot {
                   case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
-        .whileTrue(feedCommandSupplier.get());
+        .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed"));
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -227,7 +241,7 @@ public class Robot extends LoggedRobot {
             var normX = x / magnitude;
             var normY = y / magnitude;
             var deadbandedMagnitude = MathUtil.applyDeadband(Math.min(magnitude, 1), 0.05);
-            var squaredDeadbandedMagnitude = deadbandedMagnitude * deadbandedMagnitude;
+            var squaredDeadbandedMagnitude = Math.pow(deadbandedMagnitude, 1.5);
             return new Translation2d(
                 normX * squaredDeadbandedMagnitude, normY * squaredDeadbandedMagnitude);
           } else {
@@ -239,7 +253,7 @@ public class Robot extends LoggedRobot {
         () -> {
           var omega = -primary.getRightX();
           var deadbandedOmegaMag = MathUtil.applyDeadband(Math.abs(omega), 0.05);
-          return omega * deadbandedOmegaMag;
+          return omega * deadbandedOmegaMag * deadbandedOmegaMag;
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
@@ -264,25 +278,31 @@ public class Robot extends LoggedRobot {
                     return Translation2d.kZero;
                   }
                 }));
+    primary.povRight().whileTrue(swerve.brake());
 
     primary
         .b()
-        .and(() -> swerve.trajectoryWithinBump(translationalInputSupplier))
-        .whileTrue(swerve.alignToBump(() -> translationalInputSupplier.get().getX()));
+        .whileTrue(
+            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
+                .ignoringDisable(true)
+                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+                .withName("Disable shooting"));
 
     shooter.setDefaultCommand(shooter.idleRun());
     primary
         .leftBumper()
-        .whileTrue(parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm()));
+        .whileTrue(
+            parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
+                .withName("Shoot"));
 
-    intakePivot.setDefaultCommand(
-        parallel(intakePivot.extend(), intakeRoller.intake().withTimeout(2).asProxy()));
+    intakePivot.setDefaultCommand(intakePivot.extend());
+    primary.a().toggleOnTrue(intakePivot.retract());
     primary
-        .a()
-        .toggleOnTrue(
-            parallel(intakePivot.retract(), intakeRoller.intake().withTimeout(2).asProxy()));
-    primary.x().whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()));
-    primary.leftTrigger().whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()));
+        .x()
+        .whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()).withName("Agitate"));
+    primary
+        .leftTrigger()
+        .whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()).withName("Intake"));
     primary.y().whileTrue(intakeRoller.outtake());
 
     primary
@@ -290,10 +310,24 @@ public class Robot extends LoggedRobot {
         .and(primary.start())
         .debounce(2)
         .toggleOnTrue(
-            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
-                .ignoringDisable(true)
-                .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-                .withName("Disable shooting"));
+            parallel(
+                    shooter.idle(),
+                    beltFloor.idle(),
+                    raceway.idle(),
+                    turretFeeder.idle(),
+                    swerve.fastTeleopDrive())
+                .withName("Boost"));
+
+    new Trigger(() -> shiftInfo != null && shiftInfo.remainingTime() < 5)
+        .onTrue(
+            run(() -> primary.setRumble(GenericHID.RumbleType.kBothRumble, 1))
+                .withTimeout(0.25)
+                .finallyDo(() -> primary.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
+    new Trigger(() -> shiftInfo != null && shiftInfo.active())
+        .onChange(
+            run(() -> primary.setRumble(GenericHID.RumbleType.kBothRumble, 1))
+                .withTimeout(0.5)
+                .finallyDo(() -> primary.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
   }
 
   @Override
@@ -305,7 +339,7 @@ public class Robot extends LoggedRobot {
   // future to compensate
   // TODO: Tune
   @SuppressWarnings("FieldCanBeLocal")
-  private final double LOOK_AHEAD_SECONDS = 0.0;
+  private final double LOOK_AHEAD_SECONDS = 0.2;
 
   @Override
   public void robotPeriodic() {
@@ -330,7 +364,7 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Shooter/Target", new Pose2d(shotTarget.targetLocation, Rotation2d.kZero));
     swerve.setSOTMResult(result);
     shooter.setSOTMResult(result);
-    var shiftInfo = Shifts.getOfficialShiftInfo();
+    shiftInfo = Shifts.getOfficialShiftInfo();
     Logger.recordOutput("ShiftInfo/CurrentShift", shiftInfo.currentShift());
     Logger.recordOutput("ShiftInfo/Active", shiftInfo.active());
     Logger.recordOutput("ShiftInfo/ElapsedTime", shiftInfo.elapsedTime());

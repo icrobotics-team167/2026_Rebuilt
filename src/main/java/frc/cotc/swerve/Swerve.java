@@ -10,6 +10,7 @@ package frc.cotc.swerve;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import choreo.trajectory.SwerveSample;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
@@ -21,10 +22,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
 import frc.cotc.FieldConstants.LeftBump;
@@ -43,7 +45,8 @@ public class Swerve extends SubsystemBase {
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
   private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds =
-      new SwerveRequest.ApplyFieldSpeeds();
+      new SwerveRequest.ApplyFieldSpeeds()
+          .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
   private final PIDController pathXController = new PIDController(10, 0, 0);
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
@@ -85,6 +88,21 @@ public class Swerve extends SubsystemBase {
     }
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
     bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
+    RobotModeTriggers.disabled()
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  for (var camera : cameras) {
+                    camera.setEnabled();
+                  }
+                }))
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  for (var camera : cameras) {
+                    camera.setDisabled();
+                  }
+                }));
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
@@ -101,12 +119,12 @@ public class Swerve extends SubsystemBase {
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
     for (var camera : cameras) {
+      camera.addPoseData(Timer.getTimestamp(), getPose());
       camera.update(
           (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
             visionPoses.add(pose);
             io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
-          },
-          DriverStation.isEnabled() ? getPose() : null);
+          });
     }
     Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
     visionPoses.clear();
@@ -135,14 +153,22 @@ public class Swerve extends SubsystemBase {
                   Math.hypot(
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
-  private final double slowModeMultiplier = 0.25;
-  private double speedMultiplier = 1;
+  private final double slowModeMultiplier = 0.33;
+  private final double baseSpeedMultiplier = 0.8;
+  private double speedMultiplier = baseSpeedMultiplier;
 
   public Command slowTeleopDrive() {
-    return Commands.startEnd(() -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = 1);
+    return Commands.startEnd(
+        () -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = baseSpeedMultiplier);
   }
 
-  private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric();
+  public Command fastTeleopDrive() {
+    return Commands.startEnd(
+        () -> speedMultiplier = 1, () -> speedMultiplier = baseSpeedMultiplier);
+  }
+
+  private final SwerveRequest.FieldCentric fieldCentricDrive =
+      new SwerveRequest.FieldCentric().withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
   public Command teleopDrive(Supplier<Translation2d> translationalInput, DoubleSupplier omega) {
     return run(() -> {
@@ -161,7 +187,9 @@ public class Swerve extends SubsystemBase {
   }
 
   private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle =
-      new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(8, 0, 0);
+      new SwerveRequest.FieldCentricFacingAngle()
+          .withHeadingPID(8, 0, 0)
+          .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
   private Rotation2d lastHeading = Rotation2d.kZero;
 
@@ -194,7 +222,8 @@ public class Swerve extends SubsystemBase {
   private final SwerveRequest.FieldCentricFacingAngle shootingAim =
       new SwerveRequest.FieldCentricFacingAngle()
           .withHeadingPID(12, 0, 0)
-          .withCenterOfRotation(Constants.robotToShooterTransform.getTranslation());
+          .withCenterOfRotation(Constants.robotToShooterTransform.getTranslation())
+          .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
   private SOTM.SOTMResult sotmResult;
 

@@ -48,21 +48,19 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter/Hood", hoodInputs);
     flywheelIO.updateInputs(flywheelInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelInputs);
-    Logger.recordOutput(
-        "Shooter/Actual projectile speed meters per sec", (flywheelInputs.velRotPerSec));
-    Logger.recordOutput("Shooter/Target projectile speed meters per sec", targetSpeedMetersPerSec);
+    Logger.recordOutput("Shooter/Target flywheel speed rot per sec", targetSpeedRotPerSec);
   }
 
-  private final double baseTargetSpeedMetersPerSec = 5;
-  private double targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
+  private final double baseTargetSpeedRotPerSec = 36;
+  private double targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
 
-  private final double presetAngle = Units.degreesToRadians(40); // placeholder
+  private final double presetAngle = Units.degreesToRadians(60); // placeholder
 
   public Command idleRun() {
     return run(
         () -> {
-          targetSpeedMetersPerSec = baseTargetSpeedMetersPerSec;
-          flywheelIO.runVel(projectileSpeedToFlywheelSpeedMap.get(targetSpeedMetersPerSec));
+          targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
+          flywheelIO.runVel(baseTargetSpeedRotPerSec);
           hoodIO.runPitch(presetAngle);
         });
   }
@@ -71,7 +69,7 @@ public class Shooter extends SubsystemBase {
   public Command idle() {
     return run(
         () -> {
-          targetSpeedMetersPerSec = 0;
+          targetSpeedRotPerSec = 0;
           flywheelIO.stop();
         });
   }
@@ -87,8 +85,9 @@ public class Shooter extends SubsystemBase {
         () -> {
           if (sotmResult == null) return;
           hoodIO.runPitch(sotmResult.pitchRad());
-          flywheelIO.runVel(
-              projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond()));
+          targetSpeedRotPerSec =
+              projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond());
+          flywheelIO.runVel(targetSpeedRotPerSec);
         });
   }
 
