@@ -46,8 +46,22 @@ public class Autos {
     autoFactory =
         new AutoFactory(swerve::getPose, swerve::resetPose, swerve::followPath, true, swerve);
     addRoutine("Center", this::center);
+    addRoutine("Center Outpost", this::centerOutpost);
+    addRoutine("Center Depot", this::centerDepot);
+    addRoutine("Center Outpost Mid", this::centerOutpostMid);
+    addRoutine("Center Depot Mid", this::centerDepotMid);
+    addRoutine("Center Outpost Far", this::centerOutpostFar);
+    addRoutine("Center Depot Far", this::centerDepotFar);
+    addRoutine("Center Outpost Close", this::centerOutpostClose);
+    addRoutine("Center Depot Close", this::centerDepotClose);
     addRoutine("Far Right Outpost", this::farRightOutpost);
     addRoutine("Far Left Depot", this::farLeftDepot);
+    addRoutine("Far Right Outpost Mid", this::farRightOutpostMid);
+    addRoutine("Far Left Depot Mid", this::farLeftDepotMid);
+    addRoutine("Far Right Outpost Far", this::farRightOutpostFar);
+    addRoutine("Far Left Depot Far", this::farLeftDepotFar);
+    addRoutine("Far Right Outpost Close", this::farRightOutpostClose);
+    addRoutine("Far Left Depot Close", this::farLeftDepotClose);
     addRoutine("Right Bump Mid", this::rightBumpMid);
     addRoutine("Left Bump Mid", this::leftBumpMid);
     addRoutine("Right Bump Mid Outpost", this::rightBumpMidOutpost);
@@ -138,6 +152,244 @@ public class Autos {
     return routine.cmd();
   }
 
+  private Command centerOutpost() {
+    var routine = autoFactory.newRoutine("Center Outpost");
+    var trajectory0 = ChoreoTraj.CenterOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterOutpost$1.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerDepot() {
+    var routine = autoFactory.newRoutine("Center Depot");
+    var trajectory0 = ChoreoTraj.CenterDepot$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterDepot$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterDepot$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerOutpostMid() {
+    var routine = autoFactory.newRoutine("Center Outpost Mid");
+    var trajectory0 = ChoreoTraj.CenterOutpostMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterOutpostMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterOutpostMid$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.CenterOutpostMid$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.CenterOutpostMid$4.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory2.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerDepotMid() {
+    var routine = autoFactory.newRoutine("Center Depot Mid");
+    var trajectory0 = ChoreoTraj.CenterDepotMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterDepotMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterDepotMid$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.CenterDepotMid$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.CenterDepotMid$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.CenterDepotMid$5.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerOutpostFar() {
+    var routine = autoFactory.newRoutine("Center Outpost Far");
+    var trajectory0 = ChoreoTraj.CenterOutpostFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterOutpostFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterOutpostFar$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.CenterOutpostFar$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.CenterOutpostFar$4.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory2.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerDepotFar() {
+    var routine = autoFactory.newRoutine("Center Depot Far");
+    var trajectory0 = ChoreoTraj.CenterDepotFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterDepotFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterDepotFar$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.CenterDepotFar$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.CenterDepotFar$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.CenterDepotFar$5.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerOutpostClose() {
+    var routine = autoFactory.newRoutine("Center Outpost Close");
+    var trajectory0 = ChoreoTraj.CenterOutpostClose$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterOutpostClose$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterOutpostClose$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.CenterOutpostClose$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.CenterOutpostClose$4.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory2.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command centerDepotClose() {
+    var routine = autoFactory.newRoutine("Center Depot Close");
+    var trajectory0 = ChoreoTraj.CenterDepotClose$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.CenterDepotClose$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterDepotClose$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.CenterDepotClose$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.CenterDepotClose$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.CenterDepotClose$5.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
   private Command farRightOutpost() {
     var routine = autoFactory.newRoutine("Far Right Outpost");
     var trajectory0 = ChoreoTraj.FarRightOutpost$0.asAutoTraj(routine);
@@ -173,6 +425,201 @@ public class Autos {
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farRightOutpostMid() {
+    var routine = autoFactory.newRoutine("Far Right Outpost Mid");
+    var trajectory0 = ChoreoTraj.FarRightOutpostMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarRightOutpostMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarRightOutpostMid$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.FarRightOutpostMid$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.FarRightOutpostMid$4.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory2.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farLeftDepotMid() {
+    var routine = autoFactory.newRoutine("Far Left Depot Mid");
+    var trajectory0 = ChoreoTraj.FarLeftDepotMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarLeftDepotMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarLeftDepotMid$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.FarLeftDepotMid$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.FarLeftDepotMid$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.FarLeftDepotMid$5.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farRightOutpostClose() {
+    var routine = autoFactory.newRoutine("Far Right Outpost Close");
+    var trajectory0 = ChoreoTraj.FarRightOutpostClose$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarRightOutpostClose$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarRightOutpostClose$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.FarRightOutpostClose$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.FarRightOutpostClose$4.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory2.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farLeftDepotClose() {
+    var routine = autoFactory.newRoutine("Far Left Depot Close");
+    var trajectory0 = ChoreoTraj.FarLeftDepotClose$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarLeftDepotClose$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarLeftDepotClose$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.FarLeftDepotClose$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.FarLeftDepotClose$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.FarLeftDepotClose$5.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farRightOutpostFar() {
+    var routine = autoFactory.newRoutine("Far Right Outpost Far");
+    var trajectory0 = ChoreoTraj.FarRightOutpostFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarRightOutpostFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarRightOutpostFar$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.FarRightOutpostFar$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.FarRightOutpostFar$4.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                stopCommand.get().withTimeout(3),
+                trajectory1.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory2.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command farLeftDepotFar() {
+    var routine = autoFactory.newRoutine("Far Left Depot Far");
+    var trajectory0 = ChoreoTraj.FarLeftDepotFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.FarLeftDepotFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.FarLeftDepotFar$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.FarLeftDepotFar$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.FarLeftDepotFar$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.FarLeftDepotFar$5.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(5),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),

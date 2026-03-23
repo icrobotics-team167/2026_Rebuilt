@@ -34,6 +34,20 @@
    }
   },
   "poses":{
+   "CenterLeadOut":{
+    "x":{
+     "exp":"CenterStartPose.x - 1 ft",
+     "val":3.3752
+    },
+    "y":{
+     "exp":"FieldWidth / 2",
+     "val":4.0345
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
    "CenterStartPose":{
     "x":{
      "exp":"RightBumpStartPose.x",
@@ -70,6 +84,20 @@
     "y":{
      "exp":"Depot.y",
      "val":5.9843010902404785
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
+   "DepotLeadOut":{
+    "x":{
+     "exp":"1.4821299314498901 m",
+     "val":1.48212993144989
+    },
+    "y":{
+     "exp":"5.818456649780273 m",
+     "val":5.818456649780273
     },
     "heading":{
      "exp":"0 deg",

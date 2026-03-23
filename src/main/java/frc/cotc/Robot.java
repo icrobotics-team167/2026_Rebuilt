@@ -208,10 +208,11 @@ public class Robot extends LoggedRobot {
             shooter,
             () ->
                 parallel(
-                    beltFloor.runBelt(),
-                    raceway.runRaceway(),
-                    intakePivot.agitate().asProxy(),
-                    intakeRoller.intake().asProxy()),
+                        beltFloor.runBelt(),
+                        raceway.runRaceway(),
+                        intakePivot.agitate().asProxy(),
+                        intakeRoller.intake())
+                    .withName("Feed"),
             intakeRoller);
     CommandScheduler.getInstance().schedule(autos.warmup());
 
@@ -294,14 +295,8 @@ public class Robot extends LoggedRobot {
             parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
                 .withName("Shoot"));
 
-    intakePivot.setDefaultCommand(
-        parallel(intakePivot.extend(), intakeRoller.intake().withTimeout(0.25).asProxy())
-            .withName("Extend"));
-    primary
-        .a()
-        .toggleOnTrue(
-            parallel(intakePivot.retract(), intakeRoller.intake().withTimeout(0.25).asProxy())
-                .withName("Retract"));
+    intakePivot.setDefaultCommand(intakePivot.extend());
+    primary.a().toggleOnTrue(intakePivot.retract());
     primary
         .x()
         .whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()).withName("Agitate"));

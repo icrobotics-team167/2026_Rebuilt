@@ -72,8 +72,8 @@ public class AprilTagPoseEstimator {
                 -0.0019122643292644806,
                 0.007284330071940078,
                 0.003395780379915023),
-            .31,
-            .2));
+            .5,
+            .5));
     cameraCharacteristics.put(
         "Right",
         new CameraCharacteristics(
@@ -104,8 +104,8 @@ public class AprilTagPoseEstimator {
                 -0.0020113855907111624,
                 -6.399691332393489E-5,
                 -6.010419737104136E-4),
-            .44,
-            .2));
+            .5,
+            .5));
     cameraCharacteristics.put(
         "Back",
         new CameraCharacteristics(
@@ -135,8 +135,8 @@ public class AprilTagPoseEstimator {
                 -0.0018703373716495869,
                 0.003832307751646421,
                 2.560923932909948E-4),
-            .43,
-            .2));
+            .5,
+            .5));
     cameraCharacteristics.put(
         "Left",
         new CameraCharacteristics(
@@ -167,8 +167,8 @@ public class AprilTagPoseEstimator {
                 -0.001581364863391461,
                 0.0028575430831169787,
                 -2.61093847726435E-4),
-            .35,
-            .2));
+            .5,
+            .5));
   }
 
   private final PhotonPoseEstimator poseEstimator;
@@ -183,6 +183,7 @@ public class AprilTagPoseEstimator {
   }
 
   private final String name;
+  private final Transform3d robotToCamera;
 
   public AprilTagPoseEstimator(String name) {
     io =
@@ -191,6 +192,7 @@ public class AprilTagPoseEstimator {
             : new AprilTagPoseEstimatorIOPhoton(name);
     this.name = name;
     var characteristics = cameraCharacteristics.get(name);
+    robotToCamera = characteristics.robotToCamera();
     poseEstimator =
         new PhotonPoseEstimator(
             tagLayout,
@@ -238,11 +240,18 @@ public class AprilTagPoseEstimator {
     var acceptedPoses = new ArrayList<Pose3d>();
     var rejectedPoses = new ArrayList<Pose3d>();
 
+    var tagsSeen = new ArrayList<Pose3d>();
+
     for (var result : inputs.results) {
       poseEstimator
           .update(result)
           .ifPresent(
               poseEstimate -> {
+                for (var tag : poseEstimate.targetsUsed) {
+                  tagsSeen.add(
+                      poseEstimate.estimatedPose.plus(robotToCamera).plus(tag.bestCameraToTarget));
+                }
+
                 // data filtering
                 if (!isValidPose(poseEstimate)) {
                   rejectedPoses.add(poseEstimate.estimatedPose);
@@ -277,5 +286,6 @@ public class AprilTagPoseEstimator {
 
     Logger.recordOutput("Vision/" + name + "/Rejected poses", rejectedPoses.toArray(new Pose3d[0]));
     Logger.recordOutput("Vision/" + name + "/Accepted poses", acceptedPoses.toArray(new Pose3d[0]));
+    Logger.recordOutput("Vision/" + name + "/Tags seen", tagsSeen.toArray(new Pose3d[0]));
   }
 }

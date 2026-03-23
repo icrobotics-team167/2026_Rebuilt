@@ -49,6 +49,7 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
       cameraSim.enableDrawWireframe(false);
       cameraSim.enableRawStream(false);
       cameraSim.enableProcessedStream(false);
+      cameraSim.setMinTargetAreaPixels(400);
       sim.addCamera(cameraSim, cameraCharacteristics.robotToCamera());
     }
   }
