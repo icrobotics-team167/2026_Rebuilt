@@ -11,11 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakeRoller extends SubsystemBase {
+class IntakeRoller extends SubsystemBase {
   private final IntakeRollerIO io;
   private final IntakeRollerIOInputsAutoLogged inputs = new IntakeRollerIOInputsAutoLogged();
 
-  public IntakeRoller(IntakeRollerIO io) {
+  IntakeRoller(IntakeRollerIO io) {
     this.io = io;
   }
 
@@ -25,11 +25,11 @@ public class IntakeRoller extends SubsystemBase {
     Logger.processInputs("IntakeRoller", inputs);
   }
 
-  public Command intake() {
+  Command intake() {
     return run(io::run).finallyDo(io::stop);
   }
 
-  public Command outtake() {
+  Command outtake() {
     return run(io::runReverse).finallyDo(io::stop);
   }
 }

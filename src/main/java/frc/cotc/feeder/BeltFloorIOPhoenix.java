@@ -24,7 +24,7 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
 
     var config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = false;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
@@ -38,17 +38,12 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
 
   @Override
   public void run() {
-    motor.setVoltage(BELT_FLOOR_DEFAULT_VOLTAGE);
-  }
-
-  @Override
-  public void runReverse() {
-    motor.setVoltage(-BELT_FLOOR_DEFAULT_VOLTAGE);
+    motor.set(1);
   }
 
   @Override
   public void stop() {
-    motor.setVoltage(0);
+    motor.set(0);
   }
 
   @Override

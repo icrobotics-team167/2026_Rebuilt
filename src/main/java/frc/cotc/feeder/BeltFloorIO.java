@@ -10,16 +10,14 @@ package frc.cotc.feeder;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface BeltFloorIO {
-  public default void updateInputs(BeltFloorIOInputs inputs) {}
+  default void updateInputs(BeltFloorIOInputs inputs) {}
 
-  public default void run() {}
+  default void run() {}
 
-  public default void runReverse() {}
-
-  public default void stop() {}
+  default void stop() {}
 
   @AutoLog
-  public class BeltFloorIOInputs {
+  class BeltFloorIOInputs {
     public double statorCurrentAmps = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double motorVelocity = 0.0;

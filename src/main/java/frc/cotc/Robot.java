@@ -27,12 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.cotc.autos.Autos;
 import frc.cotc.feeder.*;
-import frc.cotc.intake.IntakePivot;
-import frc.cotc.intake.IntakePivotIO;
-import frc.cotc.intake.IntakePivotIOPhoenix;
-import frc.cotc.intake.IntakeRoller;
-import frc.cotc.intake.IntakeRollerIO;
-import frc.cotc.intake.IntakeRollerIOPhoenix;
+import frc.cotc.intake.*;
 import frc.cotc.shooter.*;
 import frc.cotc.swerve.*;
 import frc.cotc.vision.AprilTagPoseEstimator;
@@ -143,18 +138,15 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("Right"));
     var primary = new CommandXboxControllerWithRumble(0);
 
-    var intakeRoller =
-        new IntakeRoller(
+    var intake =
+        new Intake(
+          switch (mode) {
+            case REAL -> new IntakePivotIOPhoenix();
+            case SIM, REPLAY -> new IntakePivotIO() {};
+          },
             switch (mode) {
               case REAL -> new IntakeRollerIOPhoenix();
               case SIM, REPLAY -> new IntakeRollerIO() {};
-            });
-
-    var intakePivot =
-        new IntakePivot(
-            switch (mode) {
-              case REAL -> new IntakePivotIOPhoenix();
-              case SIM, REPLAY -> new IntakePivotIO() {};
             });
 
     var beltFloor =
@@ -208,11 +200,9 @@ public class Robot extends LoggedRobot {
                 parallel(
                         beltFloor.runBelt(),
                         raceway.runRaceway(),
-                        intakePivot.agitate().asProxy(),
-                        intakeRoller.intake())
+                        intake.agitate().asProxy())
                     .withName("Feed"),
-            intakePivot,
-            intakeRoller);
+          () -> intake.intake().asProxy());
     CommandScheduler.getInstance().schedule(autos.warmup());
 
     RobotModeTriggers.autonomous()
@@ -221,6 +211,7 @@ public class Robot extends LoggedRobot {
     RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
 
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
+    raceway.setDefaultCommand(raceway.runRaceway());
     primary
         .rightTrigger()
         .and(
@@ -229,7 +220,7 @@ public class Robot extends LoggedRobot {
                   case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
-        .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed"));
+        .whileTrue(beltFloor.runBelt());
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -294,15 +285,15 @@ public class Robot extends LoggedRobot {
             parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
                 .withName("Shoot"));
 
-    intakePivot.setDefaultCommand(intakePivot.extend());
-    primary.a().toggleOnTrue(intakePivot.retract());
+    intake.setDefaultCommand(intake.extend());
+    primary.a().toggleOnTrue(intake.retract());
     primary
         .x()
-        .whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()).withName("Agitate"));
+        .whileTrue(intake.agitate());
     primary
         .leftTrigger()
-        .whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()).withName("Intake"));
-    primary.y().whileTrue(intakeRoller.outtake());
+        .whileTrue(intake.intake());
+    primary.y().whileTrue(intake.outtake());
 
     primary
         .back()
