@@ -140,10 +140,10 @@ public class Robot extends LoggedRobot {
 
     var intake =
         new Intake(
-          switch (mode) {
-            case REAL -> new IntakePivotIOPhoenix();
-            case SIM, REPLAY -> new IntakePivotIO() {};
-          },
+            switch (mode) {
+              case REAL -> new IntakePivotIOPhoenix();
+              case SIM, REPLAY -> new IntakePivotIO() {};
+            },
             switch (mode) {
               case REAL -> new IntakeRollerIOPhoenix();
               case SIM, REPLAY -> new IntakeRollerIO() {};
@@ -197,12 +197,9 @@ public class Robot extends LoggedRobot {
             swerve,
             shooter,
             () ->
-                parallel(
-                        beltFloor.runBelt(),
-                        raceway.runRaceway(),
-                        intake.agitate().asProxy())
+                parallel(beltFloor.runBelt(), raceway.runRaceway(), intake.agitate().asProxy())
                     .withName("Feed"),
-          () -> intake.intake().asProxy());
+            () -> intake.intake().asProxy());
     CommandScheduler.getInstance().schedule(autos.warmup());
 
     RobotModeTriggers.autonomous()
@@ -287,12 +284,8 @@ public class Robot extends LoggedRobot {
 
     intake.setDefaultCommand(intake.extend());
     primary.a().toggleOnTrue(intake.retract());
-    primary
-        .x()
-        .whileTrue(intake.agitate());
-    primary
-        .leftTrigger()
-        .whileTrue(intake.intake());
+    primary.x().whileTrue(intake.agitate());
+    primary.leftTrigger().whileTrue(intake.intake());
     primary.y().whileTrue(intake.outtake());
 
     primary

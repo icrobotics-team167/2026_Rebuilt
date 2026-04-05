@@ -1,3 +1,10 @@
+// Copyright (c) 2026 FRC 167
+// https://github.com/icrobotics-team167
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.cotc.intake;
 
 import static edu.wpi.first.wpilibj2.command.Commands.parallel;
@@ -45,7 +52,7 @@ public class Intake extends SubsystemBase {
    * @return The wrapped command.
    */
   protected Command expose(Command internal, String name) {
-    var proxied = internal.withName(name).asProxy().withName(name);
+    var proxied = internal.withName(name).asProxy();
     proxied.addRequirements(this);
     return proxied;
   }

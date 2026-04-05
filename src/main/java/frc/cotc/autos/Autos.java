@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.cotc.Robot;
-import frc.cotc.intake.Intake;
 import frc.cotc.shooter.Shooter;
 import frc.cotc.swerve.Swerve;
 import java.util.HashMap;
@@ -54,6 +53,10 @@ public class Autos {
     addRoutine("Center", this::center);
     addRoutine("Center Outpost", this::centerOutpost);
     addRoutine("Center Depot", this::centerDepot);
+    addRoutine("Right Trench Mid", this::rightTrenchMid);
+    addRoutine("Right Trench Far", this::rightTrenchFar);
+    addRoutine("Right Trench Mid Across", this::rightTrenchMidAcross);
+    addRoutine("Right Trench Far Across", this::rightTrenchFarAcross);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -163,6 +166,78 @@ public class Autos {
                     aimCommand.get(),
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchMid() {
+    var routine = autoFactory.newRoutine("Right Trench Mid");
+    var trajectory0 = ChoreoTraj.RightTrenchMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMid$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchFar() {
+    var routine = autoFactory.newRoutine("Right Trench Far");
+    var trajectory0 = ChoreoTraj.RightTrenchFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchFar$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchMidAcross() {
+    var routine = autoFactory.newRoutine("Right Trench Mid Across");
+    var trajectory0 = ChoreoTraj.RightTrenchMidAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchFarAcross() {
+    var routine = autoFactory.newRoutine("Right Trench Far Across");
+    var trajectory0 = ChoreoTraj.RightTrenchFarAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchFarAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchFarAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
 
     return routine.cmd();
   }

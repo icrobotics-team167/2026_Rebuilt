@@ -27,7 +27,7 @@ public class Shooter extends SubsystemBase {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
 
-    projectileSpeedToFlywheelSpeedMap.put(0.0,0.0);
+    projectileSpeedToFlywheelSpeedMap.put(0.0, 0.0);
     // TODO: Measure
   }
 
