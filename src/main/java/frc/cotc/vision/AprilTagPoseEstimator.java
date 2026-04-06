@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import frc.cotc.Robot;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Consumer;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -236,7 +237,9 @@ public class AprilTagPoseEstimator {
     poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
   }
 
-  public void update(VisionEstimateConsumer estimateConsumer) {
+  public record VisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {}
+
+  public void update(Consumer<VisionMeasurement> estimateConsumer) {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
@@ -275,15 +278,16 @@ public class AprilTagPoseEstimator {
                 var angularDivisor = Math.pow(poseEstimate.targetsUsed.size(), 1.5);
 
                 estimateConsumer.accept(
-                    poseEstimate.estimatedPose.toPose2d(),
-                    result.getTimestampSeconds(),
-                    VecBuilder.fill(
-                        translationalScoresSum / translationalDivisor,
-                        translationalScoresSum / translationalDivisor,
-                        poseEstimate.strategy
-                                == PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE
-                            ? Double.POSITIVE_INFINITY
-                            : angularScoresSum / angularDivisor));
+                    new VisionMeasurement(
+                        poseEstimate.estimatedPose.toPose2d(),
+                        result.getTimestampSeconds(),
+                        VecBuilder.fill(
+                            translationalScoresSum / translationalDivisor,
+                            translationalScoresSum / translationalDivisor,
+                            poseEstimate.strategy
+                                    == PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE
+                                ? Double.POSITIVE_INFINITY
+                                : angularScoresSum / angularDivisor)));
               });
     }
 

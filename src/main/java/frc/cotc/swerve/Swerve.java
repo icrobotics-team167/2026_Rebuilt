@@ -12,15 +12,12 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,8 +31,10 @@ import frc.cotc.FieldConstants.RightBump;
 import frc.cotc.Robot;
 import frc.cotc.shooter.SOTM;
 import frc.cotc.vision.AprilTagPoseEstimator;
+import frc.cotc.vision.AprilTagPoseEstimator.VisionMeasurement;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -107,6 +106,9 @@ public class Swerve extends SubsystemBase {
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
 
+  private final Comparator<VisionMeasurement> measurementComparator =
+      Comparator.comparingDouble(VisionMeasurement::timestamp);
+
   @Override
   public void periodic() {
     // Update and process inputs
@@ -118,13 +120,21 @@ public class Swerve extends SubsystemBase {
     if (Robot.mode == Robot.Mode.SIM) {
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
+    var measurements = new ArrayList<VisionMeasurement>();
     for (var camera : cameras) {
       camera.addPoseData(Timer.getTimestamp(), getPose());
       camera.update(
-          (Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) -> {
-            visionPoses.add(pose);
-            io.addVisionMeasurement(pose, timestamp + inputs.timeOffsetSeconds, stdDevs);
+          visionMeasurement -> {
+            measurements.add(visionMeasurement);
+            visionPoses.add(visionMeasurement.pose());
           });
+    }
+    measurements.sort(measurementComparator);
+    for (var measurement : measurements) {
+      io.addVisionMeasurement(
+          measurement.pose(),
+          measurement.timestamp() + inputs.timeOffsetSeconds,
+          measurement.stdDevs());
     }
     Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
     visionPoses.clear();
