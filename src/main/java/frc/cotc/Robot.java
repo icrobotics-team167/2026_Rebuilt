@@ -211,6 +211,7 @@ public class Robot extends LoggedRobot {
     raceway.setDefaultCommand(raceway.runRaceway());
     primary
         .rightTrigger()
+        .and(DriverStation::isEnabled)
         .and(
             () ->
                 switch (shotTarget) {
@@ -244,9 +245,10 @@ public class Robot extends LoggedRobot {
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    primary.rightBumper().whileTrue(swerve.slowTeleopDrive());
+    primary.rightBumper().and(DriverStation::isEnabled).whileTrue(swerve.slowTeleopDrive());
     primary
         .povLeft()
+        .and(DriverStation::isEnabled)
         .whileTrue(
             swerve.faceAngle(
                 translationalInputSupplier,
@@ -265,10 +267,11 @@ public class Robot extends LoggedRobot {
                     return Translation2d.kZero;
                   }
                 }));
-    primary.povRight().whileTrue(swerve.brake());
+    primary.povRight().and(DriverStation::isEnabled).whileTrue(swerve.brake());
 
     primary
         .b()
+        .and(DriverStation::isEnabled)
         .whileTrue(
             parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
                 .ignoringDisable(true)
@@ -278,19 +281,21 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(shooter.idleRun());
     primary
         .leftBumper()
+        .and(DriverStation::isEnabled)
         .whileTrue(
             parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
                 .withName("Shoot"));
 
     intake.setDefaultCommand(intake.extend());
-    primary.a().toggleOnTrue(intake.retract());
-    primary.x().whileTrue(intake.agitate());
-    primary.leftTrigger().whileTrue(intake.intake());
-    primary.y().whileTrue(intake.outtake());
+    primary.a().and(DriverStation::isEnabled).toggleOnTrue(intake.retract());
+    primary.x().and(DriverStation::isEnabled).whileTrue(intake.agitate());
+    primary.leftTrigger().and(DriverStation::isEnabled).whileTrue(intake.intake());
+    primary.y().and(DriverStation::isEnabled).whileTrue(intake.outtake());
 
     primary
         .back()
         .and(primary.start())
+        .and(DriverStation::isEnabled)
         .debounce(2)
         .toggleOnTrue(
             parallel(
