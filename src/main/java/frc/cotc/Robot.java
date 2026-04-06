@@ -223,6 +223,7 @@ public class Robot extends LoggedRobot {
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     primary
         .rightTrigger()
+        .and(DriverStation::isEnabled)
         .and(
             () ->
                 switch (shotTarget) {
@@ -256,9 +257,10 @@ public class Robot extends LoggedRobot {
         };
 
     swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    primary.rightBumper().whileTrue(swerve.slowTeleopDrive());
+    primary.rightBumper().and(DriverStation::isEnabled).whileTrue(swerve.slowTeleopDrive());
     primary
         .povLeft()
+        .and(DriverStation::isEnabled)
         .whileTrue(
             swerve.faceAngle(
                 translationalInputSupplier,
@@ -277,10 +279,11 @@ public class Robot extends LoggedRobot {
                     return Translation2d.kZero;
                   }
                 }));
-    primary.povRight().whileTrue(swerve.brake());
+    primary.povRight().and(DriverStation::isEnabled).whileTrue(swerve.brake());
 
     primary
         .b()
+        .and(DriverStation::isEnabled)
         .whileTrue(
             parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
                 .ignoringDisable(true)
@@ -290,23 +293,27 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(shooter.idleRun());
     primary
         .leftBumper()
+        .and(DriverStation::isEnabled)
         .whileTrue(
             parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
                 .withName("Shoot"));
 
     intakePivot.setDefaultCommand(intakePivot.extend());
-    primary.a().toggleOnTrue(intakePivot.retract());
+    primary.a().and(DriverStation::isEnabled).toggleOnTrue(intakePivot.retract());
     primary
         .x()
+        .and(DriverStation::isEnabled)
         .whileTrue(parallel(intakePivot.agitate(), intakeRoller.intake()).withName("Agitate"));
     primary
         .leftTrigger()
+        .and(DriverStation::isEnabled)
         .whileTrue(parallel(intakePivot.extend(), intakeRoller.intake()).withName("Intake"));
     primary.y().whileTrue(intakeRoller.outtake());
 
     primary
         .back()
         .and(primary.start())
+        .and(DriverStation::isEnabled)
         .debounce(2)
         .toggleOnTrue(
             parallel(
