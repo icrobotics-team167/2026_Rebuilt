@@ -28,8 +28,4 @@ public class TurretFeeder extends SubsystemBase {
   public Command runFeeder() {
     return run(io::run).finallyDo(io::stop).withName("Run Feeder");
   }
-
-  public Command runFeederBackwards() {
-    return run(io::runReverse).finallyDo(io::stop);
-  }
 }

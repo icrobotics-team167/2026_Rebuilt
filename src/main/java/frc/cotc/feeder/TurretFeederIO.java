@@ -12,14 +12,12 @@ import org.littletonrobotics.junction.AutoLog;
 public interface TurretFeederIO {
   default void run() {}
 
-  default void runReverse() {}
-
   default void stop() {}
 
   default void updateInputs(TurretFeederIOInputs inputs) {}
 
   @AutoLog
-  public class TurretFeederIOInputs {
+  class TurretFeederIOInputs {
     double statorCurrentAmps;
     double supplyCurrentAmps;
   }

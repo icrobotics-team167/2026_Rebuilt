@@ -17,7 +17,6 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
   private final TalonFX motor;
   private final int TURRET_FEEDER_ID = 7;
   private final BaseStatusSignal statorSignal, supplySignal;
-  private final double TURRET_FEEDER_DEFAULT_VOLTAGE = 12.0;
 
   public TurretFeederIOPhoenix() {
     motor = new TalonFX(TURRET_FEEDER_ID, Robot.rioBus);
@@ -25,7 +24,7 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
     var config = new TalonFXConfiguration();
 
     config.CurrentLimits.StatorCurrentLimitEnable = false;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     motor.getConfigurator().apply(config);
 
@@ -38,17 +37,12 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
 
   @Override
   public void run() {
-    motor.setVoltage(TURRET_FEEDER_DEFAULT_VOLTAGE);
-  }
-
-  @Override
-  public void runReverse() {
-    motor.setVoltage(-TURRET_FEEDER_DEFAULT_VOLTAGE);
+    motor.set(1);
   }
 
   @Override
   public void stop() {
-    motor.setVoltage(0);
+    motor.set(0);
   }
 
   @Override

@@ -20,8 +20,6 @@ public class Shooter extends SubsystemBase {
   private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private final FlywheelIOInputsAutoLogged flywheelInputs = new FlywheelIOInputsAutoLogged();
 
-  private final InterpolatingDoubleTreeMap flywheelSpeedToProjectileSpeedMap =
-      new InterpolatingDoubleTreeMap();
   private final InterpolatingDoubleTreeMap projectileSpeedToFlywheelSpeedMap =
       new InterpolatingDoubleTreeMap();
 
@@ -29,18 +27,8 @@ public class Shooter extends SubsystemBase {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
 
-    addMapping(0, 0);
-    addMapping(37.8, 6.627);
-    addMapping(38.2, 7.03);
-    addMapping(40.8, 7.67);
-    addMapping(42, 8.019);
-    addMapping(43.8, 8.377);
-    addMapping(75.91, 14.5); // Extrapolated
-  }
-
-  private void addMapping(double flywheelSpeedRotPerSec, double projectileSpeedMetersPerSec) {
-    flywheelSpeedToProjectileSpeedMap.put(flywheelSpeedRotPerSec, projectileSpeedMetersPerSec);
-    projectileSpeedToFlywheelSpeedMap.put(projectileSpeedMetersPerSec, flywheelSpeedRotPerSec);
+    projectileSpeedToFlywheelSpeedMap.put(0.0, 0.0);
+    // TODO: Measure
   }
 
   @Override
@@ -56,16 +44,16 @@ public class Shooter extends SubsystemBase {
   private final double baseTargetSpeedRotPerSec = 40;
   private double targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
 
-  private final double presetAngle = Units.degreesToRadians(60);
-  private double targetPitchRad = presetAngle;
+  private final double minAngle = Units.degreesToRadians(60);
+  private double targetPitchRad = minAngle;
 
   public Command idleRun() {
     return run(
         () -> {
           targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
           flywheelIO.runVel(baseTargetSpeedRotPerSec);
-          hoodIO.runPitch(presetAngle);
-          targetPitchRad = presetAngle;
+          hoodIO.runPitch(minAngle);
+          targetPitchRad = minAngle;
         });
   }
 
@@ -75,7 +63,8 @@ public class Shooter extends SubsystemBase {
         () -> {
           targetSpeedRotPerSec = 0;
           flywheelIO.stop();
-          hoodIO.stop();
+          hoodIO.runPitch(minAngle);
+          targetPitchRad = minAngle;
         });
   }
 
@@ -95,13 +84,5 @@ public class Shooter extends SubsystemBase {
               projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond());
           flywheelIO.runVel(targetSpeedRotPerSec);
         });
-  }
-
-  public Command raiseHood() {
-    return run(() -> hoodIO.runPitch(Units.degreesToRadians(60)));
-  }
-
-  public Command lowerHood() {
-    return run(() -> hoodIO.runPitch(Units.degreesToRadians(40)));
   }
 }

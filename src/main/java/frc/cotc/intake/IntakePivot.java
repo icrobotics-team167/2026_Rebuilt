@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakePivot extends SubsystemBase {
+class IntakePivot extends SubsystemBase {
   private final IntakePivotIO io;
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
@@ -28,7 +28,7 @@ public class IntakePivot extends SubsystemBase {
 
   private double targetAngleRad = EXTENDED_ANGLE;
 
-  public IntakePivot(IntakePivotIO io) {
+  IntakePivot(IntakePivotIO io) {
     this.io = io;
   }
 
@@ -50,15 +50,15 @@ public class IntakePivot extends SubsystemBase {
         .finallyDo(io::stop);
   }
 
-  public Command extend() {
+  Command extend() {
     return goToPos(EXTENDED_ANGLE).withName("Extend");
   }
 
-  public Command retract() {
+  Command retract() {
     return goToPos(RETRACTED_ANGLE).withName("Retract");
   }
 
-  public Command agitate() {
+  Command agitate() {
     return repeatingSequence(goToPos(AGITATE_ANGLE).withTimeout(0.5), extend().withTimeout(0.5))
         .withName("Agitate");
   }
