@@ -132,6 +132,34 @@
      "val":0.0
     }
    },
+   "LeftFarCenterExit":{
+    "x":{
+     "exp":"RightFarCenterExit.x",
+     "val":8.815
+    },
+    "y":{
+     "exp":"FieldWidth - RightFarCenterExit.y",
+     "val":4.4190000000000005
+    },
+    "heading":{
+     "exp":"RightFarCenterExit.heading",
+     "val":0.0
+    }
+   },
+   "LeftFarEnter":{
+    "x":{
+     "exp":"RightFarEnter.x",
+     "val":8.815
+    },
+    "y":{
+     "exp":"FieldWidth - RightFarEnter.y",
+     "val":7.069000000000001
+    },
+    "heading":{
+     "exp":"-RightFarEnter.heading",
+     "val":-2.0943951023931953
+    }
+   },
    "LeftMidCenterExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
