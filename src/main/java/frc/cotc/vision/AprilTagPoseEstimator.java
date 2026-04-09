@@ -20,7 +20,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
 import java.util.ArrayList;
@@ -231,13 +230,8 @@ public class AprilTagPoseEstimator {
     for (var result : inputs.results) {
       switch (result.targets.size()) {
         case 0 -> {} // This shouldn't happen, but just in case
-        case 1 -> {
-          if (DriverStation.isEnabled()) {
-            poseEstimator.estimateLowestAmbiguityPose(result).ifPresent(this::addMeasurement);
-          } else {
+        case 1 ->
             poseEstimator.estimatePnpDistanceTrigSolvePose(result).ifPresent(this::addMeasurement);
-          }
-        }
         default -> poseEstimator.estimateCoprocMultiTagPose(result).ifPresent(this::addMeasurement);
       }
     }
@@ -257,7 +251,7 @@ public class AprilTagPoseEstimator {
       rejectedPoses.add(pose);
       return;
     }
-    if (pose.getZ() < -0.1 || pose.getZ() > 0.1) {
+    if (pose.getZ() < -0.1 || pose.getZ() > 0.3) {
       rejectedPoses.add(pose);
       return;
     }
@@ -279,20 +273,12 @@ public class AprilTagPoseEstimator {
             pose.toPose2d(),
             est.timestampSeconds,
             switch (est.strategy) {
-              case LOWEST_AMBIGUITY -> {
-                var tagDistance =
-                    est.targetsUsed.get(0).getBestCameraToTarget().getTranslation().getNorm();
-                yield VecBuilder.fill(
-                    0.3 * tagDistance * tagDistance,
-                    0.3 * tagDistance * tagDistance,
-                    0.9 * tagDistance * tagDistance);
-              }
               case PNP_DISTANCE_TRIG_SOLVE -> {
                 var tagDistance =
                     est.targetsUsed.get(0).getBestCameraToTarget().getTranslation().getNorm();
                 yield VecBuilder.fill(
-                    0.1 * Math.pow(tagDistance, 2.5),
-                    0.1 * Math.pow(tagDistance, 2.5),
+                    0.075 * Math.pow(tagDistance, 2.5),
+                    0.075 * Math.pow(tagDistance, 2.5),
                     Double.POSITIVE_INFINITY);
               }
               case MULTI_TAG_PNP_ON_COPROCESSOR -> {
@@ -302,8 +288,8 @@ public class AprilTagPoseEstimator {
                 }
                 avgTagDistance /= est.targetsUsed.size();
                 yield VecBuilder.fill(
-                    0.6 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size(),
-                    0.6 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size(),
+                    0.5 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size(),
+                    0.5 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size(),
                     1 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size());
               }
               default -> VecBuilder.fill(0.9, 0.9, 0.9);
