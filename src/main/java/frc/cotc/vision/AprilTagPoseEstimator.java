@@ -7,6 +7,8 @@
 
 package frc.cotc.vision;
 
+import static org.photonvision.PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
@@ -18,6 +20,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
+import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +30,6 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.timesync.TimeSyncSingleton;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class AprilTagPoseEstimator {
   public static final AprilTagFieldLayout tagLayout;
 
@@ -197,102 +199,100 @@ public class AprilTagPoseEstimator {
     this.name = name;
     var characteristics = cameraCharacteristics.get(name);
     robotToCamera = characteristics.robotToCamera();
-    poseEstimator =
-        new PhotonPoseEstimator(
-            tagLayout,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            characteristics.robotToCamera());
-    poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimator = new PhotonPoseEstimator(tagLayout, characteristics.robotToCamera());
     TimeSyncSingleton.load();
   }
 
-  // data filtering system that Jaynou added
-  private boolean isValidPose(EstimatedRobotPose est) {
-    var pose = est.estimatedPose;
-
-    // floor and sky clip checking
-    if (pose.getZ() < -0.1 || pose.getZ() > 0.05) return false;
-
-    if (Math.abs(pose.getRotation().getX()) > Units.degreesToRadians(10)) return false;
-    if (Math.abs(pose.getRotation().getY()) > Units.degreesToRadians(10)) return false;
-
-    // out of bounds clip checking
-    if (pose.getX() < 0 || pose.getX() > tagLayout.getFieldLength()) return false;
-    if (pose.getY() < 0 || pose.getY() > tagLayout.getFieldWidth()) return false;
-
-    return true;
-  }
-
   public void addPoseData(double timestampSeconds, Pose2d pose) {
-    poseEstimator.setReferencePose(pose);
     poseEstimator.addHeadingData(timestampSeconds, pose.getRotation());
-  }
-
-  public void setEnabled() {
-    poseEstimator.setMultiTagFallbackStrategy(
-        PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
-  }
-
-  public void setDisabled() {
-    poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
   }
 
   public record VisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {}
 
-  public void update(Consumer<VisionMeasurement> estimateConsumer) {
+  private Consumer<VisionMeasurement> estimateConsumer;
+
+  public void setEstimateConsumer(Consumer<VisionMeasurement> estimateConsumer) {
+    this.estimateConsumer = estimateConsumer;
+  }
+
+  private final ArrayList<Pose3d> acceptedPoses = new ArrayList<>();
+  private final ArrayList<Pose3d> rejectedPoses = new ArrayList<>();
+  private final ArrayList<Pose3d> tagsSeen = new ArrayList<>();
+
+  public void update() {
     io.updateInputs(inputs);
     Logger.processInputs("AprilTags/" + name, inputs);
 
-    var acceptedPoses = new ArrayList<Pose3d>();
-    var rejectedPoses = new ArrayList<Pose3d>();
-
-    var tagsSeen = new ArrayList<Pose3d>();
+    acceptedPoses.clear();
+    rejectedPoses.clear();
+    tagsSeen.clear();
 
     for (var result : inputs.results) {
-      poseEstimator
-          .update(result)
-          .ifPresent(
-              poseEstimate -> {
-                for (var tag : poseEstimate.targetsUsed) {
-                  tagsSeen.add(
-                      poseEstimate.estimatedPose.plus(robotToCamera).plus(tag.bestCameraToTarget));
-                }
-
-                // data filtering
-                if (!isValidPose(poseEstimate)) {
-                  rejectedPoses.add(poseEstimate.estimatedPose);
-                  return;
-                }
-                acceptedPoses.add(poseEstimate.estimatedPose);
-
-                double translationalScoresSum = 0;
-                double angularScoresSum = 0;
-                for (var tag : poseEstimate.targetsUsed) {
-                  var tagDistance = tag.bestCameraToTarget.getTranslation().getNorm();
-
-                  translationalScoresSum += .4 * Math.pow(tagDistance, 1.5);
-                  angularScoresSum += .6 * Math.pow(tagDistance, 2);
-                }
-
-                var translationalDivisor = Math.pow(poseEstimate.targetsUsed.size(), 2);
-                var angularDivisor = Math.pow(poseEstimate.targetsUsed.size(), 1.5);
-
-                estimateConsumer.accept(
-                    new VisionMeasurement(
-                        poseEstimate.estimatedPose.toPose2d(),
-                        result.getTimestampSeconds(),
-                        VecBuilder.fill(
-                            translationalScoresSum / translationalDivisor,
-                            translationalScoresSum / translationalDivisor,
-                            poseEstimate.strategy
-                                    == PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE
-                                ? Double.POSITIVE_INFINITY
-                                : angularScoresSum / angularDivisor)));
-              });
+      switch (result.targets.size()) {
+        case 0 -> {} // This shouldn't happen, but just in case
+        case 1 ->
+            poseEstimator.estimatePnpDistanceTrigSolvePose(result).ifPresent(this::addMeasurement);
+        default -> poseEstimator.estimateCoprocMultiTagPose(result).ifPresent(this::addMeasurement);
+      }
     }
 
     Logger.recordOutput("Vision/" + name + "/Rejected poses", rejectedPoses.toArray(new Pose3d[0]));
     Logger.recordOutput("Vision/" + name + "/Accepted poses", acceptedPoses.toArray(new Pose3d[0]));
     Logger.recordOutput("Vision/" + name + "/Tags seen", tagsSeen.toArray(new Pose3d[0]));
+  }
+
+  private void addMeasurement(EstimatedRobotPose est) {
+    var pose = est.estimatedPose;
+    if (pose.getX() < 0 || pose.getX() > FieldConstants.fieldLength) {
+      rejectedPoses.add(pose);
+      return;
+    }
+    if (pose.getY() < 0 || pose.getY() > FieldConstants.fieldWidth) {
+      rejectedPoses.add(pose);
+      return;
+    }
+    if (pose.getZ() < -0.1 || pose.getZ() > 0.3) {
+      rejectedPoses.add(pose);
+      return;
+    }
+    if (Math.hypot(pose.getRotation().getX(), pose.getRotation().getY())
+        > Units.degreesToRadians(20)) {
+      rejectedPoses.add(pose);
+      return;
+    }
+    if (est.strategy == LOWEST_AMBIGUITY && est.targetsUsed.get(0).poseAmbiguity > 0.2) {
+      rejectedPoses.add(pose);
+      return;
+    }
+    acceptedPoses.add(pose);
+    for (var target : est.targetsUsed) {
+      tagsSeen.add(pose.plus(robotToCamera).plus(target.getBestCameraToTarget()));
+    }
+    estimateConsumer.accept(
+        new VisionMeasurement(
+            pose.toPose2d(),
+            est.timestampSeconds,
+            switch (est.strategy) {
+              case PNP_DISTANCE_TRIG_SOLVE -> {
+                var tagDistance =
+                    est.targetsUsed.get(0).getBestCameraToTarget().getTranslation().getNorm();
+                yield VecBuilder.fill(
+                    0.075 * Math.pow(tagDistance, 2.5),
+                    0.075 * Math.pow(tagDistance, 2.5),
+                    Double.POSITIVE_INFINITY);
+              }
+              case MULTI_TAG_PNP_ON_COPROCESSOR -> {
+                var avgTagDistance = 0.0;
+                for (var target : est.targetsUsed) {
+                  avgTagDistance += target.getBestCameraToTarget().getTranslation().getNorm();
+                }
+                avgTagDistance /= est.targetsUsed.size();
+                yield VecBuilder.fill(
+                    0.5 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size(),
+                    0.5 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size(),
+                    1 * Math.pow(avgTagDistance, 2) / est.targetsUsed.size());
+              }
+              default -> VecBuilder.fill(0.9, 0.9, 0.9);
+            }));
   }
 }
