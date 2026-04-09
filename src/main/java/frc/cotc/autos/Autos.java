@@ -57,6 +57,10 @@ public class Autos {
     addRoutine("Right Trench Far", this::rightTrenchFar);
     addRoutine("Right Trench Mid Across", this::rightTrenchMidAcross);
     addRoutine("Right Trench Far Across", this::rightTrenchFarAcross);
+    addRoutine("Left Trench Mid", this::leftTrenchMid);
+    addRoutine("Left Trench Far", this::leftTrenchFar);
+    addRoutine("Left Trench Mid Across", this::leftTrenchMidAcross);
+    addRoutine("Left Trench Far Across", this::leftTrenchFarAcross);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -229,6 +233,78 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchFarAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchFarAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchFarAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchMid() {
+    var routine = autoFactory.newRoutine("Left Trench Mid");
+    var trajectory0 = ChoreoTraj.LeftTrenchMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchMid$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchFar() {
+    var routine = autoFactory.newRoutine("Left Trench Far");
+    var trajectory0 = ChoreoTraj.LeftTrenchFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchFar$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchMidAcross() {
+    var routine = autoFactory.newRoutine("Left Trench Mid Across");
+    var trajectory0 = ChoreoTraj.LeftTrenchMidAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchMidAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchMidAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchFarAcross() {
+    var routine = autoFactory.newRoutine("Left Trench Far Across");
+    var trajectory0 = ChoreoTraj.LeftTrenchFarAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchFarAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchFarAcross$2.asAutoTraj(routine);
 
     routine
         .active()
