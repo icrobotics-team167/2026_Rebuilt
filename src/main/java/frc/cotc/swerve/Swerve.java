@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.cotc.Constants;
 import frc.cotc.FieldConstants;
 import frc.cotc.FieldConstants.LeftBump;
@@ -35,6 +34,7 @@ import frc.cotc.vision.AprilTagPoseEstimator.VisionMeasurement;
 import frc.cotc.vision.AprilTagPoseEstimatorIOPhoton;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -61,6 +61,14 @@ public class Swerve extends SubsystemBase {
     this.io = io;
 
     this.cameras = cameras;
+    Consumer<VisionMeasurement> measurementConsumer =
+        measurement -> {
+          measurements.add(measurement);
+          visionPoses.add(measurement.pose());
+        };
+    for (var camera : cameras) {
+      camera.setEstimateConsumer(measurementConsumer);
+    }
 
     // capture initial state and set up odometry
     io.updateInputs(inputs);
@@ -87,27 +95,13 @@ public class Swerve extends SubsystemBase {
     }
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
     bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
-    RobotModeTriggers.disabled()
-        .onFalse(
-            Commands.runOnce(
-                () -> {
-                  for (var camera : cameras) {
-                    camera.setEnabled();
-                  }
-                }))
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  for (var camera : cameras) {
-                    camera.setDisabled();
-                  }
-                }));
   }
 
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
 
   private final Comparator<VisionMeasurement> measurementComparator =
       Comparator.comparingDouble(VisionMeasurement::timestamp);
+  private final ArrayList<VisionMeasurement> measurements = new ArrayList<>();
 
   @Override
   public void periodic() {
@@ -120,14 +114,10 @@ public class Swerve extends SubsystemBase {
     if (Robot.mode == Robot.Mode.SIM) {
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
-    var measurements = new ArrayList<VisionMeasurement>();
+    measurements.clear();
     for (var camera : cameras) {
       camera.addPoseData(Timer.getTimestamp(), getPose());
-      camera.update(
-          visionMeasurement -> {
-            measurements.add(visionMeasurement);
-            visionPoses.add(visionMeasurement.pose());
-          });
+      camera.update();
     }
     measurements.sort(measurementComparator);
     for (var measurement : measurements) {
