@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
   private final double baseTargetSpeedRotPerSec = 40;
   private double targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
 
-  private final double minAngle = Units.degreesToRadians(60);
+  private final double minAngle = Units.degreesToRadians(55);
   private double targetPitchRad = minAngle;
 
   public Command idleRun() {
