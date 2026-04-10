@@ -35,15 +35,15 @@ public class TunerConstants {
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-  private static final Slot0Configs driveGains =
-      new Slot0Configs().withKP(0.2).withKI(0).withKD(0).withKS(0).withKV(0.13);
+  private static final Slot0Configs driveGains = // TODO: Tune
+      new Slot0Configs().withKP(0.1).withKI(0).withKD(0).withKS(0).withKV(0);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
   private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
   // The closed-loop output type to use for the drive motors;
   // This affects the PID/FF gains for the drive motors
-  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.TorqueCurrentFOC;
 
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
@@ -58,7 +58,7 @@ public class TunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  private static final Current kSlipCurrent = Amps.of(110);
+  private static final Current kSlipCurrent = Amps.of(130);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -84,13 +84,13 @@ public class TunerConstants {
 
   // Theoretical free speed (m/s) at 12 V applied output;
   // This needs to be tuned to your individual robot
-  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.12);
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.77);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
-  private static final double kCoupleRatio = 3.857142857142857;
+  private static final double kCoupleRatio = 4.5;
 
-  public static final double kDriveGearRatio = 6.026785714285714;
+  public static final double kDriveGearRatio = 7.03125;
   public static final double kSteerGearRatio = 26.09090909090909;
   public static final Distance kWheelRadius = Inches.of(2);
 
