@@ -43,8 +43,7 @@ public class TunerConstants {
   private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
   // The closed-loop output type to use for the drive motors;
   // This affects the PID/FF gains for the drive motors
-  private static final ClosedLoopOutputType kDriveClosedLoopOutput =
-      ClosedLoopOutputType.Voltage;
+  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
 
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
@@ -65,6 +64,7 @@ public class TunerConstants {
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
   private static final TalonFXConfiguration driveInitialConfigs =
       new TalonFXConfiguration()
+          .withFeedback(new FeedbackConfigs().withVelocityFilterTimeConstant(0.003))
           .withCurrentLimits(new CurrentLimitsConfigs().withSupplyCurrentLimit(60));
   private static final TalonFXConfiguration steerInitialConfigs =
       new TalonFXConfiguration()
