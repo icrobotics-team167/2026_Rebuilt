@@ -273,7 +273,7 @@ public class Robot extends LoggedRobot {
         .b()
         .and(DriverStation::isEnabled)
         .whileTrue(
-            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
+            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle(), swerve.fastTeleopDrive())
                 .ignoringDisable(true)
                 .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
                 .withName("Disable shooting"));
@@ -302,8 +302,7 @@ public class Robot extends LoggedRobot {
                     shooter.idle(),
                     beltFloor.idle(),
                     raceway.idle(),
-                    turretFeeder.idle(),
-                    swerve.fastTeleopDrive())
+                    turretFeeder.idle())
                 .withName("Boost"))
         .onTrue(
             sequence(
