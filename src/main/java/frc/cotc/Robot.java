@@ -208,17 +208,16 @@ public class Robot extends LoggedRobot {
     RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
 
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
-    raceway.setDefaultCommand(raceway.runRaceway());
     primary
         .rightTrigger()
         .and(DriverStation::isEnabled)
         .and(
             () ->
                 switch (shotTarget) {
-                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  // case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
-        .whileTrue(beltFloor.runBelt());
+        .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -273,7 +272,12 @@ public class Robot extends LoggedRobot {
         .b()
         .and(DriverStation::isEnabled)
         .whileTrue(
-            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle(), swerve.fastTeleopDrive())
+            parallel(
+                    shooter.idle(),
+                    beltFloor.idle(),
+                    raceway.idle(),
+                    turretFeeder.idle(),
+                    swerve.fastTeleopDrive())
                 .ignoringDisable(true)
                 .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
                 .withName("Disable shooting"));
@@ -298,11 +302,7 @@ public class Robot extends LoggedRobot {
         .and(DriverStation::isEnabled)
         .debounce(2)
         .toggleOnTrue(
-            parallel(
-                    shooter.idle(),
-                    beltFloor.idle(),
-                    raceway.idle(),
-                    turretFeeder.idle())
+            parallel(shooter.idle(), beltFloor.idle(), raceway.idle(), turretFeeder.idle())
                 .withName("Boost"))
         .onTrue(
             sequence(

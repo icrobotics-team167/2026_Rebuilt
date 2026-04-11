@@ -224,7 +224,7 @@ public class AprilTagPoseEstimator {
       switch (result.targets.size()) {
         case 0 -> {} // This shouldn't happen, but just in case
         case 1 ->
-            poseEstimator.estimatePnpDistanceTrigSolvePose(result).ifPresent(this::addMeasurement);
+            poseEstimator.estimateLowestAmbiguityPose(result).ifPresent(this::addMeasurement);
         default -> poseEstimator.estimateCoprocMultiTagPose(result).ifPresent(this::addMeasurement);
       }
     }
@@ -244,7 +244,7 @@ public class AprilTagPoseEstimator {
       rejectedPoses.add(pose);
       return;
     }
-    if (pose.getZ() < -0.1 || pose.getZ() > 0.3) {
+    if (pose.getZ() < -0.2 || pose.getZ() > 0.3) {
       rejectedPoses.add(pose);
       return;
     }
@@ -266,13 +266,13 @@ public class AprilTagPoseEstimator {
             pose.toPose2d(),
             est.timestampSeconds,
             switch (est.strategy) {
-              case PNP_DISTANCE_TRIG_SOLVE -> {
+              case LOWEST_AMBIGUITY -> {
                 var tagDistance =
                     est.targetsUsed.get(0).getBestCameraToTarget().getTranslation().getNorm();
                 yield VecBuilder.fill(
-                    0.075 * Math.pow(tagDistance, 2.5),
-                    0.075 * Math.pow(tagDistance, 2.5),
-                    Double.POSITIVE_INFINITY);
+                    0.1 * Math.pow(tagDistance, 2.5),
+                    0.1 * Math.pow(tagDistance, 2.5),
+                    0.1 * Math.pow(tagDistance, 2.5));
               }
               case MULTI_TAG_PNP_ON_COPROCESSOR -> {
                 var avgTagDistance = 0.0;

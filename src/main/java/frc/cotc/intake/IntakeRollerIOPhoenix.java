@@ -16,17 +16,15 @@ import frc.cotc.Robot;
 public class IntakeRollerIOPhoenix implements IntakeRollerIO {
   private final TalonFX intakeMotor;
   private final int INTAKE_ID = 9;
-  private final double INTAKE_DEFAULT_VOLTAGE = 12.0;
-  private final double OUTAKE_DEFAULT_VOLTAGE = -12.0;
 
   private final BaseStatusSignal statorSignal, supplySignal;
 
   public IntakeRollerIOPhoenix() {
     intakeMotor = new TalonFX(INTAKE_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
-    config.CurrentLimits.SupplyCurrentLimit = 80;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLimit = 60;
     intakeMotor.getConfigurator().apply(config);
 
     statorSignal = intakeMotor.getStatorCurrent(false);
@@ -38,7 +36,7 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
 
   @Override
   public void run() {
-    intakeMotor.set(1);
+    intakeMotor.set(0.8);
   }
 
   @Override

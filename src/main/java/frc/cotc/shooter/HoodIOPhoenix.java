@@ -55,12 +55,12 @@ public class HoodIOPhoenix implements HoodIO {
     encoderConfig.MagnetSensor.MagnetOffset = -0.86865234375;
     encoder.getConfigurator().apply(encoderConfig);
 
-    posSignal = encoder.getAbsolutePosition(true);
+    posSignal = motor.getPosition(false);
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
 
-    posSignal.setUpdateFrequency(250);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
+    encoder.getAbsolutePosition(false).setUpdateFrequency(250);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, statorSignal, supplySignal);
     Robot.rioSignals.addSignals(posSignal, statorSignal, supplySignal);
     ParentDevice.optimizeBusUtilizationForAll(5, motor, encoder);
   }
