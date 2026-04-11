@@ -10,7 +10,7 @@ package frc.cotc.shooter;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -28,7 +28,7 @@ public class FlywheelIOPhoenix implements FlywheelIO {
       motor0SupplyCurrent,
       motor1SupplyCurrent;
 
-  private final VelocityTorqueCurrentFOC velocityRequest = new VelocityTorqueCurrentFOC(0);
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
   private final CoastOut stopRequest = new CoastOut();
 
   public FlywheelIOPhoenix() {
@@ -41,10 +41,11 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.CurrentLimits.SupplyCurrentLimit = 80;
 
     config.Feedback.SensorToMechanismRatio = 0.5;
-    // TODO: Tune
-    config.Slot0.kV = 0;
-    config.Slot0.kP = 0.1;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = 0;
+    config.Feedback.VelocityFilterTimeConstant = 0.003;
+    config.Slot0.kS = 0.363636;
+    config.Slot0.kV = 0.06060606;
+    config.Slot0.kP = 0.4;
+    config.Voltage.PeakReverseVoltage = 0;
 
     // Left Side
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

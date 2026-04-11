@@ -47,17 +47,14 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.Feedback.RotorToSensorRatio = ROTOR_TO_SENSOR_RATIO;
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.05517600178718567;
-    motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    motorConfig.Slot0.kP = 350;
-    motorConfig.Slot0.kD = 1.5;
-    motorConfig.Slot0.kS = .675;
+    // TODO: Tune
+    motorConfig.Slot0.kP = 100;
+    motorConfig.Slot0.kD = 0;
+    motorConfig.Slot0.kS = .5;
     motor.getConfigurator().apply(motorConfig);
 
     var encoderConfig = new CANcoderConfiguration();
-    encoderConfig.MagnetSensor.MagnetOffset = -0.05810546875;
+    encoderConfig.MagnetSensor.MagnetOffset = -0.21630859375;
     encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.9;
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     encoder.getConfigurator().apply(encoderConfig);
@@ -72,11 +69,11 @@ public class HoodIOPhoenix implements HoodIO {
     ParentDevice.optimizeBusUtilizationForAll(5, motor, encoder);
   }
 
-  private final double offset = Units.degreesToRadians(60);
+  private final double offset = Units.degreesToRadians(55);
 
   @Override
   public void updateInputs(HoodIOInputs hoodIOInputs) {
-    hoodIOInputs.thetaRad = offset - Units.rotationsToRadians(posSignal.getValueAsDouble());
+    hoodIOInputs.thetaRad = offset + Units.rotationsToRadians(posSignal.getValueAsDouble());
     hoodIOInputs.motorStatorCurrentAmps = statorSignal.getValueAsDouble();
     hoodIOInputs.motorSupplyCurrentAmps = supplySignal.getValueAsDouble();
   }
@@ -85,13 +82,6 @@ public class HoodIOPhoenix implements HoodIO {
 
   @Override
   public void runPitch(double thetaRad) {
-    motor.setControl(controlSignal.withPosition(Units.radiansToRotations(offset - thetaRad)));
-  }
-
-  private final NeutralOut neutralOut = new NeutralOut();
-
-  @Override
-  public void stop() {
-    motor.setControl(neutralOut);
+    motor.setControl(controlSignal.withPosition(Units.radiansToRotations(thetaRad - offset)));
   }
 }

@@ -183,11 +183,6 @@ public class AprilTagPoseEstimator {
   private final AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs inputs =
       new AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs();
 
-  @FunctionalInterface
-  public interface VisionEstimateConsumer {
-    void accept(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs);
-  }
-
   private final String name;
   private final Transform3d robotToCamera;
 
