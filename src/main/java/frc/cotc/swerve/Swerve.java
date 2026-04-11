@@ -181,7 +181,10 @@ public class Swerve extends SubsystemBase {
                   .withVelocityX(x * speedMultiplier * maxLinearSpeedMetersPerSecond)
                   .withVelocityY(y * speedMultiplier * maxLinearSpeedMetersPerSecond)
                   .withRotationalRate(
-                      omega.getAsDouble() * speedMultiplier * maxAngularSpeedRadiansPerSecond));
+                      omega.getAsDouble()
+                          * speedMultiplier
+                          * maxAngularSpeedRadiansPerSecond
+                          * 0.5));
         })
         .withName("Teleop Drive");
   }

@@ -223,8 +223,7 @@ public class AprilTagPoseEstimator {
     for (var result : inputs.results) {
       switch (result.targets.size()) {
         case 0 -> {} // This shouldn't happen, but just in case
-        case 1 ->
-            poseEstimator.estimateLowestAmbiguityPose(result).ifPresent(this::addMeasurement);
+        case 1 -> poseEstimator.estimateLowestAmbiguityPose(result).ifPresent(this::addMeasurement);
         default -> poseEstimator.estimateCoprocMultiTagPose(result).ifPresent(this::addMeasurement);
       }
     }
