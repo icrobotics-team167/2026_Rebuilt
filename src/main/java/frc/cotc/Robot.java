@@ -132,7 +132,7 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-            new AprilTagPoseEstimator("Front"),
+            // new AprilTagPoseEstimator("Front"), // Bad calibration
             new AprilTagPoseEstimator("Left"),
             new AprilTagPoseEstimator("Back"),
             new AprilTagPoseEstimator("Right"));
