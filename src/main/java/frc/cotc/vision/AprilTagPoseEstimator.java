@@ -52,7 +52,7 @@ public class AprilTagPoseEstimator {
         new CameraCharacteristics(
             new Transform3d(
                 Units.inchesToMeters(-11 + 2.25),
-                Units.inchesToMeters(16 - 1.875),
+                Units.inchesToMeters(-16 + 1.875),
                 Units.inchesToMeters(21.125 - 1),
                 new Rotation3d(0, Units.degreesToRadians(-15), 0)),
             MatBuilder.fill(
@@ -83,7 +83,7 @@ public class AprilTagPoseEstimator {
         new CameraCharacteristics(
             new Transform3d(
                 Units.inchesToMeters(-11 + 2),
-                Units.inchesToMeters(16 - 1),
+                Units.inchesToMeters(-16 + 1),
                 Units.inchesToMeters(21.125 - 1),
                 new Rotation3d(
                     Units.degreesToRadians(0), Units.degreesToRadians(-15), -Math.PI / 2)),
@@ -146,7 +146,7 @@ public class AprilTagPoseEstimator {
         new CameraCharacteristics(
             new Transform3d(
                 Units.inchesToMeters(-11 + 1.125),
-                Units.inchesToMeters(-16 + 0.75),
+                Units.inchesToMeters(16 - 0.75),
                 Units.inchesToMeters(21.125 - 1),
                 new Rotation3d(
                     Units.degreesToRadians(0), Units.degreesToRadians(-15), Math.PI / 2)),
