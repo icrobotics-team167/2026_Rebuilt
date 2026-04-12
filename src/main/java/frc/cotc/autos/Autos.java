@@ -187,7 +187,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -205,7 +209,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -223,7 +231,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -241,7 +253,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -259,7 +275,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -277,7 +297,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -295,7 +319,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -313,7 +341,11 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
