@@ -132,6 +132,7 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
+          // TODO: Rename, recalibrate, and reenable
             // new AprilTagPoseEstimator("Front"), // Bad calibration
             new AprilTagPoseEstimator("Left")
             // new AprilTagPoseEstimator("Back"), // Bad calibration
@@ -215,7 +216,7 @@ public class Robot extends LoggedRobot {
         .and(
             () ->
                 switch (shotTarget) {
-                  // case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  // case RED_HUB, BLUE_HUB -> isOkayToShoot; // TODO: Reenable for match
                   default -> true;
                 })
         .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
