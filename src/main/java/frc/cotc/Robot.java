@@ -133,9 +133,10 @@ public class Robot extends LoggedRobot {
               case REPLAY -> new SwerveIOReplay();
             },
             // new AprilTagPoseEstimator("Front"), // Bad calibration
-            new AprilTagPoseEstimator("Left"),
+            new AprilTagPoseEstimator("Left")
             // new AprilTagPoseEstimator("Back"), // Bad calibration
-            new AprilTagPoseEstimator("Right"));
+            // new AprilTagPoseEstimator("Right")); // Broke
+        );
     var primary = new CommandXboxControllerWithRumble(0);
 
     var intake =
