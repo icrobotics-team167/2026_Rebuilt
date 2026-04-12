@@ -132,12 +132,12 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-          // TODO: Rename, recalibrate, and reenable
+            // TODO: Rename, recalibrate, and reenable
             // new AprilTagPoseEstimator("Front"), // Bad calibration
             new AprilTagPoseEstimator("Left")
             // new AprilTagPoseEstimator("Back"), // Bad calibration
             // new AprilTagPoseEstimator("Right")); // Broke
-        );
+            );
     var primary = new CommandXboxControllerWithRumble(0);
 
     var intake =
