@@ -25,8 +25,8 @@ from sleipnir.optimization import ExitStatus, Problem
 
 # Physical characteristics
 shooter_height = 18 * 0.0254  # m
-min_pitch = np.deg2rad(55)  # rad
-max_pitch = np.deg2rad(60)  # rad
+min_pitch = np.deg2rad(40)  # rad
+max_pitch = np.deg2rad(55)  # rad
 g = np.array([[0], [0], [9.81]])  # m/s²
 max_shooter_velocity = 14.5  # m/s
 ball_mass = 0.5 / 2.205  # kg
@@ -192,7 +192,7 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    max_landing_pitch = np.rad2deg(-55)
+    max_landing_pitch = np.rad2deg(-50)
     ratio = math.tan(max_landing_pitch)
     # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
     problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
@@ -295,8 +295,8 @@ if __name__ == "__main__":
     write(
         72 * 0.0254,
         2,
-        14.25,
+        14.5,
         0.25,
         "HubShotMap",
     )
-    write(0, 3, 16, 0.5, "GroundShotMap")
+    write(0, 2, 16.5, 0.5, "GroundShotMap")

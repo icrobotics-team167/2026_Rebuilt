@@ -46,14 +46,16 @@ public class AprilTagPoseEstimator {
   static {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
+    // Cameras got swapped around and I CBA to rename them
+    // TODO: Rename and recalibrate
     cameraCharacteristics.put(
-        "Front",
+        "Back", // Back is actually facing front
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 2.4375),
-                Units.inchesToMeters(16 - 1.3125),
-                Units.inchesToMeters(28.25),
-                new Rotation3d(0, Units.degreesToRadians(-14), 0)),
+                Units.inchesToMeters(-11 + 2.25),
+                Units.inchesToMeters(-16 + 1.875),
+                Units.inchesToMeters(21.125 - 1),
+                new Rotation3d(0, Units.degreesToRadians(-15), 0)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -81,13 +83,11 @@ public class AprilTagPoseEstimator {
         "Right",
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 1.3125),
-                Units.inchesToMeters(16 - 2.875),
-                Units.inchesToMeters(28.25),
+                Units.inchesToMeters(-11 + 2),
+                Units.inchesToMeters(-16 + 1),
+                Units.inchesToMeters(21.125 - 1),
                 new Rotation3d(
-                    Units.degreesToRadians(5),
-                    Units.degreesToRadians(-15),
-                    -Math.PI / 2 + Units.degreesToRadians(4))),
+                    Units.degreesToRadians(0), Units.degreesToRadians(-15), -Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -112,14 +112,13 @@ public class AprilTagPoseEstimator {
             .5,
             .5));
     cameraCharacteristics.put(
-        "Back",
+        "Left", // Left is actually facing back
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 0.75),
-                Units.inchesToMeters(-16 + 1.25),
-                Units.inchesToMeters(28.25),
-                new Rotation3d(
-                    0, Units.degreesToRadians(-15), Math.PI + Units.degreesToRadians(4))),
+                Units.inchesToMeters(-11 + 2),
+                Units.inchesToMeters(-16 + 1),
+                Units.inchesToMeters(21.125 - 1),
+                new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -144,14 +143,14 @@ public class AprilTagPoseEstimator {
             .5,
             .5));
     cameraCharacteristics.put(
-        "Left",
+        "Front", // Front is actually facing left
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 1.625),
-                Units.inchesToMeters(-16 + 2.875),
-                Units.inchesToMeters(28.25) + .02,
+                Units.inchesToMeters(-11 + 1.125),
+                Units.inchesToMeters(16 - 0.75),
+                Units.inchesToMeters(21.125 - 1),
                 new Rotation3d(
-                    Units.degreesToRadians(4), Units.degreesToRadians(-10.5), Math.PI / 2)),
+                    Units.degreesToRadians(0), Units.degreesToRadians(-15), Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -182,11 +181,6 @@ public class AprilTagPoseEstimator {
   private final AprilTagPoseEstimatorIO io;
   private final AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs inputs =
       new AprilTagPoseEstimatorIO.AprilTagPoseEstimatorIOInputs();
-
-  @FunctionalInterface
-  public interface VisionEstimateConsumer {
-    void accept(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs);
-  }
 
   private final String name;
   private final Transform3d robotToCamera;
@@ -230,8 +224,7 @@ public class AprilTagPoseEstimator {
     for (var result : inputs.results) {
       switch (result.targets.size()) {
         case 0 -> {} // This shouldn't happen, but just in case
-        case 1 ->
-            poseEstimator.estimatePnpDistanceTrigSolvePose(result).ifPresent(this::addMeasurement);
+        case 1 -> poseEstimator.estimateLowestAmbiguityPose(result).ifPresent(this::addMeasurement);
         default -> poseEstimator.estimateCoprocMultiTagPose(result).ifPresent(this::addMeasurement);
       }
     }
@@ -251,7 +244,7 @@ public class AprilTagPoseEstimator {
       rejectedPoses.add(pose);
       return;
     }
-    if (pose.getZ() < -0.1 || pose.getZ() > 0.3) {
+    if (pose.getZ() < -0.2 || pose.getZ() > 0.3) {
       rejectedPoses.add(pose);
       return;
     }
@@ -273,13 +266,13 @@ public class AprilTagPoseEstimator {
             pose.toPose2d(),
             est.timestampSeconds,
             switch (est.strategy) {
-              case PNP_DISTANCE_TRIG_SOLVE -> {
+              case LOWEST_AMBIGUITY -> {
                 var tagDistance =
                     est.targetsUsed.get(0).getBestCameraToTarget().getTranslation().getNorm();
                 yield VecBuilder.fill(
-                    0.075 * Math.pow(tagDistance, 2.5),
-                    0.075 * Math.pow(tagDistance, 2.5),
-                    Double.POSITIVE_INFINITY);
+                    0.1 * Math.pow(tagDistance, 2.5),
+                    0.1 * Math.pow(tagDistance, 2.5),
+                    0.1 * Math.pow(tagDistance, 2.5));
               }
               case MULTI_TAG_PNP_ON_COPROCESSOR -> {
                 var avgTagDistance = 0.0;

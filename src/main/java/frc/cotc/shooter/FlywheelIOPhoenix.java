@@ -40,9 +40,12 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 80;
 
-    config.Slot0.kV = .105305;
-    config.Slot0.kS = .4065;
-    config.Slot0.kP = .6;
+    config.Feedback.SensorToMechanismRatio = 0.5;
+    config.Feedback.VelocityFilterTimeConstant = 0.004;
+    config.Slot0.kS = 0.363636;
+    config.Slot0.kV = 0.06060606;
+    config.Slot0.kP = 0.3;
+    config.Voltage.PeakReverseVoltage = 0;
 
     // Left Side
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

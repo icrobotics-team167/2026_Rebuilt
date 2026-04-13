@@ -28,7 +28,8 @@ public class Shooter extends SubsystemBase {
     this.flywheelIO = flywheelIO;
 
     projectileSpeedToFlywheelSpeedMap.put(0.0, 0.0);
-    // TODO: Measure
+    projectileSpeedToFlywheelSpeedMap.put(7.4, 83.0);
+    projectileSpeedToFlywheelSpeedMap.put(14.6, 166.0);
   }
 
   @Override
@@ -41,10 +42,10 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Target hood pitch rad", targetPitchRad);
   }
 
-  private final double baseTargetSpeedRotPerSec = 40;
+  private final double baseTargetSpeedRotPerSec = 80;
   private double targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
 
-  private final double minAngle = Units.degreesToRadians(60);
+  private final double minAngle = Units.degreesToRadians(55);
   private double targetPitchRad = minAngle;
 
   public Command idleRun() {
