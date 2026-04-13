@@ -41,7 +41,6 @@
     {"x":{"exp":"RightMidAcrossExit.x", "val":8.0}, "y":{"exp":"FieldWidth - RightMidAcrossExit.y", "val":2.569000000000001}, "heading":{"exp":"RightMidAcrossExit.heading", "val":0.0}, "intervals":32, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"RightBumpCrossPose.x", "val":5.6}, "y":{"exp":"RightBumpCrossPose.y", "val":2.5}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"RightBumpStartPose.x", "val":3.68}, "y":{"exp":"RightBumpStartPose.y", "val":2.5}, "heading":{"exp":"RightBumpStartPose.heading", "val":0.0}, "intervals":29, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"RightShoot.x", "val":2.424}, "y":{"exp":"RightShoot.y", "val":2.776}, "heading":{"exp":"RightShoot.heading", "val":-1.1126473981463851}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"OutpostLeadIn.x", "val":1.0}, "y":{"exp":"OutpostLeadIn.y", "val":0.68}, "heading":{"exp":"OutpostLeadIn.heading", "val":0.0}, "intervals":12, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"Outpost.x", "val":0.56}, "y":{"exp":"Outpost.y", "val":0.68}, "heading":{"exp":"Outpost.heading", "val":3.141592653589793}, "intervals":37, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"RightShoot.x", "val":2.424}, "y":{"exp":"RightShoot.y", "val":2.776}, "heading":{"exp":"RightShoot.heading", "val":-1.1126473981463851}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
@@ -58,11 +57,10 @@
     {"from":4, "to":5, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"BumpCrossSpeed", "val":2.0}}}, "enabled":true},
     {"from":4, "to":5, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"0 m / s ^ 2", "val":0.0}}}, "enabled":false},
     {"from":2, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeSpeed", "val":2.0}}}, "enabled":true},
-    {"from":6, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":7, "to":8, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
-    {"from":7, "to":8, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"1 m / s", "val":1.0}}}, "enabled":true},
-    {"from":7, "to":8, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0 rad / s", "val":0.0}}}, "enabled":true},
-    {"from":8, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true}],
+    {"from":6, "to":7, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
+    {"from":6, "to":7, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"1 m / s", "val":1.0}}}, "enabled":true},
+    {"from":6, "to":7, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0 rad / s", "val":0.0}}}, "enabled":true},
+    {"from":7, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
