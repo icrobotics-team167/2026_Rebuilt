@@ -9,6 +9,7 @@ package choreo.auto;
 
 import static choreo.util.ChoreoAlert.allianceNotReady;
 import static edu.wpi.first.wpilibj.Alert.AlertType.kError;
+import static edu.wpi.first.wpilibj.Alert.AlertType.kWarning;
 
 import choreo.Choreo.TrajectoryLogger;
 import choreo.auto.AutoFactory.AllianceContext;
@@ -23,6 +24,7 @@ import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -61,6 +63,9 @@ public class AutoTrajectory {
   private static final MultiAlert noInitialPose =
       ChoreoAlert.multiAlert(
           causes -> "Unable to get initial pose for trajectories " + causes + ".", kError);
+
+  private static final Alert outOfBounds =
+      ChoreoAlert.alert("Path paused due to the robot falling out the path's bounds", kWarning);
 
   private final String name;
   private final Trajectory<? extends TrajectorySample<?>> trajectory;
@@ -175,8 +180,10 @@ public class AutoTrajectory {
     var sample = sampleOpt.get();
     if (poseSupplier.get().getTranslation().getDistance(sample.getPose().getTranslation()) > 0.2) {
       activeTimer.stop();
+      outOfBounds.set(true);
     } else {
       activeTimer.start();
+      outOfBounds.set(false);
     }
     if (sample instanceof SwerveSample swerveSample) {
       var swerveController = (Consumer<SwerveSample>) this.controller;
