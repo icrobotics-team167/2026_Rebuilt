@@ -212,29 +212,29 @@
    "LeftTrenchOut":{
     "x":{
      "exp":"RightTrenchOut.x",
-     "val":5.1499999999999995
+     "val":5.47
     },
     "y":{
      "exp":"FieldWidth - RightTrenchOut.y",
-     "val":7.537000000000001
+     "val":7.569000000000001
     },
     "heading":{
      "exp":"-RightTrenchOut.heading",
-     "val":-2.0943951023931953
+     "val":-1.5707963267948966
     }
    },
    "LeftTrenchStartPose":{
     "x":{
      "exp":"RightTrenchStartPose.x",
-     "val":4.55
+     "val":4.47
     },
     "y":{
      "exp":"FieldWidth - RightTrenchStartPose.y",
-     "val":7.537000000000001
+     "val":7.719000000000001
     },
     "heading":{
      "exp":"-RightTrenchStartPose.heading",
-     "val":-2.0943951023931953
+     "val":-1.5707963267948966
     }
    },
    "Outpost":{
@@ -393,30 +393,30 @@
    },
    "RightTrenchOut":{
     "x":{
-     "exp":"RightTrenchStartPose.x + 0.6 m",
-     "val":5.1499999999999995
+     "exp":"RightTrenchStartPose.x + 1 m",
+     "val":5.47
     },
     "y":{
-     "exp":"RightTrenchStartPose.y",
-     "val":0.532
+     "exp":"0.5 m",
+     "val":0.5
     },
     "heading":{
      "exp":"RightTrenchStartPose.heading",
-     "val":2.0943951023931953
+     "val":1.5707963267948966
     }
    },
    "RightTrenchStartPose":{
     "x":{
-     "exp":"4.55 m",
-     "val":4.55
+     "exp":"4.47 m",
+     "val":4.47
     },
     "y":{
-     "exp":"0.532 m",
-     "val":0.532
+     "exp":"0.35 m",
+     "val":0.35
     },
     "heading":{
-     "exp":"120 deg",
-     "val":2.0943951023931953
+     "exp":"90 deg",
+     "val":1.5707963267948966
     }
    }
   }
@@ -447,11 +447,11 @@
    "val":68.0388555
   },
   "inertia":{
-   "exp":"24 kg m ^ 2",
-   "val":24.0
+   "exp":"26 kg m ^ 2",
+   "val":26.0
   },
   "gearing":{
-   "exp":"(54 / 12) * (25 / 32) * (30 / 15)",
+   "exp":"7.03125",
    "val":7.03125
   },
   "radius":{
@@ -459,12 +459,12 @@
    "val":0.0508
   },
   "vmax":{
-   "exp":"5100 RPM",
-   "val":534.0707511102648
+   "exp":"5000 RPM",
+   "val":523.5987755982989
   },
   "tmax":{
-   "exp":"1 N * m",
-   "val":1.0
+   "exp":"0.9 N * m",
+   "val":0.9
   },
   "cof":{
    "exp":"1.5",

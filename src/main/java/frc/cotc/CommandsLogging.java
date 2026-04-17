@@ -7,6 +7,7 @@
 
 package frc.cotc;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.*;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -386,6 +387,11 @@ public class CommandsLogging {
         @SuppressWarnings("unchecked")
         var subCommands = (List<Command>) sequenceSubCommandsField.get(sequence);
         var index = (Integer) sequenceCommandIndexField.get(sequence);
+
+        if (index < 0) {
+          DriverStation.reportWarning("Index of sequential command was zero!", true);
+          return;
+        }
 
         var subCommand = subCommands.get(index);
         addCommand(subCommand, parentCommandName + ": " + getCommandName(subCommand), commandsList);
