@@ -54,12 +54,19 @@ public class Autos {
     addRoutine("Center Outpost", this::centerOutpost);
     addRoutine("Center Depot", this::centerDepot);
     addRoutine("Right Trench Mid", this::rightTrenchMid);
+    addRoutine("Right Trench Mid Outpost", this::RightTrenchMidOutpost);
     addRoutine("Right Trench Far", this::rightTrenchFar);
+    addRoutine("Right Trench Far Outpost", this::RightTrenchFarOutpost);
     addRoutine("Right Trench Mid Across", this::rightTrenchMidAcross);
+    addRoutine("Right Trench Mid Across Depot", this::RightTrenchMidAcrossDepot);
     addRoutine("Right Trench Far Across", this::rightTrenchFarAcross);
     addRoutine("Left Trench Mid", this::leftTrenchMid);
     addRoutine("Left Trench Far", this::leftTrenchFar);
+    addRoutine("Left Trench Far Across Outpost", this::leftTrenchFarAcrossOutpost);
+    addRoutine("Left Trench Far Depot", this::leftTrenchFarDepot);
     addRoutine("Left Trench Mid Across", this::leftTrenchMidAcross);
+    addRoutine("Left Trench Mid Across Outpost", this::leftTrenchMidAcrossOutpost);
+    addRoutine("Left Trench Mid Depot", this::leftTrenchMidDepot);
     addRoutine("Left Trench Far Across", this::leftTrenchFarAcross);
   }
 
@@ -305,6 +312,132 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchFarAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFarAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchFarAcrossOutpost() {
+    var routine = autoFactory.newRoutine("Left Trench Far Across Outpost");
+    var trajectory0 = ChoreoTraj.LeftTrenchFarAcrossOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchFarAcrossOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchFarAcrossOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchFarDepot() {
+    var routine = autoFactory.newRoutine("Left Trench Far Depot");
+    var trajectory0 = ChoreoTraj.LeftTrenchFarDepot$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchFarDepot$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchFarDepot$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchMidAcrossOutpost() {
+    var routine = autoFactory.newRoutine("Left Trench Mid Across Outpost");
+    var trajectory0 = ChoreoTraj.LeftTrenchMidAcrossOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchMidAcrossOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchMidAcrossOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchMidDepot() {
+    var routine = autoFactory.newRoutine("Left Trench Mid Depot");
+    var trajectory0 = ChoreoTraj.LeftTrenchMidDepot$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftTrenchMidDepot$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftTrenchMidDepot$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command RightTrenchFarOutpost() {
+    var routine = autoFactory.newRoutine("Right Trench Far Outpost");
+    var trajectory0 = ChoreoTraj.RightTrenchFarOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchFarOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchFarOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command RightTrenchMidAcrossDepot() {
+    var routine = autoFactory.newRoutine("Right Trench Mid Across Depot");
+    var trajectory0 = ChoreoTraj.RightTrenchMidAcrossDepot$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidAcrossDepot$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidAcrossDepot$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd()));
+
+    return routine.cmd();
+  }
+
+  private Command RightTrenchMidOutpost() {
+    var routine = autoFactory.newRoutine("Right Trench Mid Outpost");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
 
     routine
         .active()
