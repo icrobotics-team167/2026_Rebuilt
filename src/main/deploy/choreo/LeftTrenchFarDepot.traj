@@ -10,7 +10,7 @@
     {"x":5.6, "y":5.569000000000001, "heading":3.141592653589793, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":3.68, "y":5.569000000000001, "heading":0.0, "intervals":25, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":0, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":27, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":1.25, "y":5.9843010902404785, "heading":0.0, "intervals":16, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":0.5985493659973145, "y":5.9843010902404785, "heading":3.141592653589793, "intervals":20, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":1.48212993144989, "y":5.818456649780273, "heading":0.0, "intervals":23, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
@@ -345,7 +345,7 @@
     {"t":8.60465, "x":2.51862, "y":5.12711, "heading":-2.12193, "vx":0.31362, "vy":-0.22847, "omega":0.19424, "ax":-5.86516, "ay":4.27482, "alpha":-3.63537, "fx":[-133.00032,-137.65917,-48.74148,-79.65746], "fy":[37.6371,10.99724,129.24772,112.97195]},
     {"t":8.63138, "x":2.5249, "y":5.12253, "heading":-2.11803, "vx":0.15686, "vy":-0.11422, "omega":0.09707, "ax":-5.86884, "ay":4.27334, "alpha":-3.63191, "fx":[-133.04466,-137.66831,-48.79455,-79.8016], "fy":[37.52005,11.10414,129.24587,112.88327]},
     {"t":8.6581, "x":2.527, "y":5.121, "heading":-2.11674, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
-  "splits":[0,40,134,186,202,222]
+  "splits":[0,40,134,159,186,202,222]
  },
  "events":[]
 }
