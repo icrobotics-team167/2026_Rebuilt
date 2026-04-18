@@ -379,15 +379,15 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
                 trajectory2.cmd(),
-                trajectory3.cmd(),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 trajectory5.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }

@@ -83,15 +83,15 @@ public record ChoreoTraj(
     public static final ChoreoTraj CenterDepotTrench$2 = new ChoreoTraj(
         "CenterDepotTrench",
         OptionalInt.of(2),
-        2.18071,
+        2.58452,
         new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(4.47, 7.619, Rotation2d.fromRadians(-1.5708))
+        new Pose2d(5.92, 7.399, Rotation2d.fromRadians(-1.79025))
     );
     public static final ChoreoTraj CenterDepotTrench$3 = new ChoreoTraj(
         "CenterDepotTrench",
         OptionalInt.of(3),
-        3.739770000000001,
-        new Pose2d(4.47, 7.619, Rotation2d.fromRadians(-1.5708)),
+        3.335960000000001,
+        new Pose2d(5.92, 7.399, Rotation2d.fromRadians(-1.79025)),
         new Pose2d(5.6, 5.569, Rotation2d.fromRadians(3.14159))
     );
     public static final ChoreoTraj CenterDepotTrench$4 = new ChoreoTraj(
