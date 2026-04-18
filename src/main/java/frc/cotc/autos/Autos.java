@@ -417,7 +417,6 @@ public class Autos {
     var trajectory3 = ChoreoTraj.CenterDepotTrench$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.CenterDepotTrench$4.asAutoTraj(routine);
     var trajectory5 = ChoreoTraj.CenterDepotTrench$5.asAutoTraj(routine);
-    var trajectory6 = ChoreoTraj.CenterDepotTrench$6.asAutoTraj(routine);//Added for testing
 
     routine
         .active()
@@ -425,25 +424,26 @@ public class Autos {
             sequence(
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
-                stopCommand.get().withTimeout(5),//Changed from 1
+                stopCommand.get().withTimeout(5), // Changed from 1
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 stopCommand.get().withTimeout(5),
                 trajectory2.cmd(),
                 stopCommand.get().withTimeout(5),
                 trajectory3.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory4.cmd().deadlineFor(intakeCommand.get()),
                 stopCommand.get().withTimeout(5),
                 trajectory5.cmd(),
                 stopCommand.get().withTimeout(5),
-                trajectory6.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
