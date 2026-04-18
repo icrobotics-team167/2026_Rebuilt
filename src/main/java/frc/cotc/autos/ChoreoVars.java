@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.*;
 public final class ChoreoVars {
     public static final LinearVelocity BumpCrossSpeed = Units.MetersPerSecond.of(2);
     public static final Distance BumpExitX = Units.Meters.of(5.6);
+    public static final double DepotLeadOutShoot = 1;
     public static final Distance FieldWidth = Units.Meters.of(8.069);
     public static final LinearVelocity IntakeSpeed = Units.MetersPerSecond.of(2);
 
