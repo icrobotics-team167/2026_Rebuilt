@@ -49,7 +49,7 @@ public class AprilTagPoseEstimator {
     // Cameras got swapped around and I CBA to rename them
     // TODO: Rename and recalibrate
     cameraCharacteristics.put(
-        "Back", 
+        "Back",
         new CameraCharacteristics(
             new Transform3d(
                 Units.inchesToMeters(-11 + 0.5),
@@ -112,13 +112,13 @@ public class AprilTagPoseEstimator {
             .5,
             .5));
     cameraCharacteristics.put(
-        "Left", 
+        "Left",
         new CameraCharacteristics(
             new Transform3d(
                 Units.inchesToMeters(-11 + 1.25),
                 Units.inchesToMeters(16.125 + -0.5),
                 Units.inchesToMeters(21.125 - 0.75),
-                new Rotation3d(0, Units.degreesToRadians(-20), Math.PI/2)),
+                new Rotation3d(0, Units.degreesToRadians(-20), Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -149,8 +149,7 @@ public class AprilTagPoseEstimator {
                 Units.inchesToMeters(-11 + 3.25),
                 Units.inchesToMeters(16.125 - 1.75),
                 Units.inchesToMeters(21.125 - 0.75),
-                new Rotation3d(
-                    Units.degreesToRadians(0), Units.degreesToRadians(-15), 0)),
+                new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-15), 0)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),

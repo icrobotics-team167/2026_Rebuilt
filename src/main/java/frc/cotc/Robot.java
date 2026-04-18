@@ -137,7 +137,7 @@ public class Robot extends LoggedRobot {
             new AprilTagPoseEstimator("Left"),
             new AprilTagPoseEstimator("Back"), // Bad calibration
             new AprilTagPoseEstimator("Right") // Broke
-        );
+            );
     var primary = new CommandXboxControllerWithRumble(0);
 
     var intake =
