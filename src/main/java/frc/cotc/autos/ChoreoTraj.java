@@ -136,6 +136,104 @@ public record ChoreoTraj(
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.empty(),
+        10.49049,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$0 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(0),
+        1.66641,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(8.815, 7.069, Rotation2d.fromRadians(-2.0944))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$1 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(1),
+        4.4718,
+        new Pose2d(8.815, 7.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$2 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(2),
+        1.0507100000000005,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$3 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(3),
+        1.323109999999999,
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$4 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(4),
+        0.5116200000000006,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$5 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(5),
+        1.4668399999999995,
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.empty(),
+        9.01647,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot$0 = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.of(0),
+        1.66742,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(8.815, 7.069, Rotation2d.fromRadians(-2.0944))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot$1 = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.of(1),
+        3.6686199999999998,
+        new Pose2d(8.815, 7.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot$2 = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.of(2),
+        1.7732400000000004,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1.25, 5.9843, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot$3 = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.of(3),
+        0.7219299999999995,
+        new Pose2d(1.25, 5.9843, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot$4 = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.of(4),
+        0.5381400000000012,
+        new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.77186))
+    );
+    public static final ChoreoTraj LeftTrenchFarDepot$5 = new ChoreoTraj(
+        "LeftTrenchFarDepot",
+        OptionalInt.of(5),
+        0.6471199999999993,
+        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.77186)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
     public static final ChoreoTraj LeftTrenchMid = new ChoreoTraj(
         "LeftTrenchMid",
         OptionalInt.empty(),
@@ -192,6 +290,125 @@ public record ChoreoTraj(
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
+    public static final ChoreoTraj LeftTrenchMidAcrossOutpost = new ChoreoTraj(
+        "LeftTrenchMidAcrossOutpost",
+        OptionalInt.empty(),
+        8.7787,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj LeftTrenchMidAcrossOutpost$0 = new ChoreoTraj(
+        "LeftTrenchMidAcrossOutpost",
+        OptionalInt.of(0),
+        1.45196,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(8, 7.069, Rotation2d.fromRadians(-2.0944))
+    );
+    public static final ChoreoTraj LeftTrenchMidAcrossOutpost$1 = new ChoreoTraj(
+        "LeftTrenchMidAcrossOutpost",
+        OptionalInt.of(1),
+        4.275320000000001,
+        new Pose2d(8, 7.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchMidAcrossOutpost$2 = new ChoreoTraj(
+        "LeftTrenchMidAcrossOutpost",
+        OptionalInt.of(2),
+        1.0729899999999999,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchMidAcrossOutpost$3 = new ChoreoTraj(
+        "LeftTrenchMidAcrossOutpost",
+        OptionalInt.of(3),
+        1.9784300000000004,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.empty(),
+        8.63109,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$0 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(0),
+        1.45271,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(8, 7.069, Rotation2d.fromRadians(-2.0944))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$1 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(1),
+        3.4979500000000003,
+        new Pose2d(8, 7.069, Rotation2d.fromRadians(-2.0944)),
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$2 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(2),
+        0.8340899999999998,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$3 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(3),
+        0.9391600000000002,
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
+        new Pose2d(1.25, 5.9843, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$4 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(4),
+        0.7219199999999999,
+        new Pose2d(1.25, 5.9843, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$5 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(5),
+        0.5381400000000003,
+        new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.77186))
+    );
+    public static final ChoreoTraj LeftTrenchMidDepot$6 = new ChoreoTraj(
+        "LeftTrenchMidDepot",
+        OptionalInt.of(6),
+        0.6471200000000001,
+        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.77186)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightTrenchFar = new ChoreoTraj(
+        "RightTrenchFar",
+        OptionalInt.empty(),
+        6.38675,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj RightTrenchFar$0 = new ChoreoTraj(
+        "RightTrenchFar",
+        OptionalInt.of(0),
+        1.66743,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944))
+    );
+    public static final ChoreoTraj RightTrenchFar$1 = new ChoreoTraj(
+        "RightTrenchFar",
+        OptionalInt.of(1),
+        3.6686,
+        new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFar$2 = new ChoreoTraj(
+        "RightTrenchFar",
+        OptionalInt.of(2),
+        1.05072,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
     public static final ChoreoTraj RightTrenchFarAcross = new ChoreoTraj(
         "RightTrenchFarAcross",
         OptionalInt.empty(),
@@ -219,6 +436,62 @@ public record ChoreoTraj(
         0.8340900000000007,
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.empty(),
+        9.68831,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$0 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(0),
+        1.66743,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$1 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(1),
+        2.70729,
+        new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(5.6, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$2 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(2),
+        0.9613100000000001,
+        new Pose2d(5.6, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$3 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(3),
+        1.05072,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$4 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(4),
+        1.3231099999999998,
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$5 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(5),
+        0.5116100000000001,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$6 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(6),
+        1.4668399999999995,
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj RightTrenchMid = new ChoreoTraj(
         "RightTrenchMid",
@@ -276,40 +549,117 @@ public record ChoreoTraj(
         new Pose2d(3.68, 5.569, Rotation2d.fromRadians(-3.14159)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.empty(),
+        9.40775,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$0 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(0),
+        1.45197,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(8, 1, Rotation2d.fromRadians(2.0944))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$1 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(1),
+        4.275329999999999,
+        new Pose2d(8, 1, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$2 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(2),
+        0.8340800000000002,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$3 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(3),
+        0.9392200000000006,
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
+        new Pose2d(1.25, 5.9843, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$4 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(4),
+        0.7218900000000001,
+        new Pose2d(1.25, 5.9843, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$5 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(5),
+        0.5381400000000003,
+        new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.77186))
+    );
+    public static final ChoreoTraj RightTrenchMidAcrossDepot$6 = new ChoreoTraj(
+        "RightTrenchMidAcrossDepot",
+        OptionalInt.of(6),
+        0.6471199999999993,
+        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.77186)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.empty(),
+        9.30293,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$0 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(0),
+        1.45272,
+        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(8, 1, Rotation2d.fromRadians(2.0944))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$1 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(1),
+        3.49793,
+        new Pose2d(8, 1, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$2 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(2),
+        1.0507199999999992,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$3 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(3),
+        1.3231100000000007,
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$4 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(4),
+        0.5116100000000001,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$5 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(5),
+        1.4668399999999995,
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+    );
     public static final ChoreoTraj Warmup = new ChoreoTraj(
         "Warmup",
         OptionalInt.empty(),
         1.40232,
         new Pose2d(0, 0, Rotation2d.fromRadians(0)),
         new Pose2d(1, 1, Rotation2d.fromRadians(3.14159))
-    );
-    public static final ChoreoTraj RightTrenchFar = new ChoreoTraj(
-        "RightTrenchFar",
-        OptionalInt.empty(),
-        6.38675,
-        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
-        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
-    );
-    public static final ChoreoTraj RightTrenchFar$0 = new ChoreoTraj(
-        "RightTrenchFar",
-        OptionalInt.of(0),
-        1.66743,
-        new Pose2d(4.47, 0.35, Rotation2d.fromRadians(1.5708)),
-        new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944))
-    );
-    public static final ChoreoTraj RightTrenchFar$1 = new ChoreoTraj(
-        "RightTrenchFar",
-        OptionalInt.of(1),
-        3.6686,
-        new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944)),
-        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
-    );
-    public static final ChoreoTraj RightTrenchFar$2 = new ChoreoTraj(
-        "RightTrenchFar",
-        OptionalInt.of(2),
-        1.05072,
-        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
 
     /**
@@ -333,6 +683,20 @@ public record ChoreoTraj(
         Map.entry("LeftTrenchFarAcross$0", LeftTrenchFarAcross$0),
         Map.entry("LeftTrenchFarAcross$1", LeftTrenchFarAcross$1),
         Map.entry("LeftTrenchFarAcross$2", LeftTrenchFarAcross$2),
+        Map.entry("LeftTrenchFarAcrossOutpost", LeftTrenchFarAcrossOutpost),
+        Map.entry("LeftTrenchFarAcrossOutpost$0", LeftTrenchFarAcrossOutpost$0),
+        Map.entry("LeftTrenchFarAcrossOutpost$1", LeftTrenchFarAcrossOutpost$1),
+        Map.entry("LeftTrenchFarAcrossOutpost$2", LeftTrenchFarAcrossOutpost$2),
+        Map.entry("LeftTrenchFarAcrossOutpost$3", LeftTrenchFarAcrossOutpost$3),
+        Map.entry("LeftTrenchFarAcrossOutpost$4", LeftTrenchFarAcrossOutpost$4),
+        Map.entry("LeftTrenchFarAcrossOutpost$5", LeftTrenchFarAcrossOutpost$5),
+        Map.entry("LeftTrenchFarDepot", LeftTrenchFarDepot),
+        Map.entry("LeftTrenchFarDepot$0", LeftTrenchFarDepot$0),
+        Map.entry("LeftTrenchFarDepot$1", LeftTrenchFarDepot$1),
+        Map.entry("LeftTrenchFarDepot$2", LeftTrenchFarDepot$2),
+        Map.entry("LeftTrenchFarDepot$3", LeftTrenchFarDepot$3),
+        Map.entry("LeftTrenchFarDepot$4", LeftTrenchFarDepot$4),
+        Map.entry("LeftTrenchFarDepot$5", LeftTrenchFarDepot$5),
         Map.entry("LeftTrenchMid", LeftTrenchMid),
         Map.entry("LeftTrenchMid$0", LeftTrenchMid$0),
         Map.entry("LeftTrenchMid$1", LeftTrenchMid$1),
@@ -341,10 +705,35 @@ public record ChoreoTraj(
         Map.entry("LeftTrenchMidAcross$0", LeftTrenchMidAcross$0),
         Map.entry("LeftTrenchMidAcross$1", LeftTrenchMidAcross$1),
         Map.entry("LeftTrenchMidAcross$2", LeftTrenchMidAcross$2),
+        Map.entry("LeftTrenchMidAcrossOutpost", LeftTrenchMidAcrossOutpost),
+        Map.entry("LeftTrenchMidAcrossOutpost$0", LeftTrenchMidAcrossOutpost$0),
+        Map.entry("LeftTrenchMidAcrossOutpost$1", LeftTrenchMidAcrossOutpost$1),
+        Map.entry("LeftTrenchMidAcrossOutpost$2", LeftTrenchMidAcrossOutpost$2),
+        Map.entry("LeftTrenchMidAcrossOutpost$3", LeftTrenchMidAcrossOutpost$3),
+        Map.entry("LeftTrenchMidDepot", LeftTrenchMidDepot),
+        Map.entry("LeftTrenchMidDepot$0", LeftTrenchMidDepot$0),
+        Map.entry("LeftTrenchMidDepot$1", LeftTrenchMidDepot$1),
+        Map.entry("LeftTrenchMidDepot$2", LeftTrenchMidDepot$2),
+        Map.entry("LeftTrenchMidDepot$3", LeftTrenchMidDepot$3),
+        Map.entry("LeftTrenchMidDepot$4", LeftTrenchMidDepot$4),
+        Map.entry("LeftTrenchMidDepot$5", LeftTrenchMidDepot$5),
+        Map.entry("LeftTrenchMidDepot$6", LeftTrenchMidDepot$6),
+        Map.entry("RightTrenchFar", RightTrenchFar),
+        Map.entry("RightTrenchFar$0", RightTrenchFar$0),
+        Map.entry("RightTrenchFar$1", RightTrenchFar$1),
+        Map.entry("RightTrenchFar$2", RightTrenchFar$2),
         Map.entry("RightTrenchFarAcross", RightTrenchFarAcross),
         Map.entry("RightTrenchFarAcross$0", RightTrenchFarAcross$0),
         Map.entry("RightTrenchFarAcross$1", RightTrenchFarAcross$1),
         Map.entry("RightTrenchFarAcross$2", RightTrenchFarAcross$2),
+        Map.entry("RightTrenchFarOutpost", RightTrenchFarOutpost),
+        Map.entry("RightTrenchFarOutpost$0", RightTrenchFarOutpost$0),
+        Map.entry("RightTrenchFarOutpost$1", RightTrenchFarOutpost$1),
+        Map.entry("RightTrenchFarOutpost$2", RightTrenchFarOutpost$2),
+        Map.entry("RightTrenchFarOutpost$3", RightTrenchFarOutpost$3),
+        Map.entry("RightTrenchFarOutpost$4", RightTrenchFarOutpost$4),
+        Map.entry("RightTrenchFarOutpost$5", RightTrenchFarOutpost$5),
+        Map.entry("RightTrenchFarOutpost$6", RightTrenchFarOutpost$6),
         Map.entry("RightTrenchMid", RightTrenchMid),
         Map.entry("RightTrenchMid$0", RightTrenchMid$0),
         Map.entry("RightTrenchMid$1", RightTrenchMid$1),
@@ -353,11 +742,22 @@ public record ChoreoTraj(
         Map.entry("RightTrenchMidAcross$0", RightTrenchMidAcross$0),
         Map.entry("RightTrenchMidAcross$1", RightTrenchMidAcross$1),
         Map.entry("RightTrenchMidAcross$2", RightTrenchMidAcross$2),
-        Map.entry("Warmup", Warmup),
-        Map.entry("RightTrenchFar", RightTrenchFar),
-        Map.entry("RightTrenchFar$0", RightTrenchFar$0),
-        Map.entry("RightTrenchFar$1", RightTrenchFar$1),
-        Map.entry("RightTrenchFar$2", RightTrenchFar$2)
+        Map.entry("RightTrenchMidAcrossDepot", RightTrenchMidAcrossDepot),
+        Map.entry("RightTrenchMidAcrossDepot$0", RightTrenchMidAcrossDepot$0),
+        Map.entry("RightTrenchMidAcrossDepot$1", RightTrenchMidAcrossDepot$1),
+        Map.entry("RightTrenchMidAcrossDepot$2", RightTrenchMidAcrossDepot$2),
+        Map.entry("RightTrenchMidAcrossDepot$3", RightTrenchMidAcrossDepot$3),
+        Map.entry("RightTrenchMidAcrossDepot$4", RightTrenchMidAcrossDepot$4),
+        Map.entry("RightTrenchMidAcrossDepot$5", RightTrenchMidAcrossDepot$5),
+        Map.entry("RightTrenchMidAcrossDepot$6", RightTrenchMidAcrossDepot$6),
+        Map.entry("RightTrenchMidOutpost", RightTrenchMidOutpost),
+        Map.entry("RightTrenchMidOutpost$0", RightTrenchMidOutpost$0),
+        Map.entry("RightTrenchMidOutpost$1", RightTrenchMidOutpost$1),
+        Map.entry("RightTrenchMidOutpost$2", RightTrenchMidOutpost$2),
+        Map.entry("RightTrenchMidOutpost$3", RightTrenchMidOutpost$3),
+        Map.entry("RightTrenchMidOutpost$4", RightTrenchMidOutpost$4),
+        Map.entry("RightTrenchMidOutpost$5", RightTrenchMidOutpost$5),
+        Map.entry("Warmup", Warmup)
     );
 
     /**

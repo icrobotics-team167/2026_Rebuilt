@@ -15,6 +15,7 @@ public final class ChoreoVars {
     public static final Distance BumpExitX = Units.Meters.of(5.6);
     public static final Distance FieldWidth = Units.Meters.of(8.069);
     public static final LinearVelocity IntakeSpeed = Units.MetersPerSecond.of(2);
+    public static final LinearVelocity WallSlamSpeed = Units.MetersPerSecond.of(1);
 
     public static final class Poses {
         public static final Pose2d CenterLeadOut = new Pose2d(3.0704, 4.0345, Rotation2d.fromRadians(0));
