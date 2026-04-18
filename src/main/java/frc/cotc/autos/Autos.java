@@ -356,7 +356,7 @@ public class Autos {
 
     return routine.cmd();
   }
-
+//down here
   private Command leftTrenchFarAcrossOutpost() {
     var routine = autoFactory.newRoutine("Left Trench Far Across Outpost");
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcrossOutpost$0.asAutoTraj(routine);
@@ -379,7 +379,7 @@ public class Autos {
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get())),
                 trajectory3.cmd(),
-                waitSeconds(2),
+                stopCommand.get().withTimeout(2),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
@@ -395,6 +395,7 @@ public class Autos {
     var trajectory1 = ChoreoTraj.LeftTrenchFarDepot$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFarDepot$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.LeftTrenchFarDepot$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.LeftTrenchFarDepot$4.asAutoTraj(routine);
 
     routine
         .active()
@@ -408,7 +409,13 @@ public class Autos {
                     aimCommand.get(),
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd()));
+                trajectory3.cmd(),
+                stopCommand.get().withTimeout(2),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -429,6 +436,7 @@ public class Autos {
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
+                stopCommand.get().withTimeout(2),
                 trajectory3.cmd(),
                 parallel(
                     aimCommand.get(),
@@ -459,7 +467,7 @@ public class Autos {
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get())),
                 trajectory3.cmd(),
-                waitSeconds(1),
+                stopCommand.get().withTimeout(1),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
@@ -490,7 +498,7 @@ public class Autos {
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get())),
                 trajectory3.cmd(),
-                waitSeconds(2),
+                stopCommand.get().withTimeout(2),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
@@ -521,7 +529,7 @@ public class Autos {
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get())),
                 trajectory3.cmd(),
-                waitSeconds(1),
+                stopCommand.get().withTimeout(1),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
@@ -552,7 +560,7 @@ public class Autos {
                     shootCommand.get(),
                     waitSeconds(1).andThen(feedCommand.get())),
                 trajectory3.cmd(),
-                waitSeconds(2),
+                stopCommand.get().withTimeout(2),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
