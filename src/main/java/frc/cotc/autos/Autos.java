@@ -356,7 +356,8 @@ public class Autos {
 
     return routine.cmd();
   }
-//down here
+
+  // down here
   private Command leftTrenchFarAcrossOutpost() {
     var routine = autoFactory.newRoutine("Left Trench Far Across Outpost");
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcrossOutpost$0.asAutoTraj(routine);
@@ -364,7 +365,6 @@ public class Autos {
     var trajectory2 = ChoreoTraj.LeftTrenchFarAcrossOutpost$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.LeftTrenchFarAcrossOutpost$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.LeftTrenchFarAcrossOutpost$4.asAutoTraj(routine);
-    
 
     routine
         .active()
@@ -426,7 +426,6 @@ public class Autos {
     var trajectory1 = ChoreoTraj.LeftTrenchMidAcrossOutpost$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchMidAcrossOutpost$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.LeftTrenchMidAcrossOutpost$3.asAutoTraj(routine);
-  
 
     routine
         .active()
