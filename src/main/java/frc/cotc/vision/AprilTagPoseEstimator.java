@@ -55,7 +55,7 @@ public class AprilTagPoseEstimator {
                 Units.inchesToMeters(-11 + 0.5),
                 Units.inchesToMeters(-16.125 + 2.5),
                 Units.inchesToMeters(21.125 - .75),
-                new Rotation3d(0, Units.degreesToRadians(-15), 0)),
+                new Rotation3d(0, Units.degreesToRadians(-20), Math.PI)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -87,7 +87,7 @@ public class AprilTagPoseEstimator {
                 Units.inchesToMeters(-16.125 + 0),
                 Units.inchesToMeters(21.125 - 0.75),
                 new Rotation3d(
-                    Units.degreesToRadians(0), Units.degreesToRadians(-15), -Math.PI / 2)),
+                    Units.degreesToRadians(0), Units.degreesToRadians(-20), -Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -118,7 +118,7 @@ public class AprilTagPoseEstimator {
                 Units.inchesToMeters(-11 + 1.25),
                 Units.inchesToMeters(16.125 + -0.5),
                 Units.inchesToMeters(21.125 - 0.75),
-                new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
+                new Rotation3d(0, Units.degreesToRadians(-20), Math.PI/2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -150,7 +150,7 @@ public class AprilTagPoseEstimator {
                 Units.inchesToMeters(16.125 - 1.75),
                 Units.inchesToMeters(21.125 - 0.75),
                 new Rotation3d(
-                    Units.degreesToRadians(0), Units.degreesToRadians(-15), Math.PI / 2)),
+                    Units.degreesToRadians(0), Units.degreesToRadians(-15), 0)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
