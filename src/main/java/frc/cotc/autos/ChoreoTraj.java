@@ -454,27 +454,41 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightTrenchFarOutpost$1 = new ChoreoTraj(
         "RightTrenchFarOutpost",
         OptionalInt.of(1),
-        3.6686,
+        2.70729,
         new Pose2d(8.815, 1, Rotation2d.fromRadians(2.0944)),
-        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+        new Pose2d(5.6, 2.5, Rotation2d.fromRadians(3.14159))
     );
     public static final ChoreoTraj RightTrenchFarOutpost$2 = new ChoreoTraj(
         "RightTrenchFarOutpost",
         OptionalInt.of(2),
-        1.05072,
-        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
+        0.9613100000000001,
+        new Pose2d(5.6, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
     );
     public static final ChoreoTraj RightTrenchFarOutpost$3 = new ChoreoTraj(
         "RightTrenchFarOutpost",
         OptionalInt.of(3),
-        1.83472,
-        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
-        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+        1.05072,
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
     );
     public static final ChoreoTraj RightTrenchFarOutpost$4 = new ChoreoTraj(
         "RightTrenchFarOutpost",
         OptionalInt.of(4),
+        1.3231099999999998,
+        new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$5 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(5),
+        0.5116100000000001,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchFarOutpost$6 = new ChoreoTraj(
+        "RightTrenchFarOutpost",
+        OptionalInt.of(6),
         1.4668399999999995,
         new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
@@ -622,13 +636,20 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightTrenchMidOutpost$3 = new ChoreoTraj(
         "RightTrenchMidOutpost",
         OptionalInt.of(3),
-        1.8347200000000008,
+        1.3231100000000007,
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
-        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
     );
     public static final ChoreoTraj RightTrenchMidOutpost$4 = new ChoreoTraj(
         "RightTrenchMidOutpost",
         OptionalInt.of(4),
+        0.5116100000000001,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMidOutpost$5 = new ChoreoTraj(
+        "RightTrenchMidOutpost",
+        OptionalInt.of(5),
         1.4668399999999995,
         new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
@@ -711,6 +732,8 @@ public record ChoreoTraj(
         Map.entry("RightTrenchFarOutpost$2", RightTrenchFarOutpost$2),
         Map.entry("RightTrenchFarOutpost$3", RightTrenchFarOutpost$3),
         Map.entry("RightTrenchFarOutpost$4", RightTrenchFarOutpost$4),
+        Map.entry("RightTrenchFarOutpost$5", RightTrenchFarOutpost$5),
+        Map.entry("RightTrenchFarOutpost$6", RightTrenchFarOutpost$6),
         Map.entry("RightTrenchMid", RightTrenchMid),
         Map.entry("RightTrenchMid$0", RightTrenchMid$0),
         Map.entry("RightTrenchMid$1", RightTrenchMid$1),
@@ -733,6 +756,7 @@ public record ChoreoTraj(
         Map.entry("RightTrenchMidOutpost$2", RightTrenchMidOutpost$2),
         Map.entry("RightTrenchMidOutpost$3", RightTrenchMidOutpost$3),
         Map.entry("RightTrenchMidOutpost$4", RightTrenchMidOutpost$4),
+        Map.entry("RightTrenchMidOutpost$5", RightTrenchMidOutpost$5),
         Map.entry("Warmup", Warmup)
     );
 
