@@ -357,6 +357,7 @@ public class Autos {
     return routine.cmd();
   }
 
+  //down here
   private Command leftTrenchFarAcrossOutpost() {
     var routine = autoFactory.newRoutine("Left Trench Far Across Outpost");
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcrossOutpost$0.asAutoTraj(routine);
@@ -364,6 +365,7 @@ public class Autos {
     var trajectory2 = ChoreoTraj.LeftTrenchFarAcrossOutpost$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.LeftTrenchFarAcrossOutpost$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.LeftTrenchFarAcrossOutpost$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.LeftTrenchFarAcrossOutpost$5.asAutoTraj(routine);
 
     routine
         .active()
@@ -378,8 +380,9 @@ public class Autos {
                         shootCommand.get(),
                         waitSeconds(1).andThen(feedCommand.get()))
                     .withTimeout(8),
-                trajectory3.cmd().deadlineFor(intakeCommand.get()),
-                trajectory4.cmd(),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
                 parallel(
                         aimCommand.get(),
                         shootCommand.get(),
@@ -490,6 +493,7 @@ public class Autos {
     var trajectory2 = ChoreoTraj.RightTrenchFarOutpost$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.RightTrenchFarOutpost$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.RightTrenchFarOutpost$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.RightTrenchFarOutpost$5.asAutoTraj(routine);
 
     routine
         .active()
@@ -504,8 +508,9 @@ public class Autos {
                         shootCommand.get(),
                         waitSeconds(1).andThen(feedCommand.get()))
                     .withTimeout(8),
-                trajectory3.cmd().deadlineFor(intakeCommand.get()),
-                trajectory4.cmd(),
+                trajectory3.cmd(),
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
                 parallel(
                         aimCommand.get(),
                         shootCommand.get(),
