@@ -36,12 +36,12 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
 
   @Override
   public void run() {
-    intakeMotor.set(0.75);
+    intakeMotor.set(-1);
   }
 
   @Override
   public void runReverse() {
-    intakeMotor.set(-1);
+    intakeMotor.set(1);
   }
 
   @Override

@@ -135,7 +135,7 @@ public class Autos {
     var routine = autoFactory.newRoutine("Center Outpost");
     var trajectory0 = ChoreoTraj.CenterOutpost$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.CenterOutpost$1.asAutoTraj(routine);
-    var trajectory2 = ChoreoTraj.CenterOutpost$2.asAutoTraj(routine);//Added
+    var trajectory2 = ChoreoTraj.CenterOutpost$2.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -143,7 +143,9 @@ public class Autos {
             sequence(
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
-                swerve.pidToPose(trajectory0.getFinalPose().orElseThrow()).withTimeout(5),//Changed from 3
+                swerve
+                    .pidToPose(trajectory0.getFinalPose().orElseThrow())
+                    .withTimeout(5), // Changed from 3
                 trajectory1.cmd(),
                 stopCommand.get().withTimeout(5),
                 trajectory2.cmd(),
@@ -160,7 +162,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.CenterDepot$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.CenterDepot$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.CenterDepot$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.CenterDepot$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.CenterDepot$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -187,7 +189,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchMid$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchMid$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchMid$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.RightTrenchMid$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.RightTrenchMid$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -214,7 +216,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchFar$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchFar$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchFar$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.RightTrenchFar$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.RightTrenchFar$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -241,7 +243,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchMidAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchMidAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchMidAcross$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.RightTrenchMidAcross$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.RightTrenchMidAcross$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -268,7 +270,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchFarAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchFarAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchFarAcross$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.RightTrenchFarAcross$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.RightTrenchFarAcross$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -295,7 +297,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchMid$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchMid$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchMid$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.LeftTrenchMid$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.LeftTrenchMid$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -322,7 +324,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchFar$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchFar$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFar$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.LeftTrenchFar$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.LeftTrenchFar$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -349,7 +351,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchMidAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchMidAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchMidAcross$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.LeftTrenchMidAcross$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.LeftTrenchMidAcross$3.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -376,7 +378,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchFarAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFarAcross$2.asAutoTraj(routine);
-    var trajectory3 = ChoreoTraj.LeftTrenchFarAcross$3.asAutoTraj(routine);//Added
+    var trajectory3 = ChoreoTraj.LeftTrenchFarAcross$3.asAutoTraj(routine); // Added
 
     routine
         .active()

@@ -28,8 +28,8 @@ public class Shooter extends SubsystemBase {
     this.flywheelIO = flywheelIO;
 
     projectileSpeedToFlywheelSpeedMap.put(0.0, 0.0);
-    projectileSpeedToFlywheelSpeedMap.put(7.4, 83.0);
-    projectileSpeedToFlywheelSpeedMap.put(14.6, 166.0);
+    projectileSpeedToFlywheelSpeedMap.put(7.4, 77.0);
+    projectileSpeedToFlywheelSpeedMap.put(14.6, 158.0);
   }
 
   @Override
