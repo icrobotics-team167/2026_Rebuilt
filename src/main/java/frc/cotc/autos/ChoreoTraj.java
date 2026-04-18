@@ -167,13 +167,20 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftTrenchFarAcrossOutpost$3 = new ChoreoTraj(
         "LeftTrenchFarAcrossOutpost",
         OptionalInt.of(3),
-        1.8347299999999995,
+        1.323109999999999,
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265)),
-        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159))
     );
     public static final ChoreoTraj LeftTrenchFarAcrossOutpost$4 = new ChoreoTraj(
         "LeftTrenchFarAcrossOutpost",
         OptionalInt.of(4),
+        0.5116200000000006,
+        new Pose2d(1, 0.68, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj LeftTrenchFarAcrossOutpost$5 = new ChoreoTraj(
+        "LeftTrenchFarAcrossOutpost",
+        OptionalInt.of(5),
         1.4668399999999995,
         new Pose2d(0.56, 0.68, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
@@ -661,6 +668,7 @@ public record ChoreoTraj(
         Map.entry("LeftTrenchFarAcrossOutpost$2", LeftTrenchFarAcrossOutpost$2),
         Map.entry("LeftTrenchFarAcrossOutpost$3", LeftTrenchFarAcrossOutpost$3),
         Map.entry("LeftTrenchFarAcrossOutpost$4", LeftTrenchFarAcrossOutpost$4),
+        Map.entry("LeftTrenchFarAcrossOutpost$5", LeftTrenchFarAcrossOutpost$5),
         Map.entry("LeftTrenchFarDepot", LeftTrenchFarDepot),
         Map.entry("LeftTrenchFarDepot$0", LeftTrenchFarDepot$0),
         Map.entry("LeftTrenchFarDepot$1", LeftTrenchFarDepot$1),
