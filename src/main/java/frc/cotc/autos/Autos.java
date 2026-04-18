@@ -374,15 +374,17 @@ public class Autos {
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
@@ -405,16 +407,18 @@ public class Autos {
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 trajectory5.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
@@ -437,9 +441,10 @@ public class Autos {
                 stopCommand.get().withTimeout(2).deadlineFor(intakeCommand.get()),
                 trajectory3.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
@@ -462,16 +467,18 @@ public class Autos {
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 trajectory5.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
@@ -493,15 +500,17 @@ public class Autos {
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
@@ -524,16 +533,18 @@ public class Autos {
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 trajectory5.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
@@ -555,15 +566,17 @@ public class Autos {
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 parallel(
-                    aimCommand.get(),
-                    shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
 
     return routine.cmd();
   }
