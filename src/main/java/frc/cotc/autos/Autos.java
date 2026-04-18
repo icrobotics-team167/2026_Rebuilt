@@ -362,6 +362,9 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcrossOutpost$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchFarAcrossOutpost$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFarAcrossOutpost$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.LeftTrenchFarAcrossOutpost$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.LeftTrenchFarAcrossOutpost$4.asAutoTraj(routine);
+    
 
     routine
         .active()
@@ -370,7 +373,18 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get())),
+                trajectory3.cmd(),
+                waitSeconds(2),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -380,6 +394,7 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchFarDepot$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchFarDepot$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFarDepot$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.LeftTrenchFarDepot$3.asAutoTraj(routine);
 
     routine
         .active()
@@ -388,7 +403,12 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get())),
+                trajectory3.cmd()));
 
     return routine.cmd();
   }
@@ -398,6 +418,8 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchMidAcrossOutpost$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchMidAcrossOutpost$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchMidAcrossOutpost$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.LeftTrenchMidAcrossOutpost$3.asAutoTraj(routine);
+  
 
     routine
         .active()
@@ -406,7 +428,12 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                trajectory3.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -416,6 +443,8 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchMidDepot$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchMidDepot$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchMidDepot$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.LeftTrenchMidDepot$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.LeftTrenchMidDepot$4.asAutoTraj(routine);
 
     routine
         .active()
@@ -424,7 +453,18 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get())),
+                trajectory3.cmd(),
+                waitSeconds(1),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -434,6 +474,8 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchFarOutpost$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchFarOutpost$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchFarOutpost$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.RightTrenchFarOutpost$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.RightTrenchFarOutpost$4.asAutoTraj(routine);
 
     routine
         .active()
@@ -442,7 +484,18 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get())),
+                trajectory3.cmd(),
+                waitSeconds(2),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -452,6 +505,8 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchMidAcrossDepot$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchMidAcrossDepot$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchMidAcrossDepot$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.RightTrenchMidAcrossDepot$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.RightTrenchMidAcrossDepot$4.asAutoTraj(routine);
 
     routine
         .active()
@@ -460,7 +515,18 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get())),
+                trajectory3.cmd(),
+                waitSeconds(1),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
@@ -470,6 +536,8 @@ public class Autos {
     var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+    var trajectory3 = ChoreoTraj.RightTrenchMidOutpost$3.asAutoTraj(routine);
+    var trajectory4 = ChoreoTraj.RightTrenchMidOutpost$4.asAutoTraj(routine);
 
     routine
         .active()
@@ -478,7 +546,18 @@ public class Autos {
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
-                trajectory2.cmd()));
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get())),
+                trajectory3.cmd(),
+                waitSeconds(2),
+                trajectory4.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
