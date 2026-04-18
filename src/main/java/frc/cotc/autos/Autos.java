@@ -357,7 +357,6 @@ public class Autos {
     return routine.cmd();
   }
 
-  // down here
   private Command leftTrenchFarAcrossOutpost() {
     var routine = autoFactory.newRoutine("Left Trench Far Across Outpost");
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcrossOutpost$0.asAutoTraj(routine);
@@ -377,14 +376,13 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd(),
-                stopCommand.get().withTimeout(2),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
@@ -396,6 +394,7 @@ public class Autos {
     var trajectory2 = ChoreoTraj.LeftTrenchFarDepot$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.LeftTrenchFarDepot$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.LeftTrenchFarDepot$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.LeftTrenchFarDepot$5.asAutoTraj(routine);
 
     routine
         .active()
@@ -408,14 +407,14 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd(),
-                stopCommand.get().withTimeout(2),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
+                trajectory5.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
@@ -435,12 +434,12 @@ public class Autos {
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
-                stopCommand.get().withTimeout(2),
+                stopCommand.get().withTimeout(2).deadlineFor(intakeCommand.get()),
                 trajectory3.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
@@ -452,6 +451,7 @@ public class Autos {
     var trajectory2 = ChoreoTraj.LeftTrenchMidDepot$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.LeftTrenchMidDepot$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.LeftTrenchMidDepot$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.LeftTrenchMidDepot$5.asAutoTraj(routine);
 
     routine
         .active()
@@ -464,14 +464,14 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd(),
-                stopCommand.get().withTimeout(1),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
+                trajectory5.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
@@ -495,14 +495,13 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd(),
-                stopCommand.get().withTimeout(2),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
@@ -514,6 +513,7 @@ public class Autos {
     var trajectory2 = ChoreoTraj.RightTrenchMidAcrossDepot$2.asAutoTraj(routine);
     var trajectory3 = ChoreoTraj.RightTrenchMidAcrossDepot$3.asAutoTraj(routine);
     var trajectory4 = ChoreoTraj.RightTrenchMidAcrossDepot$4.asAutoTraj(routine);
+    var trajectory5 = ChoreoTraj.RightTrenchMidAcrossDepot$5.asAutoTraj(routine);
 
     routine
         .active()
@@ -526,14 +526,14 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd(),
-                stopCommand.get().withTimeout(1),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
+                trajectory5.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
@@ -557,14 +557,13 @@ public class Autos {
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get())),
-                trajectory3.cmd(),
-                stopCommand.get().withTimeout(2),
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8),
+                trajectory3.cmd().deadlineFor(intakeCommand.get()),
                 trajectory4.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
-                    waitSeconds(1).andThen(feedCommand.get()))));
+                    waitSeconds(1).andThen(feedCommand.get())).withTimeout(8)));
 
     return routine.cmd();
   }
