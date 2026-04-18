@@ -580,9 +580,9 @@ public record ChoreoTraj(
     public static final ChoreoTraj CenterDepot = new ChoreoTraj(
         "CenterDepot",
         OptionalInt.empty(),
-        3.41026,
+        3.69477,
         new Pose2d(3.68, 4.0345, Rotation2d.fromRadians(0)),
-        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.11674))
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj CenterDepot$0 = new ChoreoTraj(
         "CenterDepot",
@@ -601,9 +601,9 @@ public record ChoreoTraj(
     public static final ChoreoTraj CenterDepot$2 = new ChoreoTraj(
         "CenterDepot",
         OptionalInt.of(2),
-        0.9007499999999999,
+        1.18526,
         new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.11674))
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
 
     /**
