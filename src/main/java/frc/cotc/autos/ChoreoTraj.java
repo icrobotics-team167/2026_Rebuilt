@@ -468,9 +468,9 @@ public record ChoreoTraj(
     public static final ChoreoTraj CenterDepotTrench = new ChoreoTraj(
         "CenterDepotTrench",
         OptionalInt.empty(),
-        3.41026,
+        10.19428,
         new Pose2d(3.68, 4.0345, Rotation2d.fromRadians(0)),
-        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.11674))
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj CenterDepotTrench$0 = new ChoreoTraj(
         "CenterDepotTrench",
@@ -489,9 +489,30 @@ public record ChoreoTraj(
     public static final ChoreoTraj CenterDepotTrench$2 = new ChoreoTraj(
         "CenterDepotTrench",
         OptionalInt.of(2),
-        0.9007499999999999,
+        2.1606799999999997,
         new Pose2d(0.59855, 5.9843, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(1.48213, 5.81846, Rotation2d.fromRadians(-2.11674))
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708))
+    );
+    public static final ChoreoTraj CenterDepotTrench$3 = new ChoreoTraj(
+        "CenterDepotTrench",
+        OptionalInt.of(3),
+        3.728670000000001,
+        new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(5.6, 5.569, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj CenterDepotTrench$4 = new ChoreoTraj(
+        "CenterDepotTrench",
+        OptionalInt.of(4),
+        0.9613299999999985,
+        new Pose2d(5.6, 5.569, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj CenterDepotTrench$5 = new ChoreoTraj(
+        "CenterDepotTrench",
+        OptionalInt.of(5),
+        0.8340899999999998,
+        new Pose2d(3.68, 5.569, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj LeftTrenchMid = new ChoreoTraj(
         "LeftTrenchMid",
@@ -678,6 +699,9 @@ public record ChoreoTraj(
         Map.entry("CenterDepotTrench$0", CenterDepotTrench$0),
         Map.entry("CenterDepotTrench$1", CenterDepotTrench$1),
         Map.entry("CenterDepotTrench$2", CenterDepotTrench$2),
+        Map.entry("CenterDepotTrench$3", CenterDepotTrench$3),
+        Map.entry("CenterDepotTrench$4", CenterDepotTrench$4),
+        Map.entry("CenterDepotTrench$5", CenterDepotTrench$5),
         Map.entry("LeftTrenchMid", LeftTrenchMid),
         Map.entry("LeftTrenchMid$0", LeftTrenchMid$0),
         Map.entry("LeftTrenchMid$1", LeftTrenchMid$1),
