@@ -8,8 +8,8 @@
     {"x":8.815, "y":1.0, "heading":2.0943951023931953, "intervals":51, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":8.815, "y":5.5, "heading":0.0, "intervals":37, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":5.6, "y":5.569000000000001, "heading":3.141592653589793, "intervals":25, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":3.68, "y":5.569000000000001, "heading":0.0, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":40, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":3.68, "y":5.569000000000001, "heading":0.0, "intervals":26, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -32,8 +32,8 @@
     {"x":{"exp":"RightFarEnter.x", "val":8.815}, "y":{"exp":"RightFarEnter.y", "val":1.0}, "heading":{"exp":"RightFarEnter.heading", "val":2.0943951023931953}, "intervals":51, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"RightFarAcrossExit.x", "val":8.815}, "y":{"exp":"RightFarAcrossExit.y", "val":5.5}, "heading":{"exp":"RightFarAcrossExit.heading", "val":0.0}, "intervals":37, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"LeftBumpCrossPose.x", "val":5.6}, "y":{"exp":"LeftBumpCrossPose.y", "val":5.569000000000001}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":25, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"LeftBumpStartPose.x", "val":3.68}, "y":{"exp":"LeftBumpStartPose.y", "val":5.569000000000001}, "heading":{"exp":"LeftBumpStartPose.heading", "val":0.0}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"LeftShoot.x", "val":2.527}, "y":{"exp":"LeftShoot.y", "val":5.121}, "heading":{"exp":"LeftShoot.heading", "val":-2.116735316818723}, "intervals":40, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"LeftBumpStartPose.x", "val":3.68}, "y":{"exp":"LeftBumpStartPose.y", "val":5.569000000000001}, "heading":{"exp":"LeftBumpStartPose.heading", "val":0.0}, "intervals":26, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"LeftShoot.x", "val":2.527}, "y":{"exp":"LeftShoot.y", "val":5.121}, "heading":{"exp":"LeftShoot.heading", "val":-2.116735316818723}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -269,7 +269,7 @@
     {"t":6.90817, "x":2.53268, "y":5.12139, "heading":-2.12999, "vx":-0.17516, "vy":-0.01491, "omega":0.41363, "ax":2.66707, "ay":0.32116, "alpha":-6.45992, "fx":[-98.51497,102.88914,112.14042,64.9498], "fy":[-68.42631,-69.88305,54.00522,106.15516]},
     {"t":6.94025, "x":2.52844, "y":5.12107, "heading":-2.12005, "vx":-0.0896, "vy":-0.00461, "omega":0.2064, "ax":2.79295, "ay":0.14376, "alpha":-6.43386, "fx":[-88.89288,103.02059,111.80944,64.09209], "fy":[-81.89186,-69.71286,54.70197,106.68385]},
     {"t":6.97233, "x":2.527, "y":5.121, "heading":-2.11674, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
-  "splits":[0,50,101,138]
+  "splits":[0,50,101,138,163]
  },
  "events":[]
 }
