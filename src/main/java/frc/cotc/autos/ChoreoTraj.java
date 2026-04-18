@@ -342,13 +342,20 @@ public record ChoreoTraj(
     public static final ChoreoTraj RightTrenchMid$1 = new ChoreoTraj(
         "RightTrenchMid",
         OptionalInt.of(1),
-        3.49793,
+        1.3888399999999999,
         new Pose2d(8, 1, Rotation2d.fromRadians(2.0944)),
-        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+        new Pose2d(8, 3.65, Rotation2d.fromRadians(2.0944))
     );
     public static final ChoreoTraj RightTrenchMid$2 = new ChoreoTraj(
         "RightTrenchMid",
         OptionalInt.of(2),
+        2.1090900000000006,
+        new Pose2d(8, 3.65, Rotation2d.fromRadians(2.0944)),
+        new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159))
+    );
+    public static final ChoreoTraj RightTrenchMid$3 = new ChoreoTraj(
+        "RightTrenchMid",
+        OptionalInt.of(3),
         1.0507199999999992,
         new Pose2d(3.68, 2.5, Rotation2d.fromRadians(3.14159)),
         new Pose2d(2.424, 2.776, Rotation2d.fromRadians(-1.11265))
@@ -770,6 +777,7 @@ public record ChoreoTraj(
         Map.entry("RightTrenchMid$0", RightTrenchMid$0),
         Map.entry("RightTrenchMid$1", RightTrenchMid$1),
         Map.entry("RightTrenchMid$2", RightTrenchMid$2),
+        Map.entry("RightTrenchMid$3", RightTrenchMid$3),
         Map.entry("RightTrenchFar", RightTrenchFar),
         Map.entry("RightTrenchFar$0", RightTrenchFar$0),
         Map.entry("RightTrenchFar$1", RightTrenchFar$1),
