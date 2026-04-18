@@ -383,7 +383,7 @@ public class Autos {
                 trajectory2.cmd(),
                 trajectory3.cmd(),
                 trajectory4.cmd(),
-                trajectory5.cmd(), 
+                trajectory5.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
