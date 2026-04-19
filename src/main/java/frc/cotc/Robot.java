@@ -132,11 +132,10 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-            new AprilTagPoseEstimator("Front"), // Bad calibration
+            new AprilTagPoseEstimator("Front"),
             new AprilTagPoseEstimator("Left"),
-            new AprilTagPoseEstimator("Back"), // Bad calibration
-            new AprilTagPoseEstimator("Right") // Broke
-            );
+            new AprilTagPoseEstimator("Back"),
+            new AprilTagPoseEstimator("Right"));
     var primary = new CommandXboxControllerWithRumble(0);
 
     var intake =
@@ -215,7 +214,7 @@ public class Robot extends LoggedRobot {
         .and(
             () ->
                 switch (shotTarget) {
-                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  // case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
         .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
