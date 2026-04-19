@@ -294,7 +294,10 @@ public class Robot extends LoggedRobot {
     primary.a().and(DriverStation::isEnabled).toggleOnTrue(intake.retract());
     primary.x().and(DriverStation::isEnabled).whileTrue(intake.agitate());
     primary.leftTrigger().and(DriverStation::isEnabled).whileTrue(intake.intake());
-    primary.y().and(DriverStation::isEnabled).whileTrue(intake.outtake());
+    primary
+        .y()
+        .and(DriverStation::isEnabled)
+        .whileTrue(parallel(intake.outtake(), beltFloor.runBackwards()));
 
     primary
         .back()

@@ -21,9 +21,10 @@ class IntakePivot extends SubsystemBase {
 
   private static final double EXTENDED_ANGLE = 0;
   private static final double AGITATE_ANGLE = 1.5;
+  private static final double LOW_AGITAGE_ANGLE = 0.75;
   private static final double RETRACTED_ANGLE = 2.274;
 
-  private final PIDController pidController = new PIDController(6, 0.0, 0.04);
+  private final PIDController pidController = new PIDController(8, 0.0, 0.06);
   private final ArmFeedforward feedforward = new ArmFeedforward(0.158, 0.242, 0.0);
 
   private double targetAngleRad = EXTENDED_ANGLE;
@@ -61,5 +62,10 @@ class IntakePivot extends SubsystemBase {
   Command agitate() {
     return repeatingSequence(goToPos(AGITATE_ANGLE).withTimeout(0.5), extend().withTimeout(0.5))
         .withName("Agitate");
+  }
+
+  Command lowAgitate() {
+    return repeatingSequence(goToPos(LOW_AGITAGE_ANGLE).withTimeout(0.4), extend().withTimeout(0.4))
+        .withName("Low Agitate");
   }
 }

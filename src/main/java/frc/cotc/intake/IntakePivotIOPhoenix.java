@@ -23,7 +23,7 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
   private final SplineEncoder pivotEncoder = new SplineEncoder(0);
   private final BaseStatusSignal statorSignal, supplySignal, velocitySignal;
 
-  private final double offsetRot = 0.304319;
+  private final double offsetRot = 0.305519;
 
   public IntakePivotIOPhoenix() {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);

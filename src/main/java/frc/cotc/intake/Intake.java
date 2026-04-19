@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command outtake() {
-    return expose(parallel(pivot.extend(), roller.outtake()), "Outtake");
+    return expose(parallel(pivot.lowAgitate(), roller.outtake()), "Outtake");
   }
 
   public Command agitate() {
