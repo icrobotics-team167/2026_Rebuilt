@@ -46,8 +46,6 @@ public class AprilTagPoseEstimator {
   static {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
-    // Cameras got swapped around and I CBA to rename them
-    // TODO: Rename and recalibrate
     cameraCharacteristics.put(
         "Back",
         new CameraCharacteristics(
