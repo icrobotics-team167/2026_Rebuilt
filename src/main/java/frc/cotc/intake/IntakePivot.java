@@ -57,6 +57,10 @@ class IntakePivot extends SubsystemBase {
     return goToPos(EXTENDED_ANGLE, true).withName("Extend");
   }
 
+  Command fastExtend() {
+    return goToPos(EXTENDED_ANGLE, false).withName("Fast Extend");
+  }
+
   Command retract() {
     return goToPos(RETRACTED_ANGLE, false).withName("Retract");
   }

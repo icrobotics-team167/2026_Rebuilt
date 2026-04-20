@@ -214,7 +214,7 @@ public class Robot extends LoggedRobot {
         .and(
             () ->
                 switch (shotTarget) {
-                  // case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
         .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
@@ -290,7 +290,7 @@ public class Robot extends LoggedRobot {
             parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
                 .withName("Shoot"));
 
-    intake.setDefaultCommand(intake.extend());
+    intake.setDefaultCommand(intake.fastExtend());
     primary.a().and(DriverStation::isEnabled).toggleOnTrue(intake.retract());
     primary.x().and(DriverStation::isEnabled).whileTrue(intake.agitate());
     primary.leftTrigger().and(DriverStation::isEnabled).whileTrue(intake.intake());
