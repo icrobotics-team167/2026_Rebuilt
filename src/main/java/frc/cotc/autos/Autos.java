@@ -109,7 +109,10 @@ public class Autos {
   public Command warmup() {
     System.out.println("Warmup command instantiated");
     return sequence(
-            print("Warming up"), autoFactory.trajectoryCmd("Warmup"), print("Warmup complete"))
+            print("Warming up"),
+            autoFactory.trajectoryCmd("Warmup"),
+            stopCommand.get().withTimeout(0.1),
+            print("Warmup complete"))
         .ignoringDisable(true);
   }
 
