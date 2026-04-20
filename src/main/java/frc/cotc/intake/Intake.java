@@ -26,7 +26,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command fastExtend() {
-    return expose(parallel(pivot.fastExtend(), roller.intake()), "Fast Extend");
+    return expose(parallel(pivot.fastExtend(), roller.intake().withTimeout(0.25)), "Fast Extend");
   }
 
   public Command retract() {

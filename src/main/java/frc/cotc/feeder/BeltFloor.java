@@ -7,6 +7,9 @@
 
 package frc.cotc.feeder;
 
+import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -30,6 +33,8 @@ public class BeltFloor extends SubsystemBase {
   }
 
   public Command runBackwards() {
-    return run(io::runBackwards).finallyDo(io::stop).withName("Run backwards");
+    return repeatingSequence(
+            run(io::runBackwards).finallyDo(io::stop).withTimeout(0.5), waitSeconds(0.1))
+        .withName("Run backwards");
   }
 }
