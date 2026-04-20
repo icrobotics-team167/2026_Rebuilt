@@ -24,7 +24,8 @@ class IntakePivot extends SubsystemBase {
   private static final double LOW_AGITAGE_ANGLE = 0.4;
   private static final double RETRACTED_ANGLE = 2.274;
 
-  private final PIDController pidController = new PIDController(8, 0.0, 0.06);
+  private final PIDController pidController = new PIDController(8, 0.0, 0.1);
+  private final PIDController slowPidController = new PIDController(3, 0, 0.05);
   private final ArmFeedforward feedforward = new ArmFeedforward(0.158, 0.242, 0.0);
 
   private double targetAngleRad = EXTENDED_ANGLE;
@@ -40,10 +41,11 @@ class IntakePivot extends SubsystemBase {
     Logger.recordOutput("IntakePivot/TargetAngleRad", targetAngleRad);
   }
 
-  private Command goToPos(double posRad) {
+  private Command goToPos(double posRad, boolean slow) {
     return run(() -> {
           targetAngleRad = posRad;
-          double pidVolts = pidController.calculate(inputs.pivotAngleRad, targetAngleRad);
+          var controller = slow ? slowPidController : pidController;
+          double pidVolts = controller.calculate(inputs.pivotAngleRad, targetAngleRad);
           double ffVolts = feedforward.calculate(targetAngleRad - 0.61, 0);
           Logger.recordOutput("IntakePivot/PIDVolts", pidVolts);
           io.run(pidVolts + ffVolts);
@@ -52,20 +54,22 @@ class IntakePivot extends SubsystemBase {
   }
 
   Command extend() {
-    return goToPos(EXTENDED_ANGLE).withName("Extend");
+    return goToPos(EXTENDED_ANGLE, true).withName("Extend");
   }
 
   Command retract() {
-    return goToPos(RETRACTED_ANGLE).withName("Retract");
+    return goToPos(RETRACTED_ANGLE, false).withName("Retract");
   }
 
   Command agitate() {
-    return repeatingSequence(goToPos(AGITATE_ANGLE).withTimeout(0.5), extend().withTimeout(0.5))
+    return repeatingSequence(
+            goToPos(AGITATE_ANGLE, false).withTimeout(0.5), extend().withTimeout(0.75))
         .withName("Agitate");
   }
 
   Command lowAgitate() {
-    return repeatingSequence(goToPos(LOW_AGITAGE_ANGLE).withTimeout(0.4), extend().withTimeout(0.4))
+    return repeatingSequence(
+            goToPos(LOW_AGITAGE_ANGLE, false).withTimeout(0.4), extend().withTimeout(0.4))
         .withName("Low Agitate");
   }
 }
