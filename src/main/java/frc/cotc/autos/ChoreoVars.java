@@ -37,7 +37,6 @@ public final class ChoreoVars {
         public static final Pose2d OutpostLeadIn = new Pose2d(1, 0.68, Rotation2d.fromRadians(0));
         public static final Pose2d RightBumpCrossPose = new Pose2d(5.6, 2.5, Rotation2d.fromRadians(0));
         public static final Pose2d RightBumpFarEnter = new Pose2d(8.815, 2, Rotation2d.fromRadians(1.9198622));
-        public static final Pose2d RightBumpFarLeadIn = new Pose2d(6.8, 2.1, Rotation2d.fromRadians(0));
         public static final Pose2d RightBumpMidEnter = new Pose2d(7.85, 2.5, Rotation2d.fromRadians(1.9198622));
         public static final Pose2d RightBumpMidLeadIn = new Pose2d(6.75, 2.05, Rotation2d.fromRadians(0));
         public static final Pose2d RightBumpStartPose = new Pose2d(3.68, 2.5, Rotation2d.fromRadians(0));

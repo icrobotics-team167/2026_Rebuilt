@@ -300,20 +300,6 @@
      "val":1.9198621771937625
     }
    },
-   "RightBumpFarLeadIn":{
-    "x":{
-     "exp":"6.8 m",
-     "val":6.8
-    },
-    "y":{
-     "exp":"2.1 m",
-     "val":2.1
-    },
-    "heading":{
-     "exp":"0 deg",
-     "val":0.0
-    }
-   },
    "RightBumpMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
