@@ -380,7 +380,7 @@ public class Autos {
         .onTrue(
             sequence(
                 trajectory0.resetOdometry(),
-                trajectory0.cmd(), // Changed from 1
+                trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
                 trajectory3.cmd(),
