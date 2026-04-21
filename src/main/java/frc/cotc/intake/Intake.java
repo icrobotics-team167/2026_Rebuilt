@@ -25,6 +25,10 @@ public class Intake extends SubsystemBase {
     return expose(parallel(pivot.extend(), roller.intake().withTimeout(0.25)), "Extend");
   }
 
+  public Command fastExtend() {
+    return expose(parallel(pivot.fastExtend(), roller.intake().withTimeout(0.25)), "Fast Extend");
+  }
+
   public Command retract() {
     return expose(parallel(pivot.retract(), roller.intake().withTimeout(0.25)), "Retract");
   }
@@ -34,7 +38,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command outtake() {
-    return expose(parallel(pivot.extend(), roller.outtake()), "Outtake");
+    return expose(parallel(pivot.lowAgitate(), roller.outtake()), "Outtake");
   }
 
   public Command agitate() {

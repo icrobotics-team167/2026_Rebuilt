@@ -42,6 +42,11 @@ public class BeltFloorIOPhoenix implements BeltFloorIO {
   }
 
   @Override
+  public void runBackwards() {
+    motor.set(-1);
+  }
+
+  @Override
   public void stop() {
     motor.set(0);
   }

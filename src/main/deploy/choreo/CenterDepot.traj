@@ -7,8 +7,8 @@
     {"x":3.0704, "y":4.0345, "heading":0.0, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":1.25, "y":5.9843010902404785, "heading":0.0, "intervals":16, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":0.5985493659973145, "y":5.9843010902404785, "heading":3.141592653589793, "intervals":21, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":1.48212993144989, "y":5.818456649780273, "heading":0.0, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":30, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":1.48212993144989, "y":5.818456649780273, "heading":-2.116735316818723, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":2.527, "y":5.121, "heading":-2.116735316818723, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -26,8 +26,8 @@
     {"x":{"exp":"CenterLeadOut.x", "val":3.0704}, "y":{"exp":"CenterLeadOut.y", "val":4.0345}, "heading":{"exp":"CenterLeadOut.heading", "val":0.0}, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"DepotLeadIn.x", "val":1.25}, "y":{"exp":"DepotLeadIn.y", "val":5.9843010902404785}, "heading":{"exp":"DepotLeadIn.heading", "val":0.0}, "intervals":16, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"Depot.x", "val":0.5985493659973145}, "y":{"exp":"Depot.y", "val":5.9843010902404785}, "heading":{"exp":"Depot.heading", "val":3.141592653589793}, "intervals":21, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"DepotLeadOut.x", "val":1.48212993144989}, "y":{"exp":"DepotLeadOut.y", "val":5.818456649780273}, "heading":{"exp":"DepotLeadOut.heading", "val":0.0}, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"LeftShoot.x", "val":2.527}, "y":{"exp":"LeftShoot.y", "val":5.121}, "heading":{"exp":"LeftShoot.heading", "val":-2.116735316818723}, "intervals":30, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"DepotLeadOut.x", "val":1.48212993144989}, "y":{"exp":"DepotLeadOut.y", "val":5.818456649780273}, "heading":{"exp":"LeftShoot.heading", "val":-2.116735316818723}, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"LeftShoot.x", "val":2.527}, "y":{"exp":"LeftShoot.y", "val":5.121}, "heading":{"exp":"LeftShoot.heading", "val":-2.116735316818723}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

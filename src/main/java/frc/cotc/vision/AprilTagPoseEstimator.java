@@ -46,16 +46,14 @@ public class AprilTagPoseEstimator {
   static {
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
-    // Cameras got swapped around and I CBA to rename them
-    // TODO: Rename and recalibrate
     cameraCharacteristics.put(
-        "Back", // Back is actually facing front
+        "Back",
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 2.25),
-                Units.inchesToMeters(-16 + 1.875),
-                Units.inchesToMeters(21.125 - 1),
-                new Rotation3d(0, Units.degreesToRadians(-15), 0)),
+                Units.inchesToMeters(-11 + 0.5),
+                Units.inchesToMeters(-16.125 + 2.5),
+                Units.inchesToMeters(21.125 - .75),
+                new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -83,9 +81,9 @@ public class AprilTagPoseEstimator {
         "Right",
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 2),
-                Units.inchesToMeters(-16 + 1),
-                Units.inchesToMeters(21.125 - 1),
+                Units.inchesToMeters(-11 + 1.25),
+                Units.inchesToMeters(-16.125 + 0),
+                Units.inchesToMeters(21.125 - 0.75),
                 new Rotation3d(
                     Units.degreesToRadians(0), Units.degreesToRadians(-15), -Math.PI / 2)),
             MatBuilder.fill(
@@ -112,13 +110,13 @@ public class AprilTagPoseEstimator {
             .5,
             .5));
     cameraCharacteristics.put(
-        "Left", // Left is actually facing back
+        "Left",
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 2),
-                Units.inchesToMeters(-16 + 1),
-                Units.inchesToMeters(21.125 - 1),
-                new Rotation3d(0, Units.degreesToRadians(-15), Math.PI)),
+                Units.inchesToMeters(-11 + 1.25),
+                Units.inchesToMeters(16.125 + -0.5),
+                Units.inchesToMeters(21.125 - 0.75),
+                new Rotation3d(0, Units.degreesToRadians(-15), Math.PI / 2)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
@@ -143,14 +141,13 @@ public class AprilTagPoseEstimator {
             .5,
             .5));
     cameraCharacteristics.put(
-        "Front", // Front is actually facing left
+        "Front",
         new CameraCharacteristics(
             new Transform3d(
-                Units.inchesToMeters(-11 + 1.125),
-                Units.inchesToMeters(16 - 0.75),
-                Units.inchesToMeters(21.125 - 1),
-                new Rotation3d(
-                    Units.degreesToRadians(0), Units.degreesToRadians(-15), Math.PI / 2)),
+                Units.inchesToMeters(-11 + 3.25),
+                Units.inchesToMeters(16.125 - 1.75),
+                Units.inchesToMeters(21.125 - 0.75),
+                new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-20), 0)),
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),

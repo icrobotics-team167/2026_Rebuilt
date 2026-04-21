@@ -23,7 +23,7 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
     intakeMotor = new TalonFX(INTAKE_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 60;
     intakeMotor.getConfigurator().apply(config);
 
@@ -36,12 +36,12 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
 
   @Override
   public void run() {
-    intakeMotor.set(0.75);
+    intakeMotor.set(-1);
   }
 
   @Override
   public void runReverse() {
-    intakeMotor.set(-1);
+    intakeMotor.set(1);
   }
 
   @Override

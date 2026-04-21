@@ -53,6 +53,10 @@ public class Autos {
     addRoutine("Center", this::center);
     addRoutine("Center Outpost", this::centerOutpost);
     addRoutine("Center Depot", this::centerDepot);
+    addRoutine("Right Bump Mid", this::rightBumpMid);
+    addRoutine("Right Bump Mid Across", this::rightBumpMidAcross);
+    addRoutine("Right Bump Far", this::rightBumpFar);
+    addRoutine("Right Bump Far Across", this::rightBumpFarAcross);
     addRoutine("Right Trench Mid", this::rightTrenchMid);
     addRoutine("Right Trench Mid Outpost", this::RightTrenchMidOutpost);
     addRoutine("Right Trench Far", this::rightTrenchFar);
@@ -60,6 +64,10 @@ public class Autos {
     addRoutine("Right Trench Mid Across", this::rightTrenchMidAcross);
     addRoutine("Right Trench Mid Across Depot", this::RightTrenchMidAcrossDepot);
     addRoutine("Right Trench Far Across", this::rightTrenchFarAcross);
+    addRoutine("Left Bump Mid", this::leftBumpMid);
+    addRoutine("Left Bump Mid Across", this::leftBumpMidAcross);
+    addRoutine("Left Bump Far", this::leftBumpFar);
+    addRoutine("Left Bump Far Across", this::leftBumpFarAcross);
     addRoutine("Left Trench Mid", this::leftTrenchMid);
     addRoutine("Left Trench Far", this::leftTrenchFar);
     addRoutine("Left Trench Far Across Outpost", this::leftTrenchFarAcrossOutpost);
@@ -107,7 +115,10 @@ public class Autos {
   public Command warmup() {
     System.out.println("Warmup command instantiated");
     return sequence(
-            print("Warming up"), autoFactory.trajectoryCmd("Warmup"), print("Warmup complete"))
+            print("Warming up"),
+            autoFactory.trajectoryCmd("Warmup"),
+            stopCommand.get().withTimeout(0.1),
+            print("Warmup complete"))
         .ignoringDisable(true);
   }
 
@@ -142,6 +153,7 @@ public class Autos {
     var routine = autoFactory.newRoutine("Center Outpost");
     var trajectory0 = ChoreoTraj.CenterOutpost$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.CenterOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.CenterOutpost$2.asAutoTraj(routine); // Added
 
     routine
         .active()
@@ -149,8 +161,11 @@ public class Autos {
             sequence(
                 trajectory0.resetOdometry(),
                 trajectory0.cmd(),
-                swerve.pidToPose(trajectory0.getFinalPose().orElseThrow()).withTimeout(3),
+                swerve
+                    .pidToPose(trajectory0.getFinalPose().orElseThrow())
+                    .withTimeout(5), // Changed from 3
                 trajectory1.cmd(),
+                trajectory2.cmd(),
                 parallel(
                     aimCommand.get(),
                     shootCommand.get(),
@@ -340,6 +355,182 @@ public class Autos {
     var trajectory0 = ChoreoTraj.LeftTrenchFarAcross$0.asAutoTraj(routine);
     var trajectory1 = ChoreoTraj.LeftTrenchFarAcross$1.asAutoTraj(routine);
     var trajectory2 = ChoreoTraj.LeftTrenchFarAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command leftBumpFar() {
+    var routine = autoFactory.newRoutine("Left Bump Far");
+    var trajectory0 = ChoreoTraj.LeftBumpFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftBumpFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftBumpFar$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command leftBumpFarAcross() {
+    var routine = autoFactory.newRoutine("Left Bump Far Across");
+    var trajectory0 = ChoreoTraj.LeftBumpFarAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftBumpFarAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftBumpFarAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command leftBumpMid() {
+    var routine = autoFactory.newRoutine("Left Bump Mid");
+    var trajectory0 = ChoreoTraj.LeftBumpMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftBumpMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftBumpMid$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command leftBumpMidAcross() {
+    var routine = autoFactory.newRoutine("Left Bump Mid Across");
+    var trajectory0 = ChoreoTraj.LeftBumpMidAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.LeftBumpMidAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.LeftBumpMidAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command rightBumpFar() {
+    var routine = autoFactory.newRoutine("Right Bump Far");
+    var trajectory0 = ChoreoTraj.RightBumpFar$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightBumpFar$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightBumpFar$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command rightBumpFarAcross() {
+    var routine = autoFactory.newRoutine("Right Bump Far Across");
+    var trajectory0 = ChoreoTraj.RightBumpFarAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightBumpFarAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightBumpFarAcross$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command rightBumpMid() {
+    var routine = autoFactory.newRoutine("Right Bump Mid");
+    var trajectory0 = ChoreoTraj.RightBumpMid$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightBumpMid$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightBumpMid$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
+
+    return routine.cmd();
+  }
+
+  private Command rightBumpMidAcross() {
+    var routine = autoFactory.newRoutine("Right Bump Mid Across");
+    var trajectory0 = ChoreoTraj.RightBumpMidAcross$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightBumpMidAcross$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightBumpMidAcross$2.asAutoTraj(routine);
 
     routine
         .active()

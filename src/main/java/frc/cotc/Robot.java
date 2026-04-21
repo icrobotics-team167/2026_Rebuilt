@@ -132,12 +132,10 @@ public class Robot extends LoggedRobot {
               case SIM -> new SwerveIOSim();
               case REPLAY -> new SwerveIOReplay();
             },
-            // TODO: Rename, recalibrate, and reenable
-            // new AprilTagPoseEstimator("Front"), // Bad calibration
-            new AprilTagPoseEstimator("Left")
-            // new AprilTagPoseEstimator("Back"), // Bad calibration
-            // new AprilTagPoseEstimator("Right")); // Broke
-            );
+            new AprilTagPoseEstimator("Front"),
+            new AprilTagPoseEstimator("Left"),
+            new AprilTagPoseEstimator("Back"),
+            new AprilTagPoseEstimator("Right"));
     var primary = new CommandXboxControllerWithRumble(0);
 
     var intake =
@@ -216,7 +214,7 @@ public class Robot extends LoggedRobot {
         .and(
             () ->
                 switch (shotTarget) {
-                  // case RED_HUB, BLUE_HUB -> isOkayToShoot; // TODO: Reenable for match
+                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
                   default -> true;
                 })
         .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
@@ -292,11 +290,14 @@ public class Robot extends LoggedRobot {
             parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
                 .withName("Shoot"));
 
-    intake.setDefaultCommand(intake.extend());
+    intake.setDefaultCommand(intake.fastExtend());
     primary.a().and(DriverStation::isEnabled).toggleOnTrue(intake.retract());
     primary.x().and(DriverStation::isEnabled).whileTrue(intake.agitate());
     primary.leftTrigger().and(DriverStation::isEnabled).whileTrue(intake.intake());
-    primary.y().and(DriverStation::isEnabled).whileTrue(intake.outtake());
+    primary
+        .y()
+        .and(DriverStation::isEnabled)
+        .whileTrue(parallel(intake.outtake(), beltFloor.runBackwards()));
 
     primary
         .back()
