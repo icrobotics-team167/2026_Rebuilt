@@ -171,13 +171,13 @@
     },
     "heading":{
      "exp":"-RightFarEnter.heading",
-     "val":-2.0943951023931953
+     "val":-1.9198621771937625
     }
    },
    "LeftMidCenterExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
-     "val":8.0
+     "val":7.85
     },
     "y":{
      "exp":"FieldWidth - RightMidCenterExit.y",
@@ -191,7 +191,7 @@
    "LeftMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":8.0
+     "val":7.85
     },
     "y":{
      "exp":"FieldWidth - RightMidEnter.y",
@@ -199,7 +199,7 @@
     },
     "heading":{
      "exp":"-RightMidEnter.heading",
-     "val":-2.0943951023931953
+     "val":-1.9198621771937625
     }
    },
    "LeftShoot":{
@@ -286,6 +286,62 @@
      "val":0.0
     }
    },
+   "RightBumpFarEnter":{
+    "x":{
+     "exp":"RightFarEnter.x",
+     "val":8.815
+    },
+    "y":{
+     "exp":"2 m",
+     "val":2.0
+    },
+    "heading":{
+     "exp":"RightFarEnter.heading",
+     "val":1.9198621771937625
+    }
+   },
+   "RightBumpFarLeadIn":{
+    "x":{
+     "exp":"6.8 m",
+     "val":6.8
+    },
+    "y":{
+     "exp":"2.1 m",
+     "val":2.1
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
+   "RightBumpMidEnter":{
+    "x":{
+     "exp":"RightMidEnter.x",
+     "val":7.85
+    },
+    "y":{
+     "exp":"2.5 m",
+     "val":2.5
+    },
+    "heading":{
+     "exp":"RightMidEnter.heading",
+     "val":1.9198621771937625
+    }
+   },
+   "RightBumpMidLeadIn":{
+    "x":{
+     "exp":"6.75 m",
+     "val":6.75
+    },
+    "y":{
+     "exp":"2.05 m",
+     "val":2.05
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
    "RightBumpStartPose":{
     "x":{
      "exp":"3.68 m",
@@ -339,13 +395,13 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":2.0943951023931953
+     "val":1.9198621771937625
     }
    },
    "RightMidAcrossExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
-     "val":8.0
+     "val":7.85
     },
     "y":{
      "exp":"5.5 m",
@@ -359,7 +415,7 @@
    "RightMidCenterExit":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":8.0
+     "val":7.85
     },
     "y":{
      "exp":"3.65 m",
@@ -372,16 +428,16 @@
    },
    "RightMidEnter":{
     "x":{
-     "exp":"8 m",
-     "val":8.0
+     "exp":"7.85 m",
+     "val":7.85
     },
     "y":{
      "exp":"1 m",
      "val":1.0
     },
     "heading":{
-     "exp":"120 deg",
-     "val":2.0943951023931953
+     "exp":"110 deg",
+     "val":1.9198621771937625
     }
    },
    "RightShoot":{
