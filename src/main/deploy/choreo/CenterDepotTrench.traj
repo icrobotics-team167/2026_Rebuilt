@@ -36,7 +36,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"CenterStartPose.x", "val":3.68}, "y":{"exp":"CenterStartPose.y", "val":4.0345}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":12, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"CenterStartPose.x", "val":3.68}, "y":{"exp":"CenterStartPose.y", "val":4.0345}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":12, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"CenterLeadOut.x", "val":3.0704}, "y":{"exp":"CenterLeadOut.y", "val":4.0345}, "heading":{"exp":"CenterLeadOut.heading", "val":0.0}, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"DepotLeadIn.x", "val":1.25}, "y":{"exp":"DepotLeadIn.y", "val":5.9843010902404785}, "heading":{"exp":"DepotLeadIn.heading", "val":0.0}, "intervals":28, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"Depot.x", "val":0.5985493659973145}, "y":{"exp":"Depot.y", "val":5.9843010902404785}, "heading":{"exp":"Depot.heading", "val":3.141592653589793}, "intervals":24, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
