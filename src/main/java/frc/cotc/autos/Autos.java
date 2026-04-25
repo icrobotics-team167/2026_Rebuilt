@@ -76,6 +76,14 @@ public class Autos {
     addRoutine("Left Trench Mid Across Outpost", this::leftTrenchMidAcrossOutpost);
     addRoutine("Left Trench Mid Depot", this::leftTrenchMidDepot);
     addRoutine("Left Trench Far Across", this::leftTrenchFarAcross);
+    addRoutine("Right Trench Close", this::rightTrenchClose);
+    addRoutine("Left Trench Close", this::leftTrenchClose);
+    addRoutine("Right Trench Close Across", this::rightTrenchCloseAcross);
+    addRoutine("Left Trench Close Across", this::leftTrenchCloseAcross);
+    addRoutine("Right Trench Hub", this::rightTrenchHub);
+    addRoutine("Left Trench Hub", this::leftTrenchHub);
+    addRoutine("Right Trench Hub Across", this::rightTrenchHubAcross);
+    addRoutine("Left Trench Hub Across", this::leftTrenchHubAcross);
   }
 
   private String selectedCommandName = NONE_NAME;
@@ -769,6 +777,191 @@ public class Autos {
                 trajectory3.cmd(),
                 trajectory4.cmd().deadlineFor(intakeCommand.get()),
                 trajectory5.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  // Close and right by hub autos
+  private Command rightTrenchClose() {
+    var routine = autoFactory.newRoutine("Right Trench Close");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchClose() {
+    var routine = autoFactory.newRoutine("Left Trench Close");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchCloseAcross() {
+    var routine = autoFactory.newRoutine("Right Trench Close Across");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchCloseAcross() {
+    var routine = autoFactory.newRoutine("Left Trench Close Across");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchHub() {
+    var routine = autoFactory.newRoutine("Right Trench Hub");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchHub() {
+    var routine = autoFactory.newRoutine("Left Trench Hub");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command leftTrenchHubAcross() {
+    var routine = autoFactory.newRoutine("Left Trench Hub Across");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8)));
+
+    return routine.cmd();
+  }
+
+  private Command rightTrenchHubAcross() {
+    var routine = autoFactory.newRoutine("Right Trench Hub Across");
+    var trajectory0 = ChoreoTraj.RightTrenchMidOutpost$0.asAutoTraj(routine);
+    var trajectory1 = ChoreoTraj.RightTrenchMidOutpost$1.asAutoTraj(routine);
+    var trajectory2 = ChoreoTraj.RightTrenchMidOutpost$2.asAutoTraj(routine);
+
+    routine
+        .active()
+        .onTrue(
+            sequence(
+                trajectory0.resetOdometry(),
+                trajectory0.cmd(),
+                trajectory1.cmd().deadlineFor(intakeCommand.get()),
+                trajectory2.cmd(),
                 parallel(
                         aimCommand.get(),
                         shootCommand.get(),
