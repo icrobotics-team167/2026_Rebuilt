@@ -132,6 +132,48 @@
      "val":0.0
     }
    },
+   "LeftBumpFarEnter":{
+    "x":{
+     "exp":"RightBumpFarEnter.x",
+     "val":8.5
+    },
+    "y":{
+     "exp":"FieldWidth - RightBumpFarEnter.y",
+     "val":6.069000000000001
+    },
+    "heading":{
+     "exp":"-RightBumpFarEnter.heading",
+     "val":-1.5707963267948966
+    }
+   },
+   "LeftBumpMidEnter":{
+    "x":{
+     "exp":"RightBumpMidEnter.x",
+     "val":7.75
+    },
+    "y":{
+     "exp":"FieldWidth - RightBumpMidEnter.y",
+     "val":5.569000000000001
+    },
+    "heading":{
+     "exp":"-RightBumpMidEnter.heading",
+     "val":-1.5707963267948966
+    }
+   },
+   "LeftBumpMidLeadIn":{
+    "x":{
+     "exp":"RightBumpMidLeadIn.x",
+     "val":6.75
+    },
+    "y":{
+     "exp":"FieldWidth - RightBumpMidLeadIn.y",
+     "val":6.019000000000001
+    },
+    "heading":{
+     "exp":"RightBumpMidLeadIn.heading",
+     "val":0.0
+    }
+   },
    "LeftBumpStartPose":{
     "x":{
      "exp":"RightBumpStartPose.x",
@@ -149,7 +191,7 @@
    "LeftFarCenterExit":{
     "x":{
      "exp":"RightFarCenterExit.x",
-     "val":8.815
+     "val":8.5
     },
     "y":{
      "exp":"FieldWidth - RightFarCenterExit.y",
@@ -163,21 +205,21 @@
    "LeftFarEnter":{
     "x":{
      "exp":"RightFarEnter.x",
-     "val":8.815
+     "val":8.5
     },
     "y":{
      "exp":"FieldWidth - RightFarEnter.y",
-     "val":7.069000000000001
+     "val":6.969000000000001
     },
     "heading":{
      "exp":"-RightFarEnter.heading",
-     "val":-1.9198621771937625
+     "val":-1.5707963267948966
     }
    },
    "LeftMidCenterExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
-     "val":7.85
+     "val":7.75
     },
     "y":{
      "exp":"FieldWidth - RightMidCenterExit.y",
@@ -191,15 +233,15 @@
    "LeftMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":7.85
+     "val":7.75
     },
     "y":{
      "exp":"FieldWidth - RightMidEnter.y",
-     "val":7.069000000000001
+     "val":6.969000000000001
     },
     "heading":{
      "exp":"-RightMidEnter.heading",
-     "val":-1.9198621771937625
+     "val":-1.5707963267948966
     }
    },
    "LeftShoot":{
@@ -289,7 +331,7 @@
    "RightBumpFarEnter":{
     "x":{
      "exp":"RightFarEnter.x",
-     "val":8.815
+     "val":8.5
     },
     "y":{
      "exp":"2 m",
@@ -297,13 +339,13 @@
     },
     "heading":{
      "exp":"RightFarEnter.heading",
-     "val":1.9198621771937625
+     "val":1.5707963267948966
     }
    },
    "RightBumpMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":7.85
+     "val":7.75
     },
     "y":{
      "exp":"2.5 m",
@@ -311,7 +353,7 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.9198621771937625
+     "val":1.5707963267948966
     }
    },
    "RightBumpMidLeadIn":{
@@ -345,7 +387,7 @@
    "RightFarAcrossExit":{
     "x":{
      "exp":"RightFarCenterExit.x",
-     "val":8.815
+     "val":8.5
     },
     "y":{
      "exp":"RightMidAcrossExit.y",
@@ -359,7 +401,7 @@
    "RightFarCenterExit":{
     "x":{
      "exp":"RightFarEnter.x",
-     "val":8.815
+     "val":8.5
     },
     "y":{
      "exp":"RightMidCenterExit.y",
@@ -372,22 +414,22 @@
    },
    "RightFarEnter":{
     "x":{
-     "exp":"8.815 m",
-     "val":8.815
+     "exp":"8.5 m",
+     "val":8.5
     },
     "y":{
      "exp":"RightMidEnter.y",
-     "val":1.0
+     "val":1.1
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.9198621771937625
+     "val":1.5707963267948966
     }
    },
    "RightMidAcrossExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
-     "val":7.85
+     "val":7.75
     },
     "y":{
      "exp":"5.5 m",
@@ -401,7 +443,7 @@
    "RightMidCenterExit":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":7.85
+     "val":7.75
     },
     "y":{
      "exp":"3.65 m",
@@ -414,16 +456,16 @@
    },
    "RightMidEnter":{
     "x":{
-     "exp":"7.85 m",
-     "val":7.85
+     "exp":"7.75 m",
+     "val":7.75
     },
     "y":{
-     "exp":"1 m",
-     "val":1.0
+     "exp":"1.1 m",
+     "val":1.1
     },
     "heading":{
-     "exp":"110 deg",
-     "val":1.9198621771937625
+     "exp":"90 deg",
+     "val":1.5707963267948966
     }
    },
    "RightShoot":{
