@@ -92,8 +92,8 @@
    },
    "DepotLeadIn":{
     "x":{
-     "exp":"1.25 m",
-     "val":1.25
+     "exp":"1.5 m",
+     "val":1.5
     },
     "y":{
      "exp":"Depot.y",
@@ -106,12 +106,12 @@
    },
    "DepotLeadOut":{
     "x":{
-     "exp":"1.4821299314498901 m",
-     "val":1.48212993144989
+     "exp":"1.2 m",
+     "val":1.2
     },
     "y":{
-     "exp":"5.818456649780273 m",
-     "val":5.818456649780273
+     "exp":"Depot.y",
+     "val":5.9843010902404785
     },
     "heading":{
      "exp":"0 deg",
@@ -382,6 +382,20 @@
     "heading":{
      "exp":"0 deg",
      "val":0.0
+    }
+   },
+   "RightCloseEnter":{
+    "x":{
+     "exp":"6 m",
+     "val":6.0
+    },
+    "y":{
+     "exp":"RightMidEnter.y",
+     "val":1.1
+    },
+    "heading":{
+     "exp":"RightMidEnter.heading",
+     "val":1.5707963267948966
     }
    },
    "RightFarAcrossExit":{
