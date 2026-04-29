@@ -13,17 +13,18 @@ import edu.wpi.first.units.measure.*;
 public final class ChoreoVars {
     public static final LinearVelocity BumpCrossSpeed = Units.MetersPerSecond.of(2);
     public static final Distance BumpExitX = Units.Meters.of(5.6);
+    public static final LinearVelocity DepotIntakeSpeed = Units.MetersPerSecond.of(1.5);
     public static final double DepotLeadOutShoot = 1;
     public static final Distance FieldWidth = Units.Meters.of(8.069);
-    public static final LinearVelocity IntakeSpeed = Units.MetersPerSecond.of(2);
+    public static final LinearVelocity IntakeSpeed = Units.MetersPerSecond.of(1.5);
     public static final LinearVelocity WallSlamSpeed = Units.MetersPerSecond.of(1);
 
     public static final class Poses {
         public static final Pose2d CenterLeadOut = new Pose2d(3.0704, 4.0345, Rotation2d.fromRadians(0));
         public static final Pose2d CenterStartPose = new Pose2d(3.68, 4.0345, Rotation2d.fromRadians(0));
-        public static final Pose2d Depot = new Pose2d(0.5985494, 5.9843011, Rotation2d.fromRadians(3.1415927));
-        public static final Pose2d DepotLeadIn = new Pose2d(1.5, 5.9843011, Rotation2d.fromRadians(0));
-        public static final Pose2d DepotLeadOut = new Pose2d(1.2, 5.9843011, Rotation2d.fromRadians(0));
+        public static final Pose2d Depot = new Pose2d(0.35, 5.95, Rotation2d.fromRadians(3.1415927));
+        public static final Pose2d DepotLeadIn = new Pose2d(1.5, 5.95, Rotation2d.fromRadians(0));
+        public static final Pose2d DepotLeadOut = new Pose2d(1.2, 5.95, Rotation2d.fromRadians(0));
         public static final Pose2d LeftBumpCrossPose = new Pose2d(5.6, 5.569, Rotation2d.fromRadians(0));
         public static final Pose2d LeftBumpFarEnter = new Pose2d(8.5, 6.069, Rotation2d.fromRadians(-1.5707963));
         public static final Pose2d LeftBumpMidEnter = new Pose2d(7.75, 5.569, Rotation2d.fromRadians(-1.5707963));
