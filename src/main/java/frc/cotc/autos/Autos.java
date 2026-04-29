@@ -634,18 +634,18 @@ public class Autos {
                 trajectory0.cmd(),
                 trajectory1.cmd().deadlineFor(intakeCommand.get()),
                 trajectory2.cmd(),
-              parallel(
-                aimCommand.get(),
-                shootCommand.get(),
-                waitSeconds(1).andThen(feedCommand.get()))
-                .withTimeout(8),
+                parallel(
+                        aimCommand.get(),
+                        shootCommand.get(),
+                        waitSeconds(1).andThen(feedCommand.get()))
+                    .withTimeout(8),
                 trajectory3.cmd(),
-              trajectory4.cmd().deadlineFor(intakeCommand.get()),
-              trajectory5.cmd(),
-              parallel(
-                aimCommand.get(),
-                shootCommand.get(),
-                waitSeconds(1).andThen(feedCommand.get()))));
+                trajectory4.cmd().deadlineFor(intakeCommand.get()),
+                trajectory5.cmd(),
+                parallel(
+                    aimCommand.get(),
+                    shootCommand.get(),
+                    waitSeconds(1).andThen(feedCommand.get()))));
 
     return routine.cmd();
   }
