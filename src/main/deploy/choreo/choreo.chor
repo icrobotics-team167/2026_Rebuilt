@@ -21,8 +21,8 @@
    "DepotIntakeSpeed":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1.5 m / s",
-     "val":1.5
+     "exp":"1 m / s",
+     "val":1.0
     }
    },
    "DepotLeadOutShoot":{
@@ -193,6 +193,20 @@
     "heading":{
      "exp":"RightBumpStartPose.heading",
      "val":0.0
+    }
+   },
+   "LeftCloseEnter":{
+    "x":{
+     "exp":"6 m",
+     "val":6.0
+    },
+    "y":{
+     "exp":"LeftMidEnter.y",
+     "val":6.969000000000001
+    },
+    "heading":{
+     "exp":"LeftMidEnter.heading",
+     "val":-1.5707963267948966
     }
    },
    "LeftFarCenterExit":{
