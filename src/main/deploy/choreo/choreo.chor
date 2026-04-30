@@ -150,7 +150,7 @@
     },
     "heading":{
      "exp":"-RightBumpFarEnter.heading",
-     "val":-1.7453292519943295
+     "val":-1.5707963267948966
     }
    },
    "LeftBumpMidEnter":{
@@ -164,7 +164,7 @@
     },
     "heading":{
      "exp":"-RightBumpMidEnter.heading",
-     "val":-1.7453292519943295
+     "val":-1.5707963267948966
     }
    },
    "LeftBumpMidLeadIn":{
@@ -206,7 +206,7 @@
     },
     "heading":{
      "exp":"LeftMidEnter.heading",
-     "val":-1.7453292519943295
+     "val":-1.5707963267948966
     }
    },
    "LeftFarCenterExit":{
@@ -234,7 +234,7 @@
     },
     "heading":{
      "exp":"-RightFarEnter.heading",
-     "val":-1.7453292519943295
+     "val":-1.5707963267948966
     }
    },
    "LeftMidCenterExit":{
@@ -262,7 +262,7 @@
     },
     "heading":{
      "exp":"-RightMidEnter.heading",
-     "val":-1.7453292519943295
+     "val":-1.5707963267948966
     }
    },
    "LeftShoot":{
@@ -360,7 +360,7 @@
     },
     "heading":{
      "exp":"RightFarEnter.heading",
-     "val":1.7453292519943295
+     "val":1.5707963267948966
     }
    },
    "RightBumpMidEnter":{
@@ -374,7 +374,7 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.7453292519943295
+     "val":1.5707963267948966
     }
    },
    "RightBumpMidLeadIn":{
@@ -416,7 +416,7 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.7453292519943295
+     "val":1.5707963267948966
     }
    },
    "RightFarAcrossExit":{
@@ -458,7 +458,7 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.7453292519943295
+     "val":1.5707963267948966
     }
    },
    "RightMidAcrossExit":{
@@ -499,8 +499,8 @@
      "val":1.1
     },
     "heading":{
-     "exp":"100 deg",
-     "val":1.7453292519943295
+     "exp":"90 deg",
+     "val":1.5707963267948966
     }
    },
    "RightShoot":{
