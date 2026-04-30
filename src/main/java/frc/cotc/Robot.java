@@ -271,7 +271,7 @@ public class Robot extends LoggedRobot {
     primary
         .b()
         .and(DriverStation::isEnabled)
-        .whileTrue(
+        .toggleOnTrue(
             parallel(
                     shooter.idle(),
                     beltFloor.idle(),
