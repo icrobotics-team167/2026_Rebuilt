@@ -85,26 +85,26 @@
    },
    "Depot":{
     "x":{
-     "exp":"0.25 m",
-     "val":0.25
+     "exp":"0.475 m",
+     "val":0.475
     },
     "y":{
      "exp":"5.95 m",
      "val":5.95
     },
     "heading":{
-     "exp":"180 deg",
-     "val":3.141592653589793
+     "exp":"-90 deg",
+     "val":-1.5707963267948966
     }
    },
    "DepotLeadIn":{
     "x":{
-     "exp":"1.5 m",
-     "val":1.5
+     "exp":"Depot.x",
+     "val":0.475
     },
     "y":{
-     "exp":"Depot.y",
-     "val":5.95
+     "exp":"7 m",
+     "val":7.0
     },
     "heading":{
      "exp":"0 deg",
