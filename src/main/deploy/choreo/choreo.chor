@@ -85,8 +85,8 @@
    },
    "Depot":{
     "x":{
-     "exp":"0.35 m",
-     "val":0.35
+     "exp":"0.25 m",
+     "val":0.25
     },
     "y":{
      "exp":"5.95 m",
@@ -150,13 +150,13 @@
     },
     "heading":{
      "exp":"-RightBumpFarEnter.heading",
-     "val":-1.5707963267948966
+     "val":-1.7453292519943295
     }
    },
    "LeftBumpMidEnter":{
     "x":{
      "exp":"RightBumpMidEnter.x",
-     "val":7.75
+     "val":7.7
     },
     "y":{
      "exp":"FieldWidth - RightBumpMidEnter.y",
@@ -164,7 +164,7 @@
     },
     "heading":{
      "exp":"-RightBumpMidEnter.heading",
-     "val":-1.5707963267948966
+     "val":-1.7453292519943295
     }
    },
    "LeftBumpMidLeadIn":{
@@ -206,7 +206,7 @@
     },
     "heading":{
      "exp":"LeftMidEnter.heading",
-     "val":-1.5707963267948966
+     "val":-1.7453292519943295
     }
    },
    "LeftFarCenterExit":{
@@ -234,13 +234,13 @@
     },
     "heading":{
      "exp":"-RightFarEnter.heading",
-     "val":-1.5707963267948966
+     "val":-1.7453292519943295
     }
    },
    "LeftMidCenterExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
-     "val":7.75
+     "val":7.7
     },
     "y":{
      "exp":"FieldWidth - RightMidCenterExit.y",
@@ -254,7 +254,7 @@
    "LeftMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":7.75
+     "val":7.7
     },
     "y":{
      "exp":"FieldWidth - RightMidEnter.y",
@@ -262,7 +262,7 @@
     },
     "heading":{
      "exp":"-RightMidEnter.heading",
-     "val":-1.5707963267948966
+     "val":-1.7453292519943295
     }
    },
    "LeftShoot":{
@@ -360,13 +360,13 @@
     },
     "heading":{
      "exp":"RightFarEnter.heading",
-     "val":1.5707963267948966
+     "val":1.7453292519943295
     }
    },
    "RightBumpMidEnter":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":7.75
+     "val":7.7
     },
     "y":{
      "exp":"2.5 m",
@@ -374,7 +374,7 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.5707963267948966
+     "val":1.7453292519943295
     }
    },
    "RightBumpMidLeadIn":{
@@ -416,7 +416,7 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.5707963267948966
+     "val":1.7453292519943295
     }
    },
    "RightFarAcrossExit":{
@@ -458,13 +458,13 @@
     },
     "heading":{
      "exp":"RightMidEnter.heading",
-     "val":1.5707963267948966
+     "val":1.7453292519943295
     }
    },
    "RightMidAcrossExit":{
     "x":{
      "exp":"RightMidCenterExit.x",
-     "val":7.75
+     "val":7.7
     },
     "y":{
      "exp":"5.5 m",
@@ -478,7 +478,7 @@
    "RightMidCenterExit":{
     "x":{
      "exp":"RightMidEnter.x",
-     "val":7.75
+     "val":7.7
     },
     "y":{
      "exp":"3.3 m",
@@ -491,16 +491,16 @@
    },
    "RightMidEnter":{
     "x":{
-     "exp":"7.75 m",
-     "val":7.75
+     "exp":"7.7 m",
+     "val":7.7
     },
     "y":{
      "exp":"1.1 m",
      "val":1.1
     },
     "heading":{
-     "exp":"90 deg",
-     "val":1.5707963267948966
+     "exp":"100 deg",
+     "val":1.7453292519943295
     }
    },
    "RightShoot":{
