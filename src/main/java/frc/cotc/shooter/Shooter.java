@@ -77,14 +77,14 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command sotm() {
-    return run(
-        () -> {
+    return run(() -> {
           if (sotmResult == null) return;
           hoodIO.runPitch(sotmResult.pitchRad());
           targetPitchRad = sotmResult.pitchRad();
           targetSpeedRotPerSec =
               projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond());
           flywheelIO.runVel(targetSpeedRotPerSec);
-        });
+        })
+        .withName("SOTM");
   }
 }

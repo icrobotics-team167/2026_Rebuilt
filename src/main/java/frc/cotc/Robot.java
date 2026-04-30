@@ -217,7 +217,7 @@ public class Robot extends LoggedRobot {
                   case RED_HUB, BLUE_HUB -> isOkayToShoot || primary.getHID().getPOV() == 0;
                   default -> true;
                 })
-        .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
+        .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed"));
 
     Supplier<Translation2d> translationalInputSupplier =
         () -> {
@@ -286,9 +286,8 @@ public class Robot extends LoggedRobot {
     primary
         .leftBumper()
         .and(DriverStation::isEnabled)
-        .whileTrue(
-            parallel(swerve.aimAtTarget(translationalInputSupplier), shooter.sotm())
-                .withName("Shoot"));
+        .whileTrue(swerve.aimAtTarget(translationalInputSupplier))
+        .whileTrue(shooter.sotm());
 
     intake.setDefaultCommand(intake.fastExtend());
     primary.a().and(DriverStation::isEnabled).toggleOnTrue(intake.retract());

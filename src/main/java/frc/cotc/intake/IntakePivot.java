@@ -67,13 +67,15 @@ class IntakePivot extends SubsystemBase {
 
   Command agitate() {
     return repeatingSequence(
-            goToPos(AGITATE_ANGLE, false).withTimeout(0.5), extend().withTimeout(0.75))
+            goToPos(AGITATE_ANGLE, false).withTimeout(0.5).withName("Agitate Up"),
+            extend().withTimeout(0.75).withName("Agitate Down"))
         .withName("Agitate");
   }
 
   Command lowAgitate() {
     return repeatingSequence(
-            goToPos(LOW_AGITAGE_ANGLE, false).withTimeout(0.4), extend().withTimeout(0.4))
+            goToPos(LOW_AGITAGE_ANGLE, false).withTimeout(0.4).withName("Low Agitate Up"),
+            extend().withTimeout(0.4).withName("Low Agitate Down"))
         .withName("Low Agitate");
   }
 }
