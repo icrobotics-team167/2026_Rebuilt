@@ -214,7 +214,7 @@ public class Robot extends LoggedRobot {
         .and(
             () ->
                 switch (shotTarget) {
-                  case RED_HUB, BLUE_HUB -> isOkayToShoot;
+                  case RED_HUB, BLUE_HUB -> isOkayToShoot || primary.getHID().getPOV() == 0;
                   default -> true;
                 })
         .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()));
