@@ -22,9 +22,9 @@ public final class ChoreoVars {
     public static final class Poses {
         public static final Pose2d CenterLeadOut = new Pose2d(3.0704, 4.0345, Rotation2d.fromRadians(0));
         public static final Pose2d CenterStartPose = new Pose2d(3.68, 4.0345, Rotation2d.fromRadians(0));
-        public static final Pose2d Depot = new Pose2d(0.475, 5.95, Rotation2d.fromRadians(-1.5707963));
+        public static final Pose2d Depot = new Pose2d(0.475, 5.5, Rotation2d.fromRadians(-1.5707963));
         public static final Pose2d DepotLeadIn = new Pose2d(0.475, 7, Rotation2d.fromRadians(0));
-        public static final Pose2d DepotLeadOut = new Pose2d(1.2, 5.95, Rotation2d.fromRadians(0));
+        public static final Pose2d DepotLeadOut = new Pose2d(1.2, 5.5, Rotation2d.fromRadians(0));
         public static final Pose2d LeftBumpCrossPose = new Pose2d(5.6, 5.569, Rotation2d.fromRadians(0));
         public static final Pose2d LeftBumpFarEnter = new Pose2d(8.5, 6.069, Rotation2d.fromRadians(-1.5707963));
         public static final Pose2d LeftBumpMidEnter = new Pose2d(7.7, 5.569, Rotation2d.fromRadians(-1.5707963));

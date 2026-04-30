@@ -447,7 +447,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftTrenchMidDepot = new ChoreoTraj(
         "LeftTrenchMidDepot",
         OptionalInt.empty(),
-        9.55849,
+        9.93991,
         new Pose2d(4.47, 7.719, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
@@ -475,29 +475,29 @@ public record ChoreoTraj(
     public static final ChoreoTraj LeftTrenchMidDepot$3 = new ChoreoTraj(
         "LeftTrenchMidDepot",
         OptionalInt.of(3),
-        1.39546,
+        1.3955000000000002,
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674)),
         new Pose2d(0.475, 7, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj LeftTrenchMidDepot$4 = new ChoreoTraj(
         "LeftTrenchMidDepot",
         OptionalInt.of(4),
-        1.1224800000000004,
+        1.5729899999999999,
         new Pose2d(0.475, 7, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(0.475, 5.95, Rotation2d.fromRadians(-1.5708))
+        new Pose2d(0.475, 5.5, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj LeftTrenchMidDepot$5 = new ChoreoTraj(
         "LeftTrenchMidDepot",
         OptionalInt.of(5),
-        0.4567899999999998,
-        new Pose2d(0.475, 5.95, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(1.2, 5.95, Rotation2d.fromRadians(-1.5708))
+        0.4486000000000008,
+        new Pose2d(0.475, 5.5, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(1.2, 5.5, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj LeftTrenchMidDepot$6 = new ChoreoTraj(
         "LeftTrenchMidDepot",
         OptionalInt.of(6),
-        0.7641500000000008,
-        new Pose2d(1.2, 5.95, Rotation2d.fromRadians(-1.5708)),
+        0.7032099999999986,
+        new Pose2d(1.2, 5.5, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.527, 5.121, Rotation2d.fromRadians(-2.11674))
     );
     public static final ChoreoTraj RightBumpFar = new ChoreoTraj(
