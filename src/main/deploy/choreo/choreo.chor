@@ -216,11 +216,11 @@
     },
     "y":{
      "exp":"FieldWidth - RightFarCenterExit.y",
-     "val":4.4190000000000005
+     "val":4.769000000000001
     },
     "heading":{
      "exp":"RightFarCenterExit.heading",
-     "val":0.0
+     "val":1.5707963267948966
     }
    },
    "LeftFarEnter":{
@@ -244,11 +244,11 @@
     },
     "y":{
      "exp":"FieldWidth - RightMidCenterExit.y",
-     "val":4.4190000000000005
+     "val":4.769000000000001
     },
     "heading":{
      "exp":"RightMidCenterExit.heading",
-     "val":0.0
+     "val":1.5707963267948966
     }
    },
    "LeftMidEnter":{
@@ -430,7 +430,7 @@
     },
     "heading":{
      "exp":"RightMidAcrossExit.heading",
-     "val":0.0
+     "val":1.5707963267948966
     }
    },
    "RightFarCenterExit":{
@@ -440,11 +440,11 @@
     },
     "y":{
      "exp":"RightMidCenterExit.y",
-     "val":3.65
+     "val":3.3
     },
     "heading":{
      "exp":"RightMidCenterExit.heading",
-     "val":0.0
+     "val":1.5707963267948966
     }
    },
    "RightFarEnter":{
@@ -472,7 +472,7 @@
     },
     "heading":{
      "exp":"RightMidCenterExit.heading",
-     "val":0.0
+     "val":1.5707963267948966
     }
    },
    "RightMidCenterExit":{
@@ -481,12 +481,12 @@
      "val":7.75
     },
     "y":{
-     "exp":"3.65 m",
-     "val":3.65
+     "exp":"3.3 m",
+     "val":3.3
     },
     "heading":{
-     "exp":"0 deg",
-     "val":0.0
+     "exp":"90 deg",
+     "val":1.5707963267948966
     }
    },
    "RightMidEnter":{
