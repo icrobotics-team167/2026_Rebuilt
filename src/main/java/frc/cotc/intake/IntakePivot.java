@@ -8,6 +8,7 @@
 package frc.cotc.intake;
 
 import static edu.wpi.first.wpilibj2.command.Commands.repeatingSequence;
+import static edu.wpi.first.wpilibj2.command.Commands.sequence;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -62,7 +63,9 @@ class IntakePivot extends SubsystemBase {
   }
 
   Command retract() {
-    return goToPos(RETRACTED_ANGLE, false).withName("Retract");
+    return sequence(
+        goToPos(RETRACTED_ANGLE, false).withTimeout(2).withName("Retract"),
+        idle().withName("Retract Idle"));
   }
 
   Command agitate() {
