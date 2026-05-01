@@ -193,7 +193,8 @@ def solve(
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
     if distance < 2.75:
-        problem.subject_to(v_z[-1] < -1 * distance / 2.75)
+        problem.solve()
+        problem.subject_to(v_z[-1] < 0)
     else:
         problem.subject_to(v_z[-1] < -1.5)
         max_landing_pitch = np.rad2deg(-50)
