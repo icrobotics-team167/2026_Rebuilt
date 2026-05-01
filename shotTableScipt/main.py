@@ -192,11 +192,14 @@ def solve(
 
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
-    max_landing_pitch = np.rad2deg(-50)
-    ratio = math.tan(max_landing_pitch)
-    # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
-    problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
-    problem.subject_to(v_z[-1] < -1.5)
+    if distance < 2.75:
+        problem.subject_to(v_z[-1] < -1 * distance / 2.75)
+    else:
+        problem.subject_to(v_z[-1] < -1.5)
+        max_landing_pitch = np.rad2deg(-50)
+        ratio = math.tan(max_landing_pitch)
+        # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
+        problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
 
     p_x = X[0, :]
     p_y = X[1, :]
@@ -294,7 +297,7 @@ def write(target_height, min_distance, max_distance, delta, name):
 if __name__ == "__main__":
     write(
         72 * 0.0254,
-        2,
+        1,
         14.5,
         0.25,
         "HubShotMap",

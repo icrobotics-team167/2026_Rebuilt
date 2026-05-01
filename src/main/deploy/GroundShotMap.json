@@ -1,19 +1,19 @@
 {
   "map": {
     "2": {
-      "pitchRad": 0.6981317030523407,
-      "speedMetersPerSec": 4.024838612992126,
-      "timeOfFlightSeconds": 0.6822953414486408
+      "pitchRad": 0.6981317041891734,
+      "speedMetersPerSec": 4.024838613167501,
+      "timeOfFlightSeconds": 0.682295342062464
     },
     "2.5": {
-      "pitchRad": 0.6981317051184736,
-      "speedMetersPerSec": 4.619436824602598,
-      "timeOfFlightSeconds": 0.7476991003686382
+      "pitchRad": 0.698131706554584,
+      "speedMetersPerSec": 4.619436824674158,
+      "timeOfFlightSeconds": 0.747699101264094
     },
     "3.0": {
-      "pitchRad": 0.7039607785980933,
-      "speedMetersPerSec": 5.159882807806902,
-      "timeOfFlightSeconds": 0.8123183391940662
+      "pitchRad": 0.703960778563849,
+      "speedMetersPerSec": 5.159882807799691,
+      "timeOfFlightSeconds": 0.8123183391713226
     },
     "3.5": {
       "pitchRad": 0.7135308920664327,
