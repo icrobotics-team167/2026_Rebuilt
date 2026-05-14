@@ -28,8 +28,9 @@ public class Shooter extends SubsystemBase {
     this.flywheelIO = flywheelIO;
 
     projectileSpeedToFlywheelSpeedMap.put(0.0, 0.0);
-    projectileSpeedToFlywheelSpeedMap.put(7.4, 77.0);
-    projectileSpeedToFlywheelSpeedMap.put(14.6, 158.0);
+    projectileSpeedToFlywheelSpeedMap.put(6.8, 68.0);
+    projectileSpeedToFlywheelSpeedMap.put(7.4, 74.5);
+    projectileSpeedToFlywheelSpeedMap.put(14.6, 153.5);
   }
 
   @Override
@@ -76,14 +77,14 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command sotm() {
-    return run(
-        () -> {
+    return run(() -> {
           if (sotmResult == null) return;
           hoodIO.runPitch(sotmResult.pitchRad());
           targetPitchRad = sotmResult.pitchRad();
           targetSpeedRotPerSec =
               projectileSpeedToFlywheelSpeedMap.get(sotmResult.shotSpeedMetersPerSecond());
           flywheelIO.runVel(targetSpeedRotPerSec);
-        });
+        })
+        .withName("SOTM");
   }
 }
