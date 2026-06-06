@@ -49,7 +49,6 @@ public class Robot extends LoggedRobot {
     REPLAY
   }
 
-  private final Autos autos;
   public static Mode mode;
 
   public static final StatusSignalCollection canivoreSignals = new StatusSignalCollection();
@@ -192,81 +191,13 @@ public class Robot extends LoggedRobot {
               case REPLAY -> new FlywheelIO() {};
             });
 
-    autos =
-        new Autos(
-            swerve,
-            shooter,
-            () ->
-                parallel(beltFloor.runBelt(), raceway.runRaceway(), intake.agitate().asProxy())
-                    .withName("Feed"),
-            () -> intake.intake().asProxy());
-    CommandScheduler.getInstance().schedule(autos.warmup());
-
-    RobotModeTriggers.autonomous()
-        .whileTrue(deferredProxy(autos::getSelectedCommand).withName("Auto Command"))
-        .onFalse(runOnce(autos::clear));
-    RobotModeTriggers.teleop().onTrue(runOnce(Shifts::initialize));
-
     turretFeeder.setDefaultCommand(turretFeeder.runFeeder());
     primary
         .rightTrigger()
         .and(DriverStation::isEnabled)
-        .and(
-            () ->
-                switch (shotTarget) {
-                  case RED_HUB, BLUE_HUB -> isOkayToShoot || primary.getHID().getPOV() == 0;
-                  default -> true;
-                })
         .whileTrue(parallel(beltFloor.runBelt(), raceway.runRaceway()).withName("Feed"));
 
-    Supplier<Translation2d> translationalInputSupplier =
-        () -> {
-          var x = -primary.getLeftY();
-          var y = -primary.getLeftX();
-          var magnitude = Math.hypot(x, y);
-          if (magnitude > 1e-6) {
-            var normX = x / magnitude;
-            var normY = y / magnitude;
-            var deadbandedMagnitude = MathUtil.applyDeadband(Math.min(magnitude, 1), 0.075);
-            var squaredDeadbandedMagnitude = Math.pow(deadbandedMagnitude, 1.5);
-            return new Translation2d(
-                normX * squaredDeadbandedMagnitude, normY * squaredDeadbandedMagnitude);
-          } else {
-            return Translation2d.kZero;
-          }
-        };
-
-    DoubleSupplier omegaInputSupplier =
-        () -> {
-          var omega = -primary.getRightX();
-          var deadbandedOmegaMag = MathUtil.applyDeadband(Math.abs(omega), 0.075);
-          return omega * deadbandedOmegaMag * deadbandedOmegaMag;
-        };
-
-    swerve.setDefaultCommand(swerve.teleopDrive(translationalInputSupplier, omegaInputSupplier));
-    primary.rightBumper().and(DriverStation::isEnabled).whileTrue(swerve.slowTeleopDrive());
-    primary
-        .povLeft()
-        .and(DriverStation::isEnabled)
-        .whileTrue(
-            swerve.faceAngle(
-                translationalInputSupplier,
-                () -> {
-                  var x = -primary.getRightY();
-                  var y = -primary.getRightX();
-                  var magnitude = Math.hypot(x, y);
-                  if (magnitude > 1e-6) {
-                    var normX = x / magnitude;
-                    var normY = y / magnitude;
-                    var deadbandedMagnitude = MathUtil.applyDeadband(Math.min(magnitude, 1), 0.25);
-                    var squaredDeadbandedMagnitude = deadbandedMagnitude * deadbandedMagnitude;
-                    return new Translation2d(
-                        normX * squaredDeadbandedMagnitude, normY * squaredDeadbandedMagnitude);
-                  } else {
-                    return Translation2d.kZero;
-                  }
-                }));
-    primary.povRight().and(DriverStation::isEnabled).whileTrue(swerve.brake());
+    swerve.setDefaultCommand(swerve.brake());
 
     primary
         .b()
@@ -283,11 +214,6 @@ public class Robot extends LoggedRobot {
                 .withName("Disable shooting"));
 
     shooter.setDefaultCommand(shooter.idleRun());
-    primary
-        .leftBumper()
-        .and(DriverStation::isEnabled)
-        .whileTrue(swerve.aimAtTarget(translationalInputSupplier))
-        .whileTrue(shooter.sotm());
 
     intake.setDefaultCommand(intake.fastExtend());
     primary.a().and(DriverStation::isEnabled).toggleOnTrue(intake.retract());
@@ -313,15 +239,6 @@ public class Robot extends LoggedRobot {
                 primary.rumble(0.2),
                 waitSeconds(0.1),
                 primary.rumble(0.2)));
-
-    new Trigger(() -> shiftInfo != null && shiftInfo.remainingTime() < 5)
-        .onTrue(primary.rumble(0.25));
-    new Trigger(() -> shiftInfo != null && shiftInfo.active()).onChange(primary.rumble(0.5));
-  }
-
-  @Override
-  public void disabledPeriodic() {
-    autos.update();
   }
 
   // The shooter will lag behind the target position, so try to look a little further into the

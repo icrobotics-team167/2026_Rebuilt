@@ -43,7 +43,7 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Target hood pitch rad", targetPitchRad);
   }
 
-  private final double baseTargetSpeedRotPerSec = 80;
+  private final double baseTargetSpeedRotPerSec = 60;
   private double targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
 
   private final double minAngle = Units.degreesToRadians(55);
@@ -55,7 +55,7 @@ public class Shooter extends SubsystemBase {
           targetSpeedRotPerSec = baseTargetSpeedRotPerSec;
           flywheelIO.runVel(baseTargetSpeedRotPerSec);
           hoodIO.runPitch(minAngle);
-          targetPitchRad = minAngle;
+          targetPitchRad = Units.degreesToRadians(45);
         });
   }
 
