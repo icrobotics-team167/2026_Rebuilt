@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+/**
+ * An extension of {@link CommandXboxController} that adds a Command to rumble the controller.
+ */
 public class CommandXboxControllerWithRumble extends CommandXboxController {
   /**
    * Construct an instance of a controller.

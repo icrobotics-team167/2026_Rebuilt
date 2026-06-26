@@ -23,6 +23,7 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
 
     var config = new TalonFXConfiguration();
 
+    // We need as much torque as we can get, so no stator limit and generous supply limit.
     config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 80;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -30,8 +31,12 @@ public class TurretFeederIOPhoenix implements TurretFeederIO {
 
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
+    // Optimize CAN bus utilization
+    // Data rate for the current draws only need to be updated at the robot code's 50 hz
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
     Robot.rioSignals.addSignals(statorSignal, supplySignal);
+    // Everything else can have a slow data rate, but we don't want zero since it can sometimes
+    // be useful
     motor.optimizeBusUtilization(5);
   }
 

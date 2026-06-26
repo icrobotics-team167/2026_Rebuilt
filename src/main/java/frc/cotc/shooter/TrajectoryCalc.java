@@ -23,14 +23,10 @@ public class TrajectoryCalc {
   private static final double ballDiameter = Units.inchesToMeters(5.91);
   private static final double ballMass = Units.lbsToKilograms(0.5);
 
+  /**
+   * d/dt x = f(x)
+   */
   private static Vector<N6> f(Vector<N6> x, Vector<N3> omega) {
-    // x' = x'
-    // y' = y'
-    // z' = z'
-    // x" = −F_D(v)/m v̂_x
-    // y" = −F_D(v)/m v̂_y
-    // z" = −g − F_D(v)/m v̂_z
-    //
     // Per https://en.wikipedia.org/wiki/Drag_(physics)#The_drag_equation:
     //   F_D(v) = ½ρv²C_D A
     //   ρ is the fluid density in kg/m³
@@ -57,6 +53,12 @@ public class TrajectoryCalc {
     var v_hat = v.div(v_mag);
     var F_M = Vector.cross(v, omega).times(0.5 * rho * C_L * A * v_mag);
 
+    // x' = x'
+    // y' = y'
+    // z' = z'
+    // x" = −F_D(v)/m v̂_x
+    // y" = −F_D(v)/m v̂_y
+    // z" = −g − F_D(v)/m v̂_z
     var a = v_hat.times(-F_D / m).plus(F_M.div(m)).plus(VecBuilder.fill(0, 0, -9.81));
     return VecBuilder.fill(v.get(0), v.get(1), v.get(2), a.get(0), a.get(1), a.get(2));
   }
@@ -71,6 +73,10 @@ public class TrajectoryCalc {
     return x.plus(dx);
   }
 
+  /**
+   * Simulates a shot from the given initial pose and velocity, using a Runge-Kutta 4 integration
+   * @return an array of Pose3d representing the trajectory of the shot until it hits the ground or the hub
+   */
   public static Pose3d[] simulateShot(Translation3d initialPose, Translation3d initialVelocity) {
     // For a ball with full backspin, the direction of the rotational velocity vector is clockwise
     // 90 degrees from the direction of travel and the magnitude is the launch velocity / diameter
@@ -92,16 +98,19 @@ public class TrajectoryCalc {
     while (t < 10) {
       poses.add(new Pose3d(x.get(0), x.get(1), x.get(2), Rotation3d.kZero));
       x = rk4(x, omega, dt);
+      // If it hit the ground, break
       if (x.get(2) < 0) {
         break;
       }
       var blueHub = FieldConstants.Hub.topCenterPoint;
-      var redHub = FieldConstants.Hub.oppTopCenterPoint;
+      // If it hit the blue hub, break
       if (Math.hypot(x.get(0) - blueHub.getX(), x.get(1) - blueHub.getY())
               < Units.inchesToMeters(47.0 / 2)
           && x.get(2) - blueHub.getZ() < 0) {
         break;
       }
+      var redHub = FieldConstants.Hub.oppTopCenterPoint;
+      // If it hit the red hub, break
       if (Math.hypot(x.get(0) - redHub.getX(), x.get(1) - redHub.getY())
               < Units.inchesToMeters(47.0 / 2)
           && x.get(2) - redHub.getZ() < 0) {

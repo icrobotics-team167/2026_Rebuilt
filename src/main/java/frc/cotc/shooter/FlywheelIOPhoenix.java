@@ -18,7 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.cotc.Robot;
 
 public class FlywheelIOPhoenix implements FlywheelIO {
-  private static final int MOTOR_0_ID = 2; // TODO: Update Can IDs
+  private static final int MOTOR_0_ID = 2;
   private static final int MOTOR_1_ID = 3;
 
   private final TalonFX motor0, motor1;
@@ -36,15 +36,22 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     motor1 = new TalonFX(MOTOR_1_ID, Robot.rioBus);
 
     var config = new TalonFXConfiguration();
+    // Coast when idle to preserve angular momentum
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    // We need as much torque as we can get, so no stator limit and generous supply limit.
     config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 80;
 
+    // 1:2 upduction
     config.Feedback.SensorToMechanismRatio = 0.5;
+    // The default filtering of a 1ms time constant is very noisy and causes the velocity to
+    // oscillate, so we use a 4ms time constant to smooth it out.
     config.Feedback.VelocityFilterTimeConstant = 0.004;
     config.Slot0.kS = 0.363636;
     config.Slot0.kV = 0.06060606;
     config.Slot0.kP = 0.3;
+    // We never want the motor to apply torque backwards, and this creates a bang-bang-like
+    // behavior by allowing forward voltage but not reverse voltage.
     config.Voltage.PeakReverseVoltage = 0;
 
     // Left Side
@@ -61,6 +68,8 @@ public class FlywheelIOPhoenix implements FlywheelIO {
     motor0SupplyCurrent = motor0.getSupplyCurrent(false);
     motor1SupplyCurrent = motor1.getSupplyCurrent(false);
 
+    // Optimize CAN bus utilization
+    // Data rate for the current draws only need to be updated at the robot code's 50 hz
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         velocity,
@@ -76,6 +85,8 @@ public class FlywheelIOPhoenix implements FlywheelIO {
         motor0SupplyCurrent,
         motor1SupplyCurrent);
 
+    // Everything else can have a slow data rate, but we don't want zero since it can sometimes
+    // be useful
     ParentDevice.optimizeBusUtilizationForAll(5, motor0, motor1);
   }
 

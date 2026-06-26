@@ -13,6 +13,9 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.cotc.Robot;
 
+// I didn't really end up using this as much as I thought I would, since validating behavior in
+// sim using physics models never came up for the actual shooter mechanism compared to the
+// drivetrain and the SOTM algorithm.
 public class HoodIOSim implements HoodIO {
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(

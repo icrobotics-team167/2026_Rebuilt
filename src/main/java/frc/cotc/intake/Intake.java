@@ -45,6 +45,11 @@ public class Intake extends SubsystemBase {
     return expose(parallel(pivot.agitate(), roller.intake()), "Agitate");
   }
 
+  // This nested subsystem structure is useful for when two subsystems are tightly coupled enough
+  // that they need to be coordinated together, but not so tightly coupled that they can be
+  // combined into one subsystem.
+  // A more complex example:
+  // https://github.com/icrobotics-team167/2025_Reefscape/blob/main/src/main/java/frc/cotc/superstructure/Superstructure.java
   /**
    * Wraps a command such that from the outside, it looks like only the parent subsystem is
    * requiring the command.

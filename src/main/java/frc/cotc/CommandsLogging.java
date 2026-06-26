@@ -21,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
  * <p>Originally by Harry from 1683. Heavily modified to support things like distinguishing between
  * default/non-default commands and recursively logging subcommands.
  */
+@SuppressWarnings("RedundantSuppression")
 public class CommandsLogging {
   private static final Set<Command> runningNonInterrupters = new HashSet<>();
   private static final Set<Command> runningInterrupters = new HashSet<>();
@@ -49,6 +50,8 @@ public class CommandsLogging {
     }
   }
 
+  // Lord forgive me for I have sinned.
+  // Reflection nonsense to forcibly grab fields that aren't accessible.
   private static final Field wrapperCommandField;
   private static final Field sequenceSubCommandsField;
   private static final Field sequenceCommandIndexField;
@@ -107,6 +110,10 @@ public class CommandsLogging {
 
   private static final HashMap<Command, String> nameCache = new HashMap<>();
 
+  /**
+   * Builds a String representing the type and subcommands of a command group. Recurses as needed
+   * for nested command groups. If the name of the command is modified, uses that instead.
+   */
   public static String getCommandName(Command command) {
     // If the name was already computed, grab that cached name
     if (nameCache.containsKey(command)) {
@@ -295,12 +302,21 @@ public class CommandsLogging {
   }
 
   public static void logRunningCommands() {
+    // HACK: AdvantageScope doesn't distinguish between an actually published NT4 struct and
+    // faking it by publishing in fields with the same names and types as expected in the struct
+    // definitions. We can abuse this to use the Alerts visualization for more than it was intended
+    // for.
     Logger.recordOutput("CommandScheduler/Running/.type", "Alerts");
 
     final ArrayList<String> runningCommands = new ArrayList<>();
     final ArrayList<String> runningDefaultCommands = new ArrayList<>();
     for (final Command command : runningNonInterrupters) {
+      // Loop over the command's requirements to see if it's the default command of a subsystem.
+      // If so, log it in the default commands list instead of the normal running commands list.
       ArrayList<String> commandsList = null;
+      // In hindsight, I don't think having a boolean was necessary. I could've just made
+      // commandsList default to runningCommands and then set it to runningDefaultCommands if the
+      // command is a default command.
       boolean isDefaultCommand = false;
       for (Subsystem subsystem : command.getRequirements()) {
         if (subsystem.getDefaultCommand() == command) {
@@ -319,17 +335,22 @@ public class CommandsLogging {
     Logger.recordOutput(
         "CommandScheduler/Running/infos", runningDefaultCommands.toArray(new String[0]));
 
+    // For commands that interrupt other commands, we find and log every command that it
+    // interrupted, along with the requirements that it had to interrupt.
     final var interrupters = new ArrayList<String>();
     for (final var interrupter : runningInterrupters) {
       for (final var interruptEntry : interruptedCommands.entrySet()) {
+        // If the interrupter (value) is not the currently looped interrupter, skip this entry
         if (interruptEntry.getValue() != interrupter) {
           continue;
         }
 
+        // Find the set intersection between the interrupter's requirements and the interrupted's
         final var interrupted = interruptEntry.getKey();
         final Set<Subsystem> commonRequirements = new HashSet<>(interrupter.getRequirements());
         commonRequirements.retainAll(interrupted.getRequirements());
 
+        // Build a string representing the requirements that the interrupter had to interrupt
         final StringBuilder requirements = new StringBuilder();
         int i = 1;
         for (final Subsystem subsystem : commonRequirements) {

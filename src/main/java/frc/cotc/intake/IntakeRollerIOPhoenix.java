@@ -23,14 +23,19 @@ public class IntakeRollerIOPhoenix implements IntakeRollerIO {
     intakeMotor = new TalonFX(INTAKE_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    // We need as much torque as we can get, so no stator limit and generous supply limit.
     config.CurrentLimits.StatorCurrentLimitEnable = false;
     config.CurrentLimits.SupplyCurrentLimit = 60;
     intakeMotor.getConfigurator().apply(config);
 
     statorSignal = intakeMotor.getStatorCurrent(false);
     supplySignal = intakeMotor.getSupplyCurrent(false);
+    // Optimize CAN bus utilization
+    // Data rate for the current draws only need to be updated at the robot code's 50 hz
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal);
     Robot.rioSignals.addSignals(statorSignal, supplySignal);
+    // Everything else can have a slow data rate, but we don't want zero since it can sometimes
+    // be useful
     intakeMotor.optimizeBusUtilization(5);
   }
 

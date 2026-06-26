@@ -29,7 +29,10 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     motor = new TalonFX(MOTOR_ID, Robot.rioBus);
     var config = new TalonFXConfiguration();
 
+    // Super low stator limit to prevent the motor from stripping the belt
     config.CurrentLimits.StatorCurrentLimit = 60;
+    // Super low supply limit since we don't need that much power and it can be prioritized
+    // elsewhere.
     config.CurrentLimits.SupplyCurrentLimit = 20;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -39,9 +42,11 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
     velocitySignal = motor.getVelocity(false);
-
+    // Optimize CAN bus utilization
+    // Data rate for the current draws only need to be updated at the robot code's 50 hz
     BaseStatusSignal.setUpdateFrequencyForAll(50, statorSignal, supplySignal, velocitySignal);
-
+    // Everything else can have a slow data rate, but we don't want zero since it can sometimes
+    // be useful
     motor.optimizeBusUtilization(5);
 
     Robot.rioSignals.addSignals(statorSignal, supplySignal, velocitySignal);
@@ -58,6 +63,10 @@ public class IntakePivotIOPhoenix implements IntakePivotIO {
     inputs.supplyCurrentAmps = supplySignal.getValueAsDouble();
     inputs.velocityRotPerSec = velocitySignal.getValueAsDouble();
     inputs.pivotAngleRad =
+        // The MAXSpline encoder doesn't have any built-in way to do encoder offsets, so we do the
+        // math ourselves here. We first subtract the offset from the measured angle, then we
+        // convert from rotations to radians, then we finally wrap it to normalize it to a -π to π
+        // range.
         -MathUtil.angleModulus(Units.rotationsToRadians(pivotEncoder.getAngle() - offsetRot));
   }
 }

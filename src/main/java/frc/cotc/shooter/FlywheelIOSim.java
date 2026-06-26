@@ -14,6 +14,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.cotc.Robot;
 
+// I didn't really end up using this as much as I thought I would, since validating behavior in
+// sim using physics models never came up for the actual shooter mechanism compared to the
+// drivetrain and the SOTM algorithm.
 public class FlywheelIOSim implements FlywheelIO {
   private final FlywheelSim sim =
       new FlywheelSim(

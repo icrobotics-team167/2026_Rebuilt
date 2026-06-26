@@ -17,7 +17,17 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.Optional;
 
-/** Replaces the Phoenix Swerve pose estimator with a replay-compatible one. */
+/**
+ * Replaces the Phoenix Swerve pose estimator with a replay-compatible one by shimming the pose
+ * estimation methods in {@link TunerConstants.TunerSwerveDrivetrain}. See {@link SwerveIOReal}.
+ *
+ * <p>This class is the component that replays the data from AdvantageKit.
+ *
+ * <p>Note: This class only replays pose estimation, it does not replay any other logic performed
+ * by the Phoenix Swerve library such as controls. Phoenix Swerve does controls also in the
+ * high-frequency thread, but overriding the timings of that for replay purposes is not possible
+ * given the existing API.
+ */
 public class SwerveIOReplay extends TunerConstants.TunerSwerveDrivetrain implements SwerveIO {
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean poseEstInit = false;

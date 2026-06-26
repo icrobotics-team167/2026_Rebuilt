@@ -38,13 +38,17 @@ public class HoodIOPhoenix implements HoodIO {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     motorConfig.Feedback.FeedbackRemoteSensorID = HOOD_ENCODER_ID;
     motorConfig.Feedback.SensorToMechanismRatio = SENSOR_TO_MECHANISM_RATIO;
+    // Unlike most stuff on the robot, we did care about not breaking the hood, so we limited
+    // torque by limiting stator current
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    // TODO: Tune
+    // These are fairly aggressive PID gains. I honestly wanted to go faster, but the speed at
+    // which it moved worried Michael.
     motorConfig.Slot0.kP = 100;
     motorConfig.Slot0.kD = 0.1;
     motorConfig.Slot0.kS = .3;
     motorConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+    // Use the software limits to prevent the hood from going too far in either direction.
     motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
     motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -59,9 +63,16 @@ public class HoodIOPhoenix implements HoodIO {
     statorSignal = motor.getStatorCurrent(false);
     supplySignal = motor.getSupplyCurrent(false);
 
+    // Optimize CAN bus utilization
+    // The CANcoder's absolute position signal needs to be sent at a high frequency, since the
+    // Kraken uses it to keep its position tracking in line.
     encoder.getAbsolutePosition(false).setUpdateFrequency(250);
+    // Data rate for the current position and the current draws only need to be updated at the
+    // robot code's 50 hz
     BaseStatusSignal.setUpdateFrequencyForAll(50, posSignal, statorSignal, supplySignal);
     Robot.rioSignals.addSignals(posSignal, statorSignal, supplySignal);
+    // Everything else can have a slow data rate, but we don't want zero since it can sometimes
+    // be useful
     ParentDevice.optimizeBusUtilizationForAll(5, motor, encoder);
   }
 

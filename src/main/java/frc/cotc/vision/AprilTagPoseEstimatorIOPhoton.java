@@ -19,6 +19,7 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
 
   static {
     if (Robot.mode == Robot.Mode.SIM) {
+      // Load the vision system simulation
       sim = new VisionSystemSim("sim");
       sim.addAprilTags(AprilTagPoseEstimator.tagLayout);
     }
@@ -28,6 +29,7 @@ public class AprilTagPoseEstimatorIOPhoton implements AprilTagPoseEstimatorIO {
 
   public AprilTagPoseEstimatorIOPhoton(String name) {
     camera = new PhotonCamera(name);
+    // Sim handling
     if (Robot.mode == Robot.Mode.SIM) {
       var cameraCharacteristics = AprilTagPoseEstimator.cameraCharacteristics.get(name);
       var cameraSim =

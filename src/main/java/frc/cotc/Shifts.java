@@ -12,6 +12,11 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
+/**
+ * A class for calculating the current active shift based on the match timer.
+ *
+ * <p>Originally by 6328 Mechanical Advantage.
+ */
 public class Shifts {
   public enum ShiftEnum {
     TRANSITION,
@@ -30,6 +35,7 @@ public class Shifts {
   private static final Timer shiftTimer = new Timer();
   private static final ShiftEnum[] shiftsEnums = ShiftEnum.values();
 
+  // Shift timings
   private static final double[] shiftStartTimes = {0.0, 10.0, 35.0, 60.0, 85.0, 110.0};
   private static final double[] shiftEndTimes = {10.0, 35.0, 60.0, 85.0, 110.0, 140.0};
 
@@ -43,7 +49,7 @@ public class Shifts {
   public static Alliance getFirstActiveAlliance() {
     var alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
 
-    // Return override value
+    // Fallback: If driver hits the override, return that we won
     if (allianceWinOverride.get()) {
       return alliance;
     }
@@ -59,7 +65,7 @@ public class Shifts {
       }
     }
 
-    // Return default value
+    // Fallback: If FMS fails to send the value, return that we lost
     return alliance == Alliance.Blue ? Alliance.Red : Alliance.Blue;
   }
 
@@ -87,11 +93,13 @@ public class Shifts {
     ShiftEnum currentShift = ShiftEnum.DISABLED;
 
     if (DriverStation.isAutonomousEnabled()) {
+      // Auto is always active
       stateTimeElapsed = currentTime;
       stateTimeRemaining = autoEndTime - currentTime;
       active = true;
       currentShift = ShiftEnum.AUTO;
     } else if (DriverStation.isEnabled()) {
+      // Loop to find the current shift based on timings
       int currentShiftIndex = -1;
       for (int i = 0; i < shiftStartTimes.length; i++) {
         if (currentTime >= shiftStartTimes[i] && currentTime < shiftEndTimes[i]) {
@@ -137,6 +145,8 @@ public class Shifts {
   private static final double maxFuelCountDelay = 2.0;
   private static final double shiftEndFuelCountExtension = 3.0;
 
+  // Fudge the timings using the time of flight and the min/max possible delays for fuel processing
+  // The fuel will land and be processed in the future so acccount for those timings
   public static ShiftInfo getAdjustedShiftInfo(double timeOfFlight) {
     double approachingActiveFudge = -1 * (timeOfFlight + minFuelCountDelay);
     double endingActiveFudge = shiftEndFuelCountExtension + -1 * (timeOfFlight + maxFuelCountDelay);

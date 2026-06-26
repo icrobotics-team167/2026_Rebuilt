@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
+  // Unlike the Intake where the individual components were coordinated together but moved
+  // independently, everything in the shooter is moved together, so we put them in the same
+  // subsystem.
   private final HoodIO hoodIO;
   private final FlywheelIO flywheelIO;
 
@@ -27,6 +30,8 @@ public class Shooter extends SubsystemBase {
     this.hoodIO = hoodIO;
     this.flywheelIO = flywheelIO;
 
+    // This was measured by going different distances and seeing at what flywheel speed did the
+    // fuel make it into the goal given the hood angle provided by the trajectory solver.
     projectileSpeedToFlywheelSpeedMap.put(0.0, 0.0);
     projectileSpeedToFlywheelSpeedMap.put(6.8, 68.0);
     projectileSpeedToFlywheelSpeedMap.put(7.4, 74.5);
@@ -49,6 +54,9 @@ public class Shooter extends SubsystemBase {
   private final double minAngle = Units.degreesToRadians(55);
   private double targetPitchRad = minAngle;
 
+  /**
+   * Idles the flywheel at a base speed to conserve some momentum while consuming minimal power.
+   */
   public Command idleRun() {
     return run(
         () -> {
@@ -59,6 +67,9 @@ public class Shooter extends SubsystemBase {
         });
   }
 
+  /**
+   * Completely shuts off the flywheel for maximum power savings.
+   */
   @Override
   public Command idle() {
     return run(
@@ -72,10 +83,13 @@ public class Shooter extends SubsystemBase {
 
   private SOTM.SOTMResult sotmResult;
 
+  // HACK: The SOTM result needs to be shared between the otherwise entirely separated swerve and
+  // shooter subsystems, requiring some method of transferring data. This is it.
   public void setSOTMResult(SOTM.SOTMResult result) {
     this.sotmResult = result;
   }
 
+  /** Use the calculated SOTM result to run the flywheel and hood */
   public Command sotm() {
     return run(() -> {
           if (sotmResult == null) return;

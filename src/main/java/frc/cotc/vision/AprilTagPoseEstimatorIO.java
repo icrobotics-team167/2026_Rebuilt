@@ -34,12 +34,15 @@ public interface AprilTagPoseEstimatorIO {
       }
     }
 
+    // Some *real* nonsense to unpack the PhotonPipelineResult[] into a loggable format
     private void logResult(LogTable table, PhotonPipelineResult result) {
       table.put("metadata", PhotonStructs.metadataStruct, result.metadata);
       table.put(
           "targets",
           PhotonStructs.trackedTargetStruct,
           result.targets.toArray(new PhotonTrackedTarget[0]));
+      // Doesn't always have a multitag result so may not have fresh data to log, so we log the
+      // presence of a multitag result
       table.put("hasMultitagResult", result.multitagResult.isPresent());
       if (result.multitagResult.isPresent()) {
         var multitagResult = result.multitagResult.get();

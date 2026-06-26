@@ -25,6 +25,8 @@ class IntakePivot extends SubsystemBase {
   private static final double LOW_AGITAGE_ANGLE = 0.4;
   private static final double RETRACTED_ANGLE = 2.274;
 
+  // On-RIO PID control instead of on-Kraken PID, since we use a MAXSpline throughbore encoder
+  // for absolute position feedback and the belts for the pivot can slip.
   private final PIDController pidController = new PIDController(8, 0.0, 0.1);
   private final PIDController slowPidController = new PIDController(3, 0, 0.05);
   private final ArmFeedforward feedforward = new ArmFeedforward(0.158, 0.242, 0.0);
@@ -75,6 +77,7 @@ class IntakePivot extends SubsystemBase {
         .withName("Agitate");
   }
 
+  // Agitate at a lower angle, used for agitating the fuel when outtaking.
   Command lowAgitate() {
     return repeatingSequence(
             goToPos(LOW_AGITAGE_ANGLE, false).withTimeout(0.4).withName("Low Agitate Up"),

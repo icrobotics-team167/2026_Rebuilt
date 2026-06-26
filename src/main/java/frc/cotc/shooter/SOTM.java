@@ -16,13 +16,24 @@ import frc.cotc.FieldConstants;
 import frc.cotc.Robot;
 import org.littletonrobotics.junction.Logger;
 
+/**
+ * A class for calculating shoot on the move shots. This uses the formulation as described by Eli
+ * "Oblarg" Barnett in the following articles:
+ *
+ * <p><a href="https://frc-docs--3242.org.readthedocs
+ * .build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html">Newton's Method
+ * for Dynamic Shooting</a>
+ *
+ * <p><a href="https://frc-docs--3242.org.readthedocs
+ * .build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html">Linear Drag
+ * (First-Order Air Friction)</a>
+ */
 public class SOTM {
   // Shooting on the move will induce drag on the projectile, so compensate for that
   // Time in inverse seconds for the shot's velocity to decay by 1/e times (decay to ~36.8%)
-  // TODO: Tune
   private static final double DRAG_CONSTANT_INVERSE_SECONDS = 0.1;
 
-  // Location that the robot should shoot at for passing balls
+  // Locations that the robot should shoot at for passing balls
   private static final Translation2d BLUE_BOTTOM_GROUND_TARGET =
       new Translation2d(
           FieldConstants.LinesVertical.starting - 1, FieldConstants.Hub.nearRightCorner.getY() / 2);
@@ -39,6 +50,7 @@ public class SOTM {
           RED_BOTTOM_GROUND_TARGET.getX(),
           FieldConstants.fieldWidth - RED_BOTTOM_GROUND_TARGET.getY());
 
+  // Load the maps from JSON
   private static final ShotMap hubShotMap = ShotMap.loadFromDeploy("HubShotMap.json");
   private static final ShotMap groundShotMap = ShotMap.loadFromDeploy("GroundShotMap.json");
 
@@ -97,6 +109,7 @@ public class SOTM {
     var timeOfFlight = initialGuess.timeOfFlightSeconds();
     iterationToFs[0] = timeOfFlight;
     for (int i = 1; i <= iterations; i++) {
+      // See articles linked above
       var a =
           (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
               / DRAG_CONSTANT_INVERSE_SECONDS;
@@ -136,6 +149,11 @@ public class SOTM {
     Logger.recordOutput("Shooter/Shot result/Iteration Poses", iterationsPoses);
     Logger.recordOutput("Shooter/Shot result/Iteration ToF seconds", iterationToFs);
 
+    // The shot stability metric uses the ratio between how much the last iteration updated the
+    // ToF, and how much the iteration before that updated the ToF.
+    // For a stable, feasible shot, this should be ~1 since that would mean the last iteration
+    // and second to last iteration both had small and similarly sized updates.
+    // Sometimes this value NaN's because of a 0/0. That's a *really* stable shot.
     var shotStability =
         Math.abs(
             (iterationToFs[iterations] - iterationToFs[iterations - 1])
@@ -150,6 +168,7 @@ public class SOTM {
     var turretYawAbsolute = finalVirtualShooterToTarget.getAngle();
 
     if (Robot.isSimulation()) {
+      // Simulate the trajectory of the shot
       Logger.recordOutput(
           "Shooter/Shot result/Trajectory",
           TrajectoryCalc.simulateShot(

@@ -24,6 +24,7 @@ public final class Main {
    * <p>If you change your main Robot class (name), change the parameter type.
    */
   public static void main(String... args) {
+    // If the "--replay" argument is passed, the robot will run in replay mode
     RobotBase.startRobot(() -> new Robot(Arrays.asList(args).contains("--replay")));
   }
 }

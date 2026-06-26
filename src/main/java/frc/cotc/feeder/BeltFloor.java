@@ -33,6 +33,8 @@ public class BeltFloor extends SubsystemBase {
   }
 
   public Command runBackwards() {
+    // Running backwards is intermittent to slow down the angular momentum of fuel
+    // to maximize the linear momentum
     return repeatingSequence(
             run(io::runBackwards).finallyDo(io::stop).withTimeout(0.5), waitSeconds(0.1))
         .withName("Run backwards");

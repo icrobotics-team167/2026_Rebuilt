@@ -36,6 +36,14 @@ public class AprilTagPoseEstimator {
   protected static final HashMap<String, CameraCharacteristics> cameraCharacteristics =
       new HashMap<>();
 
+  /**
+   * Represents the characteristics of an AprilTag camera.
+   * @param robotToCamera The position that the camera is relative to the robot.
+   * @param cameraMatrix A 3x3 matrix that defines the camera intrinsics.
+   * @param distortionCoefficients A 1x8 matrix that defines the camera distortion coefficients.
+   * @param calibErrorPx The average error in pixels from the camera calibration process.
+   * @param errorStdDevPx The standard deviation of the error in pixels from the camera calibration process.
+   */
   protected record CameraCharacteristics(
       Transform3d robotToCamera,
       Matrix<N3, N3> cameraMatrix,
@@ -44,6 +52,7 @@ public class AprilTagPoseEstimator {
       double errorStdDevPx) {}
 
   static {
+    // Load the official tag layout
     tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     cameraCharacteristics.put(

@@ -17,7 +17,9 @@ import frc.cotc.vision.AprilTagPoseEstimator;
  * Contains information for location of field element and other useful reference points.
  *
  * <p>NOTE: All constants are defined relative to the field coordinate system, and from the
- * perspective of the blue alliance station
+ * perspective of the blue alliance station.
+ *
+ * <p>By 6328 Mechanical Advantage.
  */
 public class FieldConstants {
   // AprilTag related constants

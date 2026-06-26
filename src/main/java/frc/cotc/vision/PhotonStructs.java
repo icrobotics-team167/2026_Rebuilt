@@ -13,6 +13,15 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import org.photonvision.targeting.*;
 
+/***
+ * Various structs to serialize PhotonLib's data for AdvantageKit logging.
+ *
+ * <p>Struct serialization takes in data from a class and packs it into a ByteBuffer using a
+ * known format, allowing for efficient transmission and storage.
+ *
+ * <p>PhotonLib uses their own struct format which is incompatible with WPILib's Struct format,
+ * so we need to define our own structs to serialize the data.
+ */
 public class PhotonStructs {
   public static final Struct<PhotonPipelineMetadata> metadataStruct =
       new Struct<>() {

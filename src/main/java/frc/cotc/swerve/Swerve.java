@@ -43,17 +43,21 @@ public class Swerve extends SubsystemBase {
   private final SwerveIO io;
   private final SwerveIOInputsAutoLogged inputs = new SwerveIOInputsAutoLogged();
 
+  // Choreo path following request
   private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds =
       new SwerveRequest.ApplyFieldSpeeds()
           .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+  // PID controllers for Choreo path following
   private final PIDController pathXController = new PIDController(10, 0, 0);
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
+  // We never ended up using automatic bump align, since Edmund just got good at doing it manually.
   private final PIDController bumpAlignYController = new PIDController(10, 0, 1); // Placeholder
   private final PIDController bumpAlignThetaController = new PIDController(8, 0, 1); // Placeholder
 
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
+  // Dunno why this is package-protected and not private final.
   AprilTagPoseEstimator[] cameras;
 
   @SuppressWarnings("resource")
@@ -75,6 +79,7 @@ public class Swerve extends SubsystemBase {
     Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
 
+    // Set up alerts for motor disconnects
     final String[] names = new String[] {"Front Left", "Front Right", "Back Left", "Back Right"};
     for (int i = 0; i < 4; i++) {
       deviceDisconnectAlerts[i * 3] =
@@ -93,7 +98,9 @@ public class Swerve extends SubsystemBase {
               names[i] + " Disconnected",
               Alert.AlertType.kError);
     }
+    // Set up PID controller wrapping
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
+    // Wrapping goes +π/2 to -π/2 so that 0 and ±π are considered the same
     bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
   }
 
@@ -112,37 +119,51 @@ public class Swerve extends SubsystemBase {
     io.updateOdometry(inputs);
 
     if (Robot.mode == Robot.Mode.SIM) {
+      // If sim, update the vision sim
       AprilTagPoseEstimatorIOPhoton.updateSim();
     }
+    // Clear measurements from the last cycle
     measurements.clear();
+    // Loop over the cameras to update them
     for (var camera : cameras) {
       camera.addPoseData(Timer.getTimestamp(), getPose());
       camera.update();
     }
+    // If the measurements are not chronologically sorted, the pose estimator discards out-of-
+    // order measurements. To avoid this, we sort using the timestamp.
     measurements.sort(measurementComparator);
+    // Loop over the measurements and add them to the estimator.
     for (var measurement : measurements) {
       io.addVisionMeasurement(
           measurement.pose(),
           measurement.timestamp() + inputs.timeOffsetSeconds,
           measurement.stdDevs());
     }
+    // Log the vision measurements
     Logger.recordOutput("Swerve/Vision Poses", visionPoses.toArray(new Pose2d[0]));
     visionPoses.clear();
 
+    // Update disconnect alerts
     for (int i = 0; i < 4; i++) {
       deviceDisconnectAlerts[i * 3].set(!inputs.driveMotorConnected[i]);
       deviceDisconnectAlerts[i * 3 + 1].set(!inputs.steerMotorConnected[i]);
       deviceDisconnectAlerts[i * 3 + 2].set(!inputs.encoderConnected[i]);
     }
 
+    // Log the final pose estimate
     Logger.recordOutput("Swerve/Pose", io.getPose());
   }
 
   private final double maxLinearSpeedMetersPerSecond =
       TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private final double maxAngularSpeedRadiansPerSecond =
+      // Max linear speed / distance of farthest wheel = max angular speed
       maxLinearSpeedMetersPerSecond
-          / Math.max(
+          /
+          // Giant math.max to find the farthest wheel
+          // Technically not necessary since we used a centered rectangle as our drivetrain size
+          // and therefore all 4 of the wheels were the same distance
+          Math.max(
               Math.max(
                   Math.hypot(
                       TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
@@ -153,6 +174,7 @@ public class Swerve extends SubsystemBase {
                   Math.hypot(
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
+  // Going full speed by default was too fast for Edmund, so we default to 80% speed
   private final double slowModeMultiplier = 0.33;
   private final double baseSpeedMultiplier = 0.8;
   private double speedMultiplier = baseSpeedMultiplier;
@@ -230,6 +252,8 @@ public class Swerve extends SubsystemBase {
 
   private SOTM.SOTMResult sotmResult;
 
+  // HACK: The SOTM result needs to be shared between the otherwise entirely separated swerve and
+  // shooter subsystems, requiring some method of transferring data. This is it.
   public void setSOTMResult(SOTM.SOTMResult result) {
     this.sotmResult = result;
   }
@@ -249,6 +273,8 @@ public class Swerve extends SubsystemBase {
           var currentPoseToGoalAngle = currentPoseToGoal.getAngle();
           var distanceToGoalMeters = currentPoseToGoal.getNorm();
 
+          // Clamp velocity away from the goal to -0.25m/s to avoid running away from the target
+          // too fast
           var targetRelativeSpeed = translational.rotateBy(currentPoseToGoalAngle.unaryMinus());
           if (targetRelativeSpeed.getX() < -0.25) {
             translational = translational.times(-0.25 / targetRelativeSpeed.getX());
@@ -270,6 +296,7 @@ public class Swerve extends SubsystemBase {
                   .withTargetDirection(
                       sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
+                      // Feedforward to keep the swerve pointed at the target
                       (currentPoseToGoalAngle.getCos() * y + currentPoseToGoalAngle.getSin() * x)
                           / distanceToGoalMeters));
         })

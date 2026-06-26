@@ -46,6 +46,8 @@ public class SwerveIOSim extends SwerveIOReal {
   @SuppressWarnings("unchecked")
   public SwerveIOSim() {
     // Tuner constants need to be adjusted for simulation to avoid some MapleSim bugs
+    // This creates some very minor behavior differences, but whatever man. MapleSim is already a
+    // little video-gamey in how it works.
     super(
         adjustConstants(TunerConstants.FrontLeft),
         adjustConstants(TunerConstants.FrontRight),
@@ -78,6 +80,8 @@ public class SwerveIOSim extends SwerveIOReal {
             INIT_POSE);
     // Set up motor controller sims for each module
     for (int i = 0; i < 4; i++) {
+      // To avoid the lambda capturing the loop variable, we need to create an effectively final
+      // variable for the index
       int I = i;
       simulation.getModules()[i].useDriveMotorController(
           new SimulatedMotorController() {
@@ -120,9 +124,10 @@ public class SwerveIOSim extends SwerveIOReal {
             }
           });
     }
+    // Get the gyro sim
     pigeonSim = getPigeon2().getSimState();
     // The default friction value for MapleSim is unrealistically high.
-    // This needs tuning to the real robot.
+    // This needs tuning to the real robot. <- Lmao I never did this
     simulation.setLinearDamping(0.1);
     simulation.setAngularDamping(0.1);
 
@@ -133,6 +138,7 @@ public class SwerveIOSim extends SwerveIOReal {
     var simThread = new Notifier(this::update);
     simThread.startPeriodic(1.0 / SIM_FREQUENCY_HZ);
 
+    // Make the simulated pose available to the rest of the robot code
     Robot.groundTruthPoseSupplier = simulation::getSimulatedDriveTrainPose;
   }
 
