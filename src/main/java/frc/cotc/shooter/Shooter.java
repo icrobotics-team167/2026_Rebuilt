@@ -54,9 +54,7 @@ public class Shooter extends SubsystemBase {
   private final double minAngle = Units.degreesToRadians(55);
   private double targetPitchRad = minAngle;
 
-  /**
-   * Idles the flywheel at a base speed to conserve some momentum while consuming minimal power.
-   */
+  /** Idles the flywheel at a base speed to conserve some momentum while consuming minimal power. */
   public Command idleRun() {
     return run(
         () -> {
@@ -67,9 +65,7 @@ public class Shooter extends SubsystemBase {
         });
   }
 
-  /**
-   * Completely shuts off the flywheel for maximum power savings.
-   */
+  /** Completely shuts off the flywheel for maximum power savings. */
   @Override
   public Command idle() {
     return run(

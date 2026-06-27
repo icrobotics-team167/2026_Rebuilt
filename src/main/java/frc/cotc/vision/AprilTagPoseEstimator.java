@@ -38,11 +38,13 @@ public class AprilTagPoseEstimator {
 
   /**
    * Represents the characteristics of an AprilTag camera.
+   *
    * @param robotToCamera The position that the camera is relative to the robot.
    * @param cameraMatrix A 3x3 matrix that defines the camera intrinsics.
    * @param distortionCoefficients A 1x8 matrix that defines the camera distortion coefficients.
    * @param calibErrorPx The average error in pixels from the camera calibration process.
-   * @param errorStdDevPx The standard deviation of the error in pixels from the camera calibration process.
+   * @param errorStdDevPx The standard deviation of the error in pixels from the camera calibration
+   *     process.
    */
   protected record CameraCharacteristics(
       Transform3d robotToCamera,

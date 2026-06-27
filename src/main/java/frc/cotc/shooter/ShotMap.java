@@ -56,9 +56,7 @@ public class ShotMap extends InterpolatingTreeMap<Double, ShotMap.ShotResult> {
       @JsonProperty("pitchRad") double pitchRad,
       @JsonProperty("speedMetersPerSec") double speedMetersPerSec,
       @JsonProperty("timeOfFlightSeconds") double timeOfFlightSeconds) {
-    /**
-     * Lerp this ShotResult with another.
-     */
+    /** Lerp this ShotResult with another. */
     public ShotResult interpolate(ShotResult endValue, double t) {
       return new ShotResult(
           MathUtil.interpolate(pitchRad, endValue.pitchRad, t),

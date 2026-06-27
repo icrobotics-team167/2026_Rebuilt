@@ -23,8 +23,8 @@ import java.util.Optional;
  *
  * <p>This class is the component that replays the data from AdvantageKit.
  *
- * <p>Note: This class only replays pose estimation, it does not replay any other logic performed
- * by the Phoenix Swerve library such as controls. Phoenix Swerve does controls also in the
+ * <p>Note: This class only replays pose estimation, it does not replay any other logic performed by
+ * the Phoenix Swerve library such as controls. Phoenix Swerve does controls also in the
  * high-frequency thread, but overriding the timings of that for replay purposes is not possible
  * given the existing API.
  */

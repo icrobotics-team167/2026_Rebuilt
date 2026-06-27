@@ -20,12 +20,12 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Implementation for a real swerve drivetrain using Phoenix swerve.
  *
- * <p>This came about due to an idea that Ben Hall (CTRE Intern) had, where since Phoenix
- * Swerve's pose estimation just uses the WPILib pose estimator, and the Phoenis Swerve API
- * exposes the ability to get data from the internal odometry thread, it would be possible to log
- * the data and use it for AdvantageKit replay compatibility. This sidesteps the main problem of
- * using a black-box swerve library with AKit, where pose estimation is inside the black box and
- * therefore cannot be replayed.
+ * <p>This came about due to an idea that Ben Hall (CTRE Intern) had, where since Phoenix Swerve's
+ * pose estimation just uses the WPILib pose estimator, and the Phoenis Swerve API exposes the
+ * ability to get data from the internal odometry thread, it would be possible to log the data and
+ * use it for AdvantageKit replay compatibility. This sidesteps the main problem of using a
+ * black-box swerve library with AKit, where pose estimation is inside the black box and therefore
+ * cannot be replayed.
  *
  * <p>This class is the component that logs the data to AdvantageKit.
  */
@@ -82,7 +82,8 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
     Robot.canivoreSignals.addSignals(connectedSignals);
     Robot.canivoreSignals.addSignals(currentSignals);
     // Optimize CAN bus utilization
-    // The connected signals don't need to be updated very often, since they should always be connected, and if they aren't, it's a big deal.
+    // The connected signals don't need to be updated very often, since they should always be
+    // connected, and if they aren't, it's a big deal.
     BaseStatusSignal.setUpdateFrequencyForAll(10, connectedSignals);
     // Data rate for the current draws only need to be updated at the robot code's 50 hz
     BaseStatusSignal.setUpdateFrequencyForAll(50, currentSignals);

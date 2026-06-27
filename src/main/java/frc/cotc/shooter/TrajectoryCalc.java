@@ -23,9 +23,7 @@ public class TrajectoryCalc {
   private static final double ballDiameter = Units.inchesToMeters(5.91);
   private static final double ballMass = Units.lbsToKilograms(0.5);
 
-  /**
-   * d/dt x = f(x)
-   */
+  /** d/dt x = f(x) */
   private static Vector<N6> f(Vector<N6> x, Vector<N3> omega) {
     // Per https://en.wikipedia.org/wiki/Drag_(physics)#The_drag_equation:
     //   F_D(v) = ½ρv²C_D A
@@ -75,7 +73,9 @@ public class TrajectoryCalc {
 
   /**
    * Simulates a shot from the given initial pose and velocity, using a Runge-Kutta 4 integration
-   * @return an array of Pose3d representing the trajectory of the shot until it hits the ground or the hub
+   *
+   * @return an array of Pose3d representing the trajectory of the shot until it hits the ground or
+   *     the hub
    */
   public static Pose3d[] simulateShot(Translation3d initialPose, Translation3d initialVelocity) {
     // For a ball with full backspin, the direction of the rotational velocity vector is clockwise
