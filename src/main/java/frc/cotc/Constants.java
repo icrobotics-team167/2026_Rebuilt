@@ -19,10 +19,19 @@ public class Constants {
 
   public static final String MOTOR_DISCONNECT_ALERT_GROUP = "Motor Disconnects";
 
+  /**
+   * Offset from the edge of the frame to a swerve module's rotation axis.
+   */
   public static final double offsetMeters = Units.inchesToMeters(2.625);
   public static final double bumperThicknessMeters = Units.inchesToMeters(2.5);
+  /**
+   * Width of the track (distance between the wheels)
+   */
   public static final double trackWidthMeters =
       TunerConstants.kFrontLeftYPos.minus(TunerConstants.kFrontRightYPos).in(Meters);
+  /**
+   * Length of the track (distance between the wheels)
+   */
   public static final double trackLengthMeters =
       TunerConstants.kFrontLeftXPos.minus(TunerConstants.kBackLeftXPos).in(Meters);
   public static final double frameWidthMeters = trackWidthMeters + offsetMeters * 2;

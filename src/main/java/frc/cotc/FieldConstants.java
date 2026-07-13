@@ -17,7 +17,13 @@ import frc.cotc.vision.AprilTagPoseEstimator;
  * Contains information for location of field element and other useful reference points.
  *
  * <p>NOTE: All constants are defined relative to the field coordinate system, and from the
- * perspective of the blue alliance station.
+ * perspective of the blue alliance driver station. For example, <code>oppLeftBumpMiddle</code>
+ * would be the middle of the opposing alliance's left bump from the perspective of the blue
+ * alliance driver station.
+ *
+ * <p>AprilTags are used as the source of truth for the location of the field elements. The tags
+ * themselves can be assumed to be coplanar with the walls of those field elements, so the
+ * coordinates of those tags can be used as the reference points for the field elements.
  *
  * <p>By 6328 Mechanical Advantage.
  */
@@ -38,6 +44,9 @@ public class FieldConstants {
    */
   public static class LinesVertical {
     public static final double center = fieldLength / 2.0;
+    // Starting line is defined as the line that is collinear with the edge of the hub facing the
+    // driver station. For the blue alliance, this means it shares an X coordinate with the
+    // AprilTag that is on that face, #26.
     public static final double starting =
         AprilTagPoseEstimator.tagLayout.getTagPose(26).get().getX();
     public static final double allianceZone = starting;
@@ -80,6 +89,7 @@ public class FieldConstants {
   public static class Hub {
 
     // Dimensions
+    // See game manual
     public static final double width = Units.inchesToMeters(47.0);
     public static final double height =
         Units.inchesToMeters(72.0); // includes the catcher at the top
@@ -98,6 +108,7 @@ public class FieldConstants {
             fieldWidth / 2.0,
             innerHeight);
 
+    // Corners of the hub, from the perspective of the blue DS
     public static final Translation2d nearLeftCorner =
         new Translation2d(topCenterPoint.getX() - width / 2.0, fieldWidth / 2.0 + width / 2.0);
     public static final Translation2d nearRightCorner =
@@ -123,6 +134,7 @@ public class FieldConstants {
         new Translation2d(oppTopCenterPoint.getX() + width / 2.0, fieldWidth / 2.0 - width / 2.0);
 
     // Hub faces
+    // Defined using the positions of the AprilTags on each face
     public static final Pose2d nearFace =
         AprilTagPoseEstimator.tagLayout.getTagPose(26).get().toPose2d();
     public static final Pose2d farFace =

@@ -72,7 +72,9 @@ public class TrajectoryCalc {
   }
 
   /**
-   * Simulates a shot from the given initial pose and velocity, using a Runge-Kutta 4 integration
+   * Simulates a shot from the given initial pose and velocity, using a Runge-Kutta 4 integration.
+   *
+   * <p>Assumes a constant angular velocity for the ball.
    *
    * @return an array of Pose3d representing the trajectory of the shot until it hits the ground or
    *     the hub
@@ -104,6 +106,7 @@ public class TrajectoryCalc {
       }
       var blueHub = FieldConstants.Hub.topCenterPoint;
       // If it hit the blue hub, break
+      // Defined as hitting a cylinder at the hub's location
       if (Math.hypot(x.get(0) - blueHub.getX(), x.get(1) - blueHub.getY())
               < Units.inchesToMeters(47.0 / 2)
           && x.get(2) - blueHub.getZ() < 0) {

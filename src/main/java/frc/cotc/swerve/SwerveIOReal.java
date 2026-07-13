@@ -92,7 +92,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
 
   private void updateTelemetry(SwerveDriveState state) {
     try {
-      // Loctite™️
+      // Loctite™
       queueLock.lock();
       // Add the latest state to the queue
       // Clone the state so that we get a fresh instance that won't get touched by the odometry
@@ -108,7 +108,7 @@ public class SwerveIOReal extends TunerConstants.TunerSwerveDrivetrain implement
   public void updateInputs(SwerveIOInputs inputs) {
     final var stateQueue = this.stateQueue;
     try {
-      // Loctite™️
+      // Loctite™
       queueLock.lock();
       // Swap buffers so that the other buffer can be filled while we process this one
       this.stateQueue = tmpStateQueue;

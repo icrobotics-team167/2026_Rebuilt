@@ -48,13 +48,20 @@ public class Swerve extends SubsystemBase {
       new SwerveRequest.ApplyFieldSpeeds()
           .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
   // PID controllers for Choreo path following
+  // I never ended up tuning this lmao. Tuning the feedforwards and the paths themselves worked
+  // Well Enough™
   private final PIDController pathXController = new PIDController(10, 0, 0);
   private final PIDController pathYController = new PIDController(10, 0, 0);
   private final PIDController pathThetaController = new PIDController(7, 0, 0);
+  // PID controllers for automatic alignment to the bump
   // We never ended up using automatic bump align, since Edmund just got good at doing it manually.
   private final PIDController bumpAlignYController = new PIDController(10, 0, 1); // Placeholder
   private final PIDController bumpAlignThetaController = new PIDController(8, 0, 1); // Placeholder
 
+  // Alerts to warn of disconnects in the drivetrain.
+  // I probably should've bothered for the other subsystems too, but I was feeling lazy, and the
+  // drivetrain is the highest priority subsystem, and we've historically had wiring issues with
+  // the drivetrain. Saved our butts a few times this year.
   private final Alert[] deviceDisconnectAlerts = new Alert[12];
 
   // Dunno why this is package-protected and not private final.
@@ -65,6 +72,12 @@ public class Swerve extends SubsystemBase {
     this.io = io;
 
     this.cameras = cameras;
+    // HACK: Share one Consumer object across the multiple cameras to minimize objects in memory
+    // (We only got 512mb and most of it is taken up by the OS!)
+    // Actually, this is probably an imperfect solution, since we're still creating a new
+    // Consumer object. I could've saved more memory by passing measurements and visionPoses into
+    // the camera objects at the .update() method. But that's also ugly and also a tiny
+    // optimization compared to the bigger optimizations I could've done if the need arose.
     Consumer<VisionMeasurement> measurementConsumer =
         measurement -> {
           measurements.add(measurement);
@@ -74,7 +87,7 @@ public class Swerve extends SubsystemBase {
       camera.setEstimateConsumer(measurementConsumer);
     }
 
-    // capture initial state and set up odometry
+    // Capture initial state and set up odometry
     io.updateInputs(inputs);
     Logger.processInputs("Swerve", inputs);
     io.updateOdometry(inputs);
@@ -101,13 +114,19 @@ public class Swerve extends SubsystemBase {
     // Set up PID controller wrapping
     pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
     // Wrapping goes +π/2 to -π/2 so that 0 and ±π are considered the same
+    // This allows for the bump align controller to align to *either* 0 or 180 degrees, both of
+    // which are valid for alignment to the bump.
     bumpAlignThetaController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
   }
 
+  /** ArrayList to store processed vision measurements for logging. */
   private final ArrayList<Pose2d> visionPoses = new ArrayList<>();
 
+  /** Comparator to sort measurements by timestamp. */
   private final Comparator<VisionMeasurement> measurementComparator =
       Comparator.comparingDouble(VisionMeasurement::timestamp);
+
+  /** ArrayList to store vision measurements for processing. */
   private final ArrayList<VisionMeasurement> measurements = new ArrayList<>();
 
   @Override
@@ -144,6 +163,8 @@ public class Swerve extends SubsystemBase {
     visionPoses.clear();
 
     // Update disconnect alerts
+    // If the device disconnects, the alert will be set to true, and the alert will be displayed on
+    // the dashboard.
     for (int i = 0; i < 4; i++) {
       deviceDisconnectAlerts[i * 3].set(!inputs.driveMotorConnected[i]);
       deviceDisconnectAlerts[i * 3 + 1].set(!inputs.steerMotorConnected[i]);
@@ -175,10 +196,14 @@ public class Swerve extends SubsystemBase {
                       TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
   // Going full speed by default was too fast for Edmund, so we default to 80% speed
+  // Edmund also requested a slow mode for the drivetrain, so 33% is used when driving in slow mode.
   private final double slowModeMultiplier = 0.33;
   private final double baseSpeedMultiplier = 0.8;
   private double speedMultiplier = baseSpeedMultiplier;
 
+  // We use Commands.startEnd instead of this.startEnd because this.startEnd requires this
+  // subsystem, but we don't want this command to require this subsystem, because it would prevent
+  // other commands from using this subsystem.
   public Command slowTeleopDrive() {
     return Commands.startEnd(
         () -> speedMultiplier = slowModeMultiplier, () -> speedMultiplier = baseSpeedMultiplier);
@@ -194,6 +219,10 @@ public class Swerve extends SubsystemBase {
 
   public Command teleopDrive(Supplier<Translation2d> translationalInput, DoubleSupplier omega) {
     return run(() -> {
+          // If the robot is on red, the driver-relative inputs will be flipped compared to the
+          // absolute field-relative controls, since the field-relative controls are defined using
+          // the blue alliance. To fix this, we flip the controls 180 degrees. The most efficient
+          // way to do this is to just invert the vector.
           var translation =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
           var x = translation.getX();
@@ -206,7 +235,7 @@ public class Swerve extends SubsystemBase {
                       omega.getAsDouble()
                           * speedMultiplier
                           * maxAngularSpeedRadiansPerSecond
-                          * 0.5));
+                          * 0.5)); // HACK: Edmund found the default rotation speed too fast
         })
         .withName("Teleop Drive");
   }
@@ -218,6 +247,16 @@ public class Swerve extends SubsystemBase {
 
   private Rotation2d lastHeading = Rotation2d.kZero;
 
+  /**
+   * Mode to point the right stick to aim the direction instead of using the right stick to move it
+   * manually.
+   *
+   * <p>Edmund requested this to automate aiming, but the imprecision of aiming with a stick
+   * direction and bad sightlines in some parts of the field made this not worth. Maybe would've
+   * worked if we had a BattleBots Orbitron style overhead camera view to make it more like Hotline
+   * Miami, but driver station rules banned that after many teams did Shenanigans™ with smth similar
+   * in 2016.
+   */
   public Command faceAngle(
       Supplier<Translation2d> translationalInput, Supplier<Translation2d> headingInput) {
     return run(
@@ -227,9 +266,12 @@ public class Swerve extends SubsystemBase {
           var x = translation.getX();
           var y = translation.getY();
 
+          // Same thing as inverting the translational input on red.
           var headingControl =
               Robot.isOnRed() ? headingInput.get().unaryMinus() : headingInput.get();
           Rotation2d heading;
+          // If the control input is close to zero, just fall back to the last inputted heading
+          // to avoid precision/divide-by-zero errors.
           if (headingControl.getNorm() < 1e-3) {
             heading = lastHeading;
           } else {
@@ -260,6 +302,7 @@ public class Swerve extends SubsystemBase {
 
   public Command aimAtTarget(Supplier<Translation2d> translationalInput) {
     return run(() -> {
+          // Avoid a NPE
           if (sotmResult == null) return;
           var translational =
               Robot.isOnRed() ? translationalInput.get().unaryMinus() : translationalInput.get();
@@ -275,6 +318,7 @@ public class Swerve extends SubsystemBase {
 
           // Clamp velocity away from the goal to -0.25m/s to avoid running away from the target
           // too fast
+          // Can't shoot into the goal if we're outrunning our own projectile.
           var targetRelativeSpeed = translational.rotateBy(currentPoseToGoalAngle.unaryMinus());
           if (targetRelativeSpeed.getX() < -0.25) {
             translational = translational.times(-0.25 / targetRelativeSpeed.getX());
@@ -285,6 +329,8 @@ public class Swerve extends SubsystemBase {
               shootingAim
                   .withVelocityX(
                       x
+                          // Clamp max move speed to the max speed defined by the SOTM calculation
+                          // result.
                           * Math.min(
                               maxLinearSpeedMetersPerSecond,
                               sotmResult.maxMoveSpeedMetersPerSecond()))
@@ -297,18 +343,33 @@ public class Swerve extends SubsystemBase {
                       sotmResult.yaw().minus(Constants.robotToShooterTransform.getRotation()))
                   .withTargetRateFeedforward(
                       // Feedforward to keep the swerve pointed at the target
+                      // HACK: This feedforward uses the velocity needed to stay pointed at the
+                      // stationary real target, but in actuality we are aiming at the constantly
+                      // moving virtual target. It *seems* to be close enough that it's better than
+                      // no FF.
                       (currentPoseToGoalAngle.getCos() * y + currentPoseToGoalAngle.getSin() * x)
                           / distanceToGoalMeters));
         })
         .withName("Aim at target");
   }
 
+  /**
+   * Originally used to align to the trench, this command was repurposed to align to the bump. We
+   * never ended up using it though since we couldn't get it to feel right in the controls and
+   * Edmund got good at aligning manually anyways.
+   */
   public Command alignToBump(DoubleSupplier vx) {
     return teleopDrive(
         () -> {
+          // This code was written by Mert before I realized that FieldConstants had a defined
+          // y-coordinate for the trenches and bumps.
+          // The name is also inaccurate since we never renamed after we realized the first
+          // iteration of the robot don't fit under the trench.
           var bottomTrenchY = 2.5;
           var topTrenchY = FieldConstants.fieldWidth - bottomTrenchY;
           double targetY;
+          // If on the other side of the field, flip the target y-coordinate to go to the closer
+          // trench/bump.
           if (getPose().getY() > FieldConstants.fieldWidth / 2) {
             targetY = topTrenchY;
           } else {
@@ -337,6 +398,10 @@ public class Swerve extends SubsystemBase {
     return run(() -> io.setControl(brake)).withName("Brake");
   }
 
+  /**
+   * Unlike PathPlanner that does most of the path following logic itself, Choreo gives that task to
+   * the user. Gives more flexibility that way.
+   */
   public void followPath(SwerveSample sample) {
     var pose = getPose();
 
@@ -350,6 +415,7 @@ public class Swerve extends SubsystemBase {
     io.setControl(
         m_pathApplyFieldSpeeds
             .withSpeeds(targetSpeeds)
+            // Feedforwards for the torque outputs to the motors.
             .withWheelForceFeedforwardsX(sample.moduleForcesX())
             .withWheelForceFeedforwardsY(sample.moduleForcesY()));
   }
@@ -377,21 +443,37 @@ public class Swerve extends SubsystemBase {
     return io.getPose();
   }
 
+  /**
+   * Robot-relative velocity of the drivetrain.
+   */
   public ChassisSpeeds getRobotSpeeds() {
     return inputs.Speeds;
   }
 
+  /**
+   * Field-relative velocity of the drivetrain.
+   */
   public ChassisSpeeds getFieldSpeeds() {
     return ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, getPose().getRotation());
   }
 
+  /**
+   * Reset the current odometry position.
+   */
   public void resetPose(Pose2d pose) {
+    // Hrm. Why did I do this.
+    // I think it was because the vision sim reset (see below) wasn't correctly resetting, so I
+    // added a resetPose call above that, thinking the sim reset needed extra handling, but the
+    // root cause of the bug was that the vision system was being reset before the swerve sim was
+    // reset in the resetPose call at the bottom.
     if (io instanceof SwerveIOSim simImpl) {
       simImpl.resetPose(pose);
     }
+    // Reset the vision system sim's internal state
     if (Robot.mode == Robot.Mode.SIM) {
       AprilTagPoseEstimatorIOPhoton.resetSim();
     }
+    // Reset the pose estimator's pose.
     io.resetPose(pose);
   }
 
@@ -420,6 +502,12 @@ public class Swerve extends SubsystemBase {
 
   private final int samples = 5;
 
+  /**
+   * Was originally intended to detect if the future trajectory of the robot, assuming a
+   * straight-line constant-velocity trajectory, intersects the bump, and therefore we
+   * should automatically align to the bump. We never ended up using this since this was for the
+   * bump autoalign which we never ended up using.
+   */
   public boolean trajectoryWithinBump(Supplier<Translation2d> translationalInput) {
     Logger.recordOutput(
         "Swerve/Bumps/Alli Left",
@@ -441,6 +529,9 @@ public class Swerve extends SubsystemBase {
     var currentPose = getPose().getTranslation();
     var projectedPose = getProjectedPose(0.5, translationalInput);
 
+    // HACK: A proper collision check between an axis-aligned bounding box and a line segment was
+    // too much work, so we took the Mario 64 approach of doing the collision checks at discrete
+    // sample points.
     var projectedPoses = new ArrayList<Pose2d>();
     // check on 5 projected points
     for (int i = 0; i <= samples; i++) {

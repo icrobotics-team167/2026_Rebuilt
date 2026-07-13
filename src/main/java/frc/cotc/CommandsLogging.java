@@ -18,6 +18,13 @@ import org.littletonrobotics.junction.Logger;
  * visualization of what {@link Command}s are running at a time, and what {@link Subsystem}s those
  * commands require.
  *
+ * <p>The Alerts visualization in AdvantageScope gives us a nice flame-graph-like system for
+ * visualizing what alerts are active at any given time, but normally it would be a pain to make the
+ * alerts update dynamically.
+ *
+ * <p>Instead of using the API directly, we can spoof the NT4 fields to put whatever we want in the
+ * Alerts.
+ *
  * <p>Originally by Harry from 1683. Heavily modified to support things like distinguishing between
  * default/non-default commands and recursively logging subcommands.
  */
@@ -330,8 +337,10 @@ public class CommandsLogging {
       }
       addCommand(command, getCommandName(command), commandsList);
     }
+    // Currently running non-default commands are logged at the "warning" level (yellow in AScope)
     Logger.recordOutput(
         "CommandScheduler/Running/warnings", runningCommands.toArray(new String[0]));
+    // Default commands are logged at the "info" level (green in AScope)
     Logger.recordOutput(
         "CommandScheduler/Running/infos", runningDefaultCommands.toArray(new String[0]));
 
@@ -372,6 +381,8 @@ public class CommandsLogging {
       }
     }
 
+    // Currently running commands that interrupted other commands are logged at the "error" level
+    // (red in AScope)
     Logger.recordOutput("CommandScheduler/Running/errors", interrupters.toArray(new String[0]));
   }
 

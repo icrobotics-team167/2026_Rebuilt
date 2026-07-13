@@ -34,8 +34,11 @@ public class SOTM {
   private static final double DRAG_CONSTANT_INVERSE_SECONDS = 0.1;
 
   // Locations that the robot should shoot at for passing balls
+  // We define the blue bottom target explicitly based on field dimensions and define the rest by
+  // flipping the coordinates
   private static final Translation2d BLUE_BOTTOM_GROUND_TARGET =
       new Translation2d(
+          // 1m behind the starting line and halfway between the field wall and the hub
           FieldConstants.LinesVertical.starting - 1, FieldConstants.Hub.nearRightCorner.getY() / 2);
   private static final Translation2d BLUE_TOP_GROUND_TARGET =
       new Translation2d(
@@ -82,7 +85,7 @@ public class SOTM {
       Pose2d robotPose, ChassisSpeeds fieldChassisSpeeds, ShotTarget shotTarget) {
     // Calculate where the shooter is on the field
     var shooterTranslation = robotPose.plus(robotToShooterTransform).getTranslation();
-    // Rotate the robotToShooterTransform by the robot yaw
+    // Calculate the robot-to-shooter transform that has the rotation accounted for
     var robotCenterToShooter = shooterTranslation.minus(robotPose.getTranslation());
 
     // Get target location and delta pos from shooter to target
@@ -112,7 +115,7 @@ public class SOTM {
       // See articles linked above
       var a =
           (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
-              / DRAG_CONSTANT_INVERSE_SECONDS;
+              / DRAG_CONSTANT_INVERSE_SECONDS; // a = (1 - e^-kt) / k
       var virtualShooterPos =
           shooterTranslation.plus(
               new Translation2d(shooterVx * timeOfFlight * a, shooterVy * timeOfFlight * a));
