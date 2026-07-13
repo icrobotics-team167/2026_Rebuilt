@@ -443,23 +443,17 @@ public class Swerve extends SubsystemBase {
     return io.getPose();
   }
 
-  /**
-   * Robot-relative velocity of the drivetrain.
-   */
+  /** Robot-relative velocity of the drivetrain. */
   public ChassisSpeeds getRobotSpeeds() {
     return inputs.Speeds;
   }
 
-  /**
-   * Field-relative velocity of the drivetrain.
-   */
+  /** Field-relative velocity of the drivetrain. */
   public ChassisSpeeds getFieldSpeeds() {
     return ChassisSpeeds.fromRobotRelativeSpeeds(inputs.Speeds, getPose().getRotation());
   }
 
-  /**
-   * Reset the current odometry position.
-   */
+  /** Reset the current odometry position. */
   public void resetPose(Pose2d pose) {
     // Hrm. Why did I do this.
     // I think it was because the vision sim reset (see below) wasn't correctly resetting, so I
@@ -504,9 +498,9 @@ public class Swerve extends SubsystemBase {
 
   /**
    * Was originally intended to detect if the future trajectory of the robot, assuming a
-   * straight-line constant-velocity trajectory, intersects the bump, and therefore we
-   * should automatically align to the bump. We never ended up using this since this was for the
-   * bump autoalign which we never ended up using.
+   * straight-line constant-velocity trajectory, intersects the bump, and therefore we should
+   * automatically align to the bump. We never ended up using this since this was for the bump
+   * autoalign which we never ended up using.
    */
   public boolean trajectoryWithinBump(Supplier<Translation2d> translationalInput) {
     Logger.recordOutput(
