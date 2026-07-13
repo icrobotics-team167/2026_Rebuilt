@@ -165,8 +165,8 @@ public class Autos {
    * Reset* the currently selected auto back to the "do nothing" auto.
    *
    * <p>However, due to an oversight this doesn't actually work: since there's no way to affect the
-   * dashboard's selection from robot code, and therefore the next call of {@link #update()} will
-   * load the dashboard-selected auto again.
+   * dashboard's selection from robot code, the next call of {@link #update()} will load the
+   * dashboard-selected auto again.
    */
   public void clear() {
     selectedCommandName = NONE_NAME;

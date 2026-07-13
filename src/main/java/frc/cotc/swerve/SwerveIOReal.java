@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Implementation for a real swerve drivetrain using Phoenix swerve.
  *
  * <p>This came about due to an idea that Ben Hall (CTRE Intern) had, where since Phoenix Swerve's
- * pose estimation just uses the WPILib pose estimator, and the Phoenis Swerve API exposes the
+ * pose estimation just uses the WPILib pose estimator, and the Phoenix Swerve API exposes the
  * ability to get data from the internal odometry thread, it would be possible to log the data and
  * use it for AdvantageKit replay compatibility. This sidesteps the main problem of using a
  * black-box swerve library with AKit, where pose estimation is inside the black box and therefore
