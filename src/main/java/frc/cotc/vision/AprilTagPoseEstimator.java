@@ -41,7 +41,8 @@ public class AprilTagPoseEstimator {
    *
    * @param robotToCamera The position that the camera is relative to the robot.
    * @param cameraMatrix A 3x3 matrix that defines the camera intrinsics.
-   * @param distortionCoefficients A 1x8 matrix that defines the camera distortion coefficients.
+   * @param distortionCoefficients An 8-element vector that defines the camera distortion
+   *     coefficients.
    * @param calibErrorPx The average error in pixels from the camera calibration process.
    * @param errorStdDevPx The standard deviation of the error in pixels from the camera calibration
    *     process.
@@ -68,12 +69,12 @@ public class AprilTagPoseEstimator {
             MatBuilder.fill(
                 Nat.N3(),
                 Nat.N3(),
-                911.6805417738924,
+                911.6805417738924, // fx (focal length x)
                 0.0,
-                656.1304695468573,
+                656.1304695468573, // cx (principal point x)
                 0.0,
-                912.1546553469605,
-                444.98299255079814,
+                912.1546553469605, // fy (focal length y)
+                444.98299255079814, // cy (principal point y)
                 0.0,
                 0.0,
                 1.0),
@@ -230,6 +231,8 @@ public class AprilTagPoseEstimator {
     tagsSeen.clear();
 
     for (var result : inputs.results) {
+      // If only one tag is used, use the lowest ambiguity pose. Otherwise, grab multi-tag
+      // estimation data from the coprocessor.
       switch (result.targets.size()) {
         case 0 -> {} // This shouldn't happen, but just in case
         case 1 -> poseEstimator.estimateLowestAmbiguityPose(result).ifPresent(this::addMeasurement);
@@ -244,6 +247,7 @@ public class AprilTagPoseEstimator {
 
   private void addMeasurement(EstimatedRobotPose est) {
     var pose = est.estimatedPose;
+    // If outside the bounds of the field, reject
     if (pose.getX() < 0 || pose.getX() > FieldConstants.fieldLength) {
       rejectedPoses.add(pose);
       return;
@@ -252,15 +256,19 @@ public class AprilTagPoseEstimator {
       rejectedPoses.add(pose);
       return;
     }
+    // If sunk into the ground or up in the air, reject
     if (pose.getZ() < -0.2 || pose.getZ() > 0.3) {
       rejectedPoses.add(pose);
       return;
     }
+    // If the tilt is too large, reject
+    // The bump's slope is only about 15 degrees
     if (Math.hypot(pose.getRotation().getX(), pose.getRotation().getY())
         > Units.degreesToRadians(20)) {
       rejectedPoses.add(pose);
       return;
     }
+    // If the ambiguity of a single tag estimate is too high, reject
     if (est.strategy == LOWEST_AMBIGUITY && est.targetsUsed.get(0).poseAmbiguity > 0.2) {
       rejectedPoses.add(pose);
       return;
@@ -275,6 +283,8 @@ public class AprilTagPoseEstimator {
             est.timestampSeconds,
             switch (est.strategy) {
               case LOWEST_AMBIGUITY -> {
+                // Heuristic based on distance to the tag
+                // Farther away tags tend to be noiser due to less pixels the detector can work with
                 var tagDistance =
                     est.targetsUsed.get(0).getBestCameraToTarget().getTranslation().getNorm();
                 yield VecBuilder.fill(
@@ -283,6 +293,8 @@ public class AprilTagPoseEstimator {
                     0.1 * Math.pow(tagDistance, 2.5));
               }
               case MULTI_TAG_PNP_ON_COPROCESSOR -> {
+                // Heuristic based on average distance to the tags and the number of tags used
+                // Increasing the number of tags reduces noise
                 var avgTagDistance = 0.0;
                 for (var target : est.targetsUsed) {
                   avgTagDistance += target.getBestCameraToTarget().getTranslation().getNorm();
