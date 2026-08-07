@@ -20,13 +20,11 @@ import org.littletonrobotics.junction.Logger;
  * A class for calculating shoot on the move shots. This uses the formulation as described by Eli
  * "Oblarg" Barnett in the following articles:
  *
- * <p><a href="https://frc-docs--3242.org.readthedocs
- * .build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html">Newton's Method
- * for Dynamic Shooting</a>
+ * <p><a href="https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html">
+ *   Newton's Method for Dynamic Shooting</a>
  *
- * <p><a href="https://frc-docs--3242.org.readthedocs
- * .build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html">Linear Drag
- * (First-Order Air Friction)</a>
+ * <p><a href="https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html">
+ *   Linear Drag (First-Order Air Friction)</a>
  */
 public class SOTM {
   // Shooting on the move will induce drag on the projectile, so compensate for that
