@@ -20,11 +20,13 @@ import org.littletonrobotics.junction.Logger;
  * A class for calculating shoot on the move shots. This uses the formulation as described by Eli
  * "Oblarg" Barnett in the following articles:
  *
- * <p><a href="https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html">
- *   Newton's Method for Dynamic Shooting</a>
+ * <p><a
+ * href="https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/newton-shooting.html">
+ * Newton's Method for Dynamic Shooting</a>
  *
- * <p><a href="https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html">
- *   Linear Drag (First-Order Air Friction)</a>
+ * <p><a
+ * href="https://frc-docs--3242.org.readthedocs.build/en/3242/docs/software/advanced-controls/fire-control/linear-drag.html">
+ * Linear Drag (First-Order Air Friction)</a>
  */
 public class SOTM {
   // Shooting on the move will induce drag on the projectile, so compensate for that
@@ -99,6 +101,35 @@ public class SOTM {
 
     var map = shotTarget.map;
 
+    /*
+     * We look ahead to where the robot will be in the future via velocity * projectile time of
+     * flight, but this new look-ahead point will have a different distance, and therefore
+     * different time of flight, requiring a new look-ahead point.
+     *
+     * A Newton's Method iteration is used to find a look-ahead time that minimizes the change
+     * between the previous and current time of flight. A fixed number of iterations is used here,
+     * since this algorithm converges *very* quickly for shots that are physically possible.
+     *
+     * τ(n) = time of flight at iteration n
+     * E(τ) = error given time of flight τ
+     *
+     * τ(n+1) = τ(n) - E(τ(n)) / E'(τ(n))
+     *
+     * τ(D) = time of flight of a stationary shot at distance D (we use a lookup table for this)
+     * d(τ) = vector from robot to target given look-ahead time τ
+     * g = Goal (target) position
+     * r = Robot position
+     * v = Robot velocity
+     * k = Linear drag constant
+     *
+     * E(τ) = τ - τ(D(τ))
+     * d(τ) = g-r-va(τ)
+     * D(τ) = |d(τ)|
+     * a(τ) = (1-e^(-kτ))/k
+     *
+     * E'(τ) = 1 - τ'(D(τ)) * D'(τ)
+     * D'(τ) = d(τ) ⋅ (-va'(τ)) / D(τ) = -a'(τ) * (d_x * v_x + d_y + v_y) / D(τ)
+     */
     final int iterations = 5;
     var iterationsPoses = new Pose2d[iterations + 2];
     var iterationToFs = new double[iterations + 2];
@@ -110,10 +141,9 @@ public class SOTM {
     var timeOfFlight = initialGuess.timeOfFlightSeconds();
     iterationToFs[0] = timeOfFlight;
     for (int i = 1; i <= iterations; i++) {
-      // See articles linked above
       var a =
           (1 - Math.exp(-DRAG_CONSTANT_INVERSE_SECONDS * timeOfFlight))
-              / DRAG_CONSTANT_INVERSE_SECONDS; // a = (1 - e^-kt) / k
+              / DRAG_CONSTANT_INVERSE_SECONDS; // a = (1 - e^-kτ) / k
       var virtualShooterPos =
           shooterTranslation.plus(
               new Translation2d(shooterVx * timeOfFlight * a, shooterVy * timeOfFlight * a));
