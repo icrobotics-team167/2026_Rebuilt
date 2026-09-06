@@ -28,7 +28,7 @@ shooter_height = 18 * 0.0254  # m
 min_pitch = np.deg2rad(40)  # rad
 max_pitch = np.deg2rad(55)  # rad
 g = np.array([[0], [0], [9.81]])  # m/s²
-max_shooter_velocity = 14.5  # m/s
+max_shooter_speed = 14.5  # m/s
 ball_mass = 0.5 / 2.205  # kg
 ball_diameter = 5.91 * 0.0254  # m
 
@@ -36,11 +36,11 @@ ball_diameter = 5.91 * 0.0254  # m
 # Solve settings
 printResults = False
 
-
+# Linear interpolation
 def lerp(a, b, t):
     return a + t * (b - a)
 
-
+# Cross product of two 3d vectors
 def cross(u, v):
     return VariableMatrix(
         [
@@ -50,7 +50,19 @@ def cross(u, v):
         ]
     )
 
-
+# The state of the ball is represented by the x vector:
+#     [ x  ]
+#     [ y  ]
+# x = [ z  ]
+#     [ x' ]
+#     [ y' ]
+#     [ z' ]
+# And the ω vector:
+#     [ ω_x ]
+# ω = [ ω_y ]
+#     [ ω_z ]
+#
+# This function returns d/dt x for use in RK4 integration.
 def f(x, omega):
     # x' = x'
     # y' = y'
@@ -90,17 +102,14 @@ def f(x, omega):
 
 N = 40
 
-
+# Solves for a given target distance and height.
+# Can optionally be given an initial guess from a previous solve.
 def solve(
     distance,
     target_height,
     last_solve=None,
     trying_again=False,
 ):
-    """
-    Solve for minimum velocity.
-    :returns: A tuple of [True, velocity, pitch, yaw, X] if it succeeds at a solve, and a tuple of[False, 0] if it fails.
-    """
     # Robot initial state
     shooter_wrt_field = np.array(
         [
@@ -127,11 +136,14 @@ def solve(
     problem = Problem()
 
     # Set up duration decision variables
-    T = problem.decision_variable()
+    T = problem.decision_variable() # Total travel time
     problem.subject_to(T >= 0)
+    # Set up initial guess for total travel time
     if last_solve is None:
-        T.set_value(1)
+        # Crude initial guess of straight-line travel at max speed if previous solve is unavailable
+        T.set_value(math.hypot(distance, target_height - shooter_height) / max_shooter_speed)
     else:
+        # If previous solve is unavailable, use its travel time as initial guess
         T.set_value(last_solve[3])
     dt = T / N
 
@@ -143,6 +155,8 @@ def solve(
     # x = [x velocity]
     #     [y velocity]
     #     [z velocity]
+    # X is a matrix where each column is an x vector at some sample, allowing the matrix as a
+    # whole to represent a trajectory of many samples.
     X = problem.decision_variable(6, N)
 
     p = X[:3, :]
@@ -154,10 +168,15 @@ def solve(
     v0_wrt_shooter = X[3:, :1] - shooter_wrt_field[3:, :]
 
     # Shooter initial position
+    # Position of the first sample should equal the shooter's position
     problem.subject_to(p[:, :1] == shooter_wrt_field[:3, :])
 
+    # Angular speed
     omega_magnitude = sqrt((v0_wrt_shooter.T @ v0_wrt_shooter)[0, 0]) / ball_diameter
 
+    # Set direction of angular velocity based on direction of initial shot velocity
+    # Angular velocity vector is 90 degrees left of the initial shot velocity for a bottom roller
+    # top hood shooter
     omega = problem.decision_variable(3, 1)
     problem.subject_to(
         omega[0, 0]
@@ -170,12 +189,18 @@ def solve(
         * sin(atan2(v0_wrt_shooter[1, 0], v0_wrt_shooter[0, 0]) - math.pi / 2)
     )
     problem.subject_to(omega[2, 0] == 0)
+    # Initial guesses
     if last_solve is None:
-        omega[0, 0].set_value(-max_shooter_velocity / ball_diameter)
+        # Crude initial guess of max speed
+        omega[0, 0].set_value(-max_shooter_speed / ball_diameter)
     else:
+        # Use last solve's speed
         omega[0, 0].set_value(-last_solve[1] / ball_diameter)
 
     # Dynamics constraints - RK4 integration
+    # Runge-Kutta 4 integration creates much higher quality steps than a naive Euler integration,
+    # allowing for simulation stability and accuracy even at very large timesteps/very few sample
+    # counts.
     h = dt
     for k in range(N - 1):
         x_k = X[:, k]
@@ -185,6 +210,7 @@ def solve(
         k2 = f(x_k + h / 2 * k1, omega)
         k3 = f(x_k + h / 2 * k2, omega)
         k4 = f(x_k + h * k3, omega)
+        # Constrain each sample to follow the dynamics set out by the RK4 integration
         problem.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
     # Require final position is in center of target circle
@@ -193,13 +219,17 @@ def solve(
     # Require the final velocity is at least somewhat downwards by limiting horizontal velocity
     # and requiring negative vertical velocity
     if distance < 2.75:
+        # For shorter distances the horizontal velocity constraint was problematic, so skip that
+        # Pre-solving without the vertical velocity constraint then resolving with the constraint
+        # seemed to help too
         problem.solve()
         problem.subject_to(v_z[-1] < 0)
     else:
         problem.subject_to(v_z[-1] < -1.5)
         max_landing_pitch = np.rad2deg(-50)
         ratio = math.tan(max_landing_pitch)
-        # problem.subject_to(atan2(v_z[-1], hypot(v_x[-1], v_y[-1])) < np.deg2rad(-35))
+        # The solver is kinda bad at doing trig, so I pulled out the trig make it a simple
+        # comparison constraint
         problem.subject_to(v_z[-1] <= hypot(v_x[-1], v_y[-1]) * ratio)
 
     p_x = X[0, :]
@@ -208,34 +238,36 @@ def solve(
 
     v = X[3:, :]
 
-    # if last_solve is None:
-    # Position initial guess is linear interpolation between start and end position
-    for k in range(N):
-        p_x[k].set_value(
-            lerp(shooter_wrt_field[0, 0], target_wrt_field[0, 0], k / N)
-        )
-        p_y[k].set_value(
-            lerp(shooter_wrt_field[1, 0], target_wrt_field[1, 0], k / N)
-        )
-        p_z[k].set_value(
-            lerp(shooter_wrt_field[2, 0], target_wrt_field[2, 0], k / N)
-        )
+    if last_solve is None:
+        # Position initial guess is linear interpolation between start and end position
+        for k in range(N):
+            p_x[k].set_value(
+                lerp(shooter_wrt_field[0, 0], target_wrt_field[0, 0], k / N)
+            )
+            p_y[k].set_value(
+                lerp(shooter_wrt_field[1, 0], target_wrt_field[1, 0], k / N)
+            )
+            p_z[k].set_value(
+                lerp(shooter_wrt_field[2, 0], target_wrt_field[2, 0], k / N)
+            )
 
-    # Velocity initial guess is max initial velocity toward target
-    uvec_shooter_to_target = target_wrt_field[:3, :] - shooter_wrt_field[:3, :]
-    uvec_shooter_to_target /= norm(uvec_shooter_to_target)
-    for k in range(N):
-        v[:, k].set_value(
-            shooter_wrt_field[3:, :] + max_shooter_velocity * uvec_shooter_to_target
-        )
-    # else:
-    #     X.set_value(last_solve[4])
+        # Velocity initial guess is max initial velocity toward target
+        uvec_shooter_to_target = target_wrt_field[:3, :] - shooter_wrt_field[:3, :]
+        uvec_shooter_to_target /= norm(uvec_shooter_to_target)
+        for k in range(N):
+            v[:, k].set_value(
+                shooter_wrt_field[3:, :] + max_shooter_speed * uvec_shooter_to_target
+            )
+    else:
+        # Use previous solve's trajectory as initial guess
+        X.set_value(last_solve[4])
 
     #   √(v_x² + v_y² + v_z²) ≤ v
     #   v_x² + v_y² + v_z² ≤ v²
     #   vᵀv ≤ v²
     initial_velocity_squared = v0_wrt_shooter.T @ v0_wrt_shooter
 
+    # Constrain min and max pitch
     pitch = atan2(
         v0_wrt_shooter[2, 0], hypot(v0_wrt_shooter[0, 0], v0_wrt_shooter[1, 0])
     )
@@ -243,13 +275,13 @@ def solve(
     problem.subject_to(pitch >= min_pitch)
 
     # Require initial velocity is less than max shooter velocity
-    problem.subject_to(initial_velocity_squared <= max_shooter_velocity**2)
+    problem.subject_to(initial_velocity_squared <= max_shooter_speed ** 2)
     # Minimize initial velocity
     problem.minimize(initial_velocity_squared)
-    # problem.minimize(T)
-    # problem.maximize(pitch)
 
+    # Solve the problem given the constraints above
     status = problem.solve()
+    # If successful, return the solution
     if status == ExitStatus.SUCCESS:
         # Initial velocity vector with respect to shooter
         v0 = v0_wrt_shooter.value()
@@ -264,6 +296,8 @@ def solve(
             print(f"Time = {time:.03f} s")
 
         return True, velocity, pitch, time, X.value()
+    # If failing and we haven't tried again already, discard the previous solution and use fresh
+    # initial guesses
     if not trying_again:
         if printResults:
             print(f"Solve failed with status {status.name}, trying again")
@@ -283,6 +317,8 @@ def write(target_height, min_distance, max_distance, delta, name):
     while distance <= max_distance:
         result = solve(distance, target_height, last_solve)
         success = result[0]
+        # If successful, write the solution to the output file
+        # Otherwise, skip this distance
         if success:
             last_solve = result
             velocity, pitch, time, X = result[1:]
